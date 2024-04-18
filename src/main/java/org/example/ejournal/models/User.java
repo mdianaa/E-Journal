@@ -14,6 +14,7 @@ import org.example.ejournal.enums.RoleType;
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User extends BasicEntity {
