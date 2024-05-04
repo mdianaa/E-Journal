@@ -18,10 +18,6 @@ import java.util.Set;
 @Table(name = "students")
 public class Student extends User {
 
-    @Column(name = "personal_id", nullable = false)
-    @Size(min = 10, max = 10)
-    private String personalId;
-
     @Column(length = 50)
     private String address;
 
@@ -32,10 +28,15 @@ public class Student extends User {
     @ManyToOne
     private School school;
 
-    @OneToMany(mappedBy = "student", targetEntity = Grade.class)
+    @ManyToMany
+    private Set<Teacher> teachers;
+
+    @OneToMany(mappedBy = "student", targetEntity = Grade.class, fetch = FetchType.EAGER)
     private Set<Grade> grades;
 
-    @OneToMany(mappedBy = "student", targetEntity = Absence.class)
-    private List<Absence> absences;
+    @OneToMany(mappedBy = "student", targetEntity = Absence.class, fetch = FetchType.EAGER)
+    private Set<Absence> absences;
 
+    @ManyToOne
+    private Parent parent;
 }

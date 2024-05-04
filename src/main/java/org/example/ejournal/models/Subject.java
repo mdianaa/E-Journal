@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.ejournal.enums.SubjectType;
 
+import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -16,9 +18,16 @@ import org.example.ejournal.enums.SubjectType;
 public class Subject extends BasicEntity {
 
     @Enumerated(EnumType.STRING)
-    private SubjectType name;
+    private SubjectType subjectType;
 
-    @OneToOne(mappedBy = "subject", targetEntity = Teacher.class)
-    private Teacher teacher;
+    @ManyToMany(mappedBy = "subjects", targetEntity = Teacher.class, cascade = CascadeType.PERSIST)
+    private Set<Teacher> teachers;
 
+    @Override
+    public String toString() {
+        return "Subject{" +
+                "subjectType=" + subjectType +
+                ", teachers=" + teachers +
+                '}';
+    }
 }

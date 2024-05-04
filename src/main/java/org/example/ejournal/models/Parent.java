@@ -1,8 +1,6 @@
 package org.example.ejournal.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +16,17 @@ import java.util.Set;
 @Table(name = "parents")
 public class Parent extends User {
 
-    @OneToMany
+    @OneToMany(mappedBy = "parent", targetEntity = Student.class, fetch = FetchType.EAGER)
     private Set<Student> children;
+
+    @ManyToOne
+    private School school;
+
+    @Override
+    public String toString() {
+        return super.toString() + "Parent{" +
+                "children=" + children +
+                ", school=" + school +
+                '}';
+    }
 }

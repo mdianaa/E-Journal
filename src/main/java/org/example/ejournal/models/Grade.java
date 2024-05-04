@@ -16,13 +16,13 @@ import java.math.BigDecimal;
 @Table(name = "grades")
 public class Grade extends BasicEntity {
 
-    @Column(precision = 1, scale = 1, nullable = false)
+    @Column(precision = 3, scale = 2, nullable = false)
     private BigDecimal value;
 
-    @OneToOne
+    @ManyToOne
     private Subject subject;
 
-    @OneToOne
+    @ManyToOne
     private Teacher gradedByTeacher;
 
     @ManyToOne

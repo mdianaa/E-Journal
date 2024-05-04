@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.ejournal.enums.WeekDay;
 
+import java.util.List;
+
 /**
  * The type Absence.
  */
@@ -23,6 +25,9 @@ public class Absence extends BasicEntity {
 
     @ManyToOne
     private Subject subject;
+
+    @ManyToOne
+    private Teacher teacher;
 
     @ManyToOne
     private Student student;

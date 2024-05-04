@@ -16,18 +16,17 @@ import java.util.Set;
 @Table(name = "school_classes")
 public class SchoolClass extends BasicEntity {
 
-    @Column(length = 3, nullable = false, unique = true)
+    @Column(length = 3, nullable = false)
     private String className;
 
     @OneToOne
     @JoinColumn(name = "head_teacher_id")
     private Teacher headTeacher;
 
-    @OneToMany(mappedBy = "schoolClass", targetEntity = Student.class)
+    @OneToMany(mappedBy = "schoolClass", targetEntity = Student.class, fetch = FetchType.EAGER)
     private Set<Student> students;
 
-    // трябва ли да има връзка с училището?
-//    @ManyToOne
-//    private School school;
+    @ManyToOne
+    private School school;
 
 }

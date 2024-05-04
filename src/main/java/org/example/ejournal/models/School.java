@@ -22,12 +22,31 @@ public class School extends BasicEntity {
     @Column(length = 50, nullable = false)
     private String address;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Teacher> teachers;
 
     @OneToOne(mappedBy = "school", targetEntity = Headmaster.class)
     private Headmaster headmaster;
 
-    @OneToMany(mappedBy = "school", targetEntity = Student.class)
+    @OneToMany(mappedBy = "school", targetEntity = Student.class, fetch = FetchType.EAGER)
     private Set<Student> students;
+
+    @OneToMany(mappedBy = "school", targetEntity = Parent.class, fetch = FetchType.EAGER)
+    private Set<Parent> parents;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Subject> subjects;
+
+    @Override
+    public String toString() {
+        return "School{" +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", teachers=" + teachers +
+                ", headmaster=" + headmaster +
+                ", students=" + students +
+                ", parents=" + parents +
+                ", subjects=" + subjects +
+                '}';
+    }
 }

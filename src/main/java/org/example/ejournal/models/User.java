@@ -25,9 +25,16 @@ public abstract class User extends BasicEntity {
     @Column(name = "last_name", length = 30, nullable = false)
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
+    @Column(name = "phone_number", length = 15, nullable = false)
+    private String phoneNumber;
 
-    // log in - username и парола?
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
+    @Column(length = 30, nullable = false)
+    private String username;
+
+    @Column(length = 30, nullable = false)
+    private String password;
 
 }

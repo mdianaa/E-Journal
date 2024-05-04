@@ -18,20 +18,25 @@ import java.util.Set;
 @Table(name = "teachers")
 public class Teacher extends User {
 
-    @Column(name = "personal_id", nullable = false)
-    @Size(min = 10, max = 10)
-    private String personalId;
+    @Column(name = "is_head_teacher", nullable = false, columnDefinition = "boolean default false")
+    private boolean isHeadTeacher;
 
-    @Column(length = 50)
-    private String address;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Set<Subject> subjects;
 
-    @Enumerated
-    private SubjectType qualification; // един учител да има повече квалификации?
+    @ManyToOne
+    private School school;
 
-    @OneToOne
-    private Subject subject;  // един учител да преподава по различнипредмети?
+    @ManyToMany(mappedBy = "teachers", targetEntity = Student.class, fetch = FetchType.EAGER)
+    private Set<Student> students;
 
-    @ManyToMany(mappedBy = "teachers", targetEntity = School.class)
-    private Set<School> schools;
-
+    @Override
+    public String toString() {
+        return super.toString() + "Teacher{" +
+                "isHeadTeacher=" + isHeadTeacher +
+                ", subjects=" + subjects +
+                ", school=" + school +
+                ", students=" + students +
+                '}';
+    }
 }

@@ -1,12 +1,12 @@
 package org.example.ejournal.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +19,13 @@ public class Headmaster extends User {
     @OneToOne
     private School school;
 
-    // трябва ли да има връзка с учениците или училището трябва да има връзка с тях
+    @OneToMany(fetch = FetchType.EAGER)
+    private Set<Student> students;
+
+    @Override
+    public String toString() {
+        return super.toString() + "Headmaster{" +
+                "school=" + school +
+                '}';
+    }
 }
