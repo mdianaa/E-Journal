@@ -31,10 +31,6 @@ public abstract class User extends BasicEntity {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
-    @Column(length = 30, nullable = false)
-    private String username;
-
-    @Column(length = 30, nullable = false)
-    private String password;
-
+    @OneToOne
+    private UserAuthentication userAuthentication;
 }

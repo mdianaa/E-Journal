@@ -2,7 +2,7 @@ package org.example.ejournal.controllers;
 
 import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.enums.RoleType;
-import org.example.ejournal.services.UserService;
+import org.example.ejournal.services.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserAuthenticationService userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserAuthenticationService userService) {
         this.userService = userService;
     }
 

@@ -1,6 +1,10 @@
 package org.example.ejournal.config;
 
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.dtos.response.ParentDtoResponse;
+import org.example.ejournal.dtos.response.StudentDtoResponse;
+import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.enums.*;
 import org.example.ejournal.models.School;
 import org.example.ejournal.models.Subject;
@@ -84,44 +88,54 @@ public class ConsoleRunner implements CommandLineRunner {
         studentService.createStudent(studentDtoRequest2, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2);
         studentService.createStudent(studentDtoRequest3, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2);
 
-        ScheduleDtoRequest monday = new ScheduleDtoRequest(WeekDay.MONDAY, SemesterType.FIRST, ShiftType.FIRST);
-        ScheduleDtoRequest tuesday = new ScheduleDtoRequest(WeekDay.TUESDAY, SemesterType.FIRST, ShiftType.FIRST);
-        ScheduleDtoRequest wednesday = new ScheduleDtoRequest(WeekDay.WEDNESDAY, SemesterType.FIRST, ShiftType.FIRST);
-        ScheduleDtoRequest thursday = new ScheduleDtoRequest(WeekDay.THURSDAY, SemesterType.FIRST, ShiftType.FIRST);
-        ScheduleDtoRequest friday = new ScheduleDtoRequest(WeekDay.FRIDAY, SemesterType.FIRST, ShiftType.FIRST);
+        ScheduleDtoRequest monday = new ScheduleDtoRequest(WeekDay.MONDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
+        ScheduleDtoRequest tuesday = new ScheduleDtoRequest(WeekDay.TUESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SECOND);
+        ScheduleDtoRequest wednesday = new ScheduleDtoRequest(WeekDay.WEDNESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIFTH);
+        ScheduleDtoRequest thursday = new ScheduleDtoRequest(WeekDay.THURSDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
+        ScheduleDtoRequest friday = new ScheduleDtoRequest(WeekDay.FRIDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SIXTH);
 
-        //TODO: Map isn't represented in the DB...
-
-        Map<LocalDate, SubjectDtoRequest> scheduleSubjects = new HashMap<>();
-        scheduleSubjects.putIfAbsent(LocalDate.now(), english);
-        scheduleSubjects.putIfAbsent(LocalDate.of(2024, 5, 5), math);
-
-        scheduleService.createSchedule(monday, schoolClassDtoRequest, scheduleSubjects);
-        scheduleService.createSchedule(tuesday, schoolClassDtoRequest, scheduleSubjects);
-        scheduleService.createSchedule(wednesday, schoolClassDtoRequest, scheduleSubjects);
-        scheduleService.createSchedule(thursday, schoolClassDtoRequest, scheduleSubjects);
-        scheduleService.createSchedule(friday, schoolClassDtoRequest, scheduleSubjects);
+        scheduleService.createSchedule(monday, schoolClassDtoRequest, math);
+        scheduleService.createSchedule(tuesday, schoolClassDtoRequest, math);
+        scheduleService.createSchedule(wednesday, schoolClassDtoRequest, english);
+        scheduleService.createSchedule(thursday, schoolClassDtoRequest, english);
+        scheduleService.createSchedule(friday, schoolClassDtoRequest, english);
 
         AbsenceDtoRequest absenceDtoRequest = new AbsenceDtoRequest(WeekDay.MONDAY);
         absenceService.createAbsence(absenceDtoRequest, teacherDtoRequest1, studentDtoRequest1, english);
 
-        GradeDtoRequest gradeDtoRequest = new GradeDtoRequest(BigDecimal.valueOf(5));
-        gradeService.createGrade(gradeDtoRequest, teacherDtoRequest2, math, studentDtoRequest3);
+        GradeDtoRequest gradeDtoRequest1 = new GradeDtoRequest(BigDecimal.valueOf(5));
+        GradeDtoRequest gradeDtoRequest2 = new GradeDtoRequest(BigDecimal.valueOf(5));
+
+        gradeService.createGrade(gradeDtoRequest1, teacherDtoRequest2, math, studentDtoRequest1);
+        gradeService.createGrade(gradeDtoRequest2, teacherDtoRequest2, math, studentDtoRequest2);
 
         // visualize
 
 //        System.out.println(schoolService.viewSchoolInfo(1L));
-
-//        Set<Subject> subjectsToPrint = subjectService.showAllSubjectsInSchool(1L);
+//        Set<SubjectDtoResponse> subjectsToPrint = subjectService.viewAllSubjectsInSchool(1L);
 //        subjectsToPrint.forEach(System.out::println);
-
 //        System.out.println(headmasterService.viewHeadmaster(1L));
+//        Set<ParentDtoResponse> parentsToPrint = parentService.viewAllParentsInSchool(1L);
+//        parentsToPrint.forEach(System.out::println);
+//        System.out.println(scheduleService.viewScheduleForDay("monday", "11A", "first"));
+//        System.out.println(studentService.viewStudent(6L));
+//        Set<StudentDtoResponse> studentsToPrint = studentService.showAllStudentsInSchool(1L);
+//        studentsToPrint.forEach(System.out::println);
+//        studentService.showAllAbsencesForStudent(6L).forEach(System.out::println);
+//        studentService.showAllGradesForSubject(6L, math).forEach(System.out::println);
+//        System.out.println(teacherService.viewTeacher(2L));
+//        teacherService.viewAllTeachersInSchool(1L).forEach(System.out::println);
 
-//        teacherService.showAllTeachersInSchool(1L).forEach(System.out::println); //TODO: dto response to be created
+//        System.out.println(gradeService.viewGradeCountInSchoolClass(BigDecimal.valueOf(5), 1L));
+//        System.out.println(gradeService.viewGradeCountForSubject(BigDecimal.valueOf(5), 2L));
+//        System.out.println(gradeService.viewGradeCountForTeacher(BigDecimal.valueOf(5), 3L));
+//        System.out.println(gradeService.viewGradeCountInSchool(BigDecimal.valueOf(5), 1L));
 
-//        System.out.println(teacherService.viewTeacher(2L));  //TODO: dto response to be created
+//        System.out.println(gradeService.viewAverageGradeForSubject(1L, math.getSubjectType(), "11A"));
+//        System.out.println(gradeService.viewAverageGradeForTeacher(3L));
+//        System.out.println(gradeService.viewAverageGradeForSchool(1L));
+//        System.out.println(gradeService.viewAverageGradeForStudent(6L));
 
-//        parentService.viewAllParentsInSchool(1L).forEach(System.out::println);  //TODO: dto response to be created
 
         // edit
 
@@ -137,12 +151,13 @@ public class ConsoleRunner implements CommandLineRunner {
 //        studentService.withdrawStudent(6L);
 //        teacherService.deleteTeacher(2L);
 //        subjectService.deleteSubject(1L, 1L); //TODO: delete subject doesn't work properly
+//        scheduleService.deleteSchedule(1L);
 
-//        System.out.println("running");
 
-        // methods for registration work properly (only schedule doesn't)
+        // methods for registration work properly
+        // methods for visualization work properly
         // methods for upload/ edit
-        // methods for delete (only subject doesn't)
+        // methods for delete work properly (only subject doesn't)
 
     }
 }

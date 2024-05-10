@@ -4,19 +4,17 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.models.Grade;
-import org.example.ejournal.models.Student;
-import org.example.ejournal.models.Subject;
-import org.example.ejournal.models.Teacher;
-import org.example.ejournal.repositories.GradeRepository;
-import org.example.ejournal.repositories.StudentRepository;
-import org.example.ejournal.repositories.SubjectRepository;
-import org.example.ejournal.repositories.TeacherRepository;
+import org.example.ejournal.dtos.response.*;
+import org.example.ejournal.enums.SubjectType;
+import org.example.ejournal.models.*;
+import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.GradeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GradeServiceImpl implements GradeService {
@@ -25,13 +23,15 @@ public class GradeServiceImpl implements GradeService {
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
     private final StudentRepository studentRepository;
+    private final SchoolClassRepository schoolClassRepository;
     private final ModelMapper mapper;
 
-    public GradeServiceImpl(GradeRepository gradeRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, ModelMapper mapper) {
+    public GradeServiceImpl(GradeRepository gradeRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, SchoolClassRepository schoolClassRepository, ModelMapper mapper) {
         this.gradeRepository = gradeRepository;
         this.teacherRepository = teacherRepository;
         this.subjectRepository = subjectRepository;
         this.studentRepository = studentRepository;
+        this.schoolClassRepository = schoolClassRepository;
         this.mapper = mapper;
     }
 
@@ -44,21 +44,20 @@ public class GradeServiceImpl implements GradeService {
         Student student = studentRepository.findByFirstNameAndLastName(studentDto.getFirstName(), studentDto.getLastName()).get();
 
         // check if the teacher can grade this subject
-        Optional<Subject> subjectToBeFound = teacher.getSubjects().stream().filter(s -> s.getSubjectType().equals(subject.getSubjectType())).findFirst();
-        if (subjectToBeFound.isPresent()) {
+        if (canTeacherGradeSubject(teacher.getId(), subject.getSubjectType())) {
             grade.setGradedByTeacher(teacher);
-        } else {
-            throw new IllegalArgumentException();
+
+            grade.setSubject(subject);
+            grade.setStudent(student);
+
+            // persist grade to db
+            gradeRepository.save(grade);
+
+            // return dto
+            return gradeDto;
         }
 
-        grade.setSubject(subject);
-        grade.setStudent(student);
-
-        // persist grade to db
-        gradeRepository.save(grade);
-
-        // return dto
-        return gradeDto;
+       return null;
     }
 
     @Override
@@ -77,7 +76,58 @@ public class GradeServiceImpl implements GradeService {
             return gradeDto;
         }
 
-        // throw exception
         return null;
+    }
+
+    @Override
+    public BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber) {
+        return gradeRepository.findAverageGradeForSubject(schoolId, subject, classNumber);
+    }
+
+    @Override
+    public BigDecimal viewAverageGradeForTeacher(long teacherId) {
+        return gradeRepository.findAverageGradeForTeacher(teacherId);
+    }
+
+    @Override
+    public BigDecimal viewAverageGradeForStudent(long studentId) {
+        return gradeRepository.findAverageGradeForStudent(studentId);
+    }
+
+    @Override
+    public BigDecimal viewAverageGradeForSchool(long schoolId) {
+        return gradeRepository.findAverageGradeForSchool(schoolId);
+    }
+
+    @Override
+    public int viewGradeCountInSchoolClass(BigDecimal grade, long schoolClassId) {
+        SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId).get();
+
+        return gradeRepository.findCountOfGradeBySchoolClass(grade, schoolClass.getClassName());
+    }
+
+    @Override
+    public int viewGradeCountForSubject(BigDecimal grade, long subjectId) {
+        SubjectType subjectType = subjectRepository.findById(subjectId).get().getSubjectType();
+
+        return gradeRepository.findCountOfGradeBySubject(grade, subjectType);
+    }
+
+    @Override
+    public int viewGradeCountForTeacher(BigDecimal grade, long teacherId) {
+        return gradeRepository.findCountOfGradeByTeacher(grade, teacherId);
+    }
+
+    @Override
+    public int viewGradeCountInSchool(BigDecimal grade, long schoolId) {
+        return gradeRepository.findCountOfGradeBySchool(grade, schoolId);
+    }
+
+    private boolean canTeacherGradeSubject(long teacherId, SubjectType subjectType) {
+        Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
+
+        return teacherOptional.map(t -> t.getSubjects().stream()
+                        .anyMatch(s -> s.getSubjectType().equals(subjectType)))
+                .orElse(false);
     }
 }

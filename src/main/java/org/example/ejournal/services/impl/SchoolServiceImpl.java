@@ -1,7 +1,9 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.response.SchoolDtoResponse;
 import org.example.ejournal.models.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.ScheduleService;
@@ -48,26 +50,12 @@ public class SchoolServiceImpl implements SchoolService {
         return schoolDto;
     }
 
+    @Transactional
     @Override
-    public School viewSchoolInfo(long schoolId) {
-        return schoolRepository.findById(schoolId).get();
-    }
-
-    @Override
-    public Map<Subject, Grade> viewAverageGradePerSubject(long schoolId, long schoolClassId) {
+    public SchoolDtoResponse viewSchoolInfo(long schoolId) {
         School school = schoolRepository.findById(schoolId).get();
 
-        Set<Subject> subjects = new HashSet<>(school.getSubjects());
-        HashMap<Subject, Grade> gradesBySubject = new HashMap<>();
-
-
-
-        return null;
-    }
-
-    @Override
-    public Map<Teacher, Grade> viewAverageGradePerTeacher(long schoolId, long teacherId) {
-        return null;
+        return mapper.map(school, SchoolDtoResponse.class);
     }
 
     @Override
@@ -117,7 +105,5 @@ public class SchoolServiceImpl implements SchoolService {
 
             schoolRepository.delete(school);
         }
-
-        // throw exception
     }
 }

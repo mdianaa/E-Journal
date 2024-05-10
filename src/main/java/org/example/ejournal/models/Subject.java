@@ -20,14 +20,6 @@ public class Subject extends BasicEntity {
     @Enumerated(EnumType.STRING)
     private SubjectType subjectType;
 
-    @ManyToMany(mappedBy = "subjects", targetEntity = Teacher.class, cascade = CascadeType.PERSIST)
+    @ManyToMany(mappedBy = "subjects", targetEntity = Teacher.class, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<Teacher> teachers;
-
-    @Override
-    public String toString() {
-        return "Subject{" +
-                "subjectType=" + subjectType +
-                ", teachers=" + teachers +
-                '}';
-    }
 }

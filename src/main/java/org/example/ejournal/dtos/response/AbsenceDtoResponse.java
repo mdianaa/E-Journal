@@ -9,14 +9,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class SubjectDtoResponse {
+public class AbsenceDtoResponse {
+
+    private String day;
 
     private String subjectType;
 
+    private TeacherDtoResponse teacher;
+
     @Override
     public String toString() {
-        return "SubjectDtoResponse{" +
-                "subjectType='" + subjectType + '\'' +
+        return "AbsenceDtoResponse{" +
+                "day='" + day + '\'' +
+                ", subject='" + subjectType + '\'' +
+                ", teacher='" + teacher + '\'' +
                 '}';
     }
 }

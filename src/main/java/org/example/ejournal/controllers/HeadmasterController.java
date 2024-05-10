@@ -3,6 +3,7 @@ package org.example.ejournal.controllers;
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.models.Headmaster;
 import org.example.ejournal.services.HeadmasterService;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class HeadmasterController {
     }
 
     @GetMapping("/view/{headmasterId}")
-    public ResponseEntity<Headmaster> viewHeadmaster(@PathVariable long headmasterId) {
-        Headmaster headmaster = headmasterService.viewHeadmaster(headmasterId);
+    public ResponseEntity<HeadmasterDtoResponse> viewHeadmaster(@PathVariable long headmasterId) {
+        HeadmasterDtoResponse headmaster = headmasterService.viewHeadmaster(headmasterId);
         if (headmaster != null) {
             return ResponseEntity.ok(headmaster);
         } else {

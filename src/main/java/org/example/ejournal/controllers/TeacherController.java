@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.models.Teacher;
 import org.example.ejournal.services.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -63,8 +64,8 @@ public class TeacherController {
     }
 
     @GetMapping("/view/{teacherId}")
-    public ResponseEntity<Teacher> viewTeacher(@PathVariable long teacherId) {
-        Teacher teacher = teacherService.viewTeacher(teacherId);
+    public ResponseEntity<TeacherDtoResponse> viewTeacher(@PathVariable long teacherId) {
+        TeacherDtoResponse teacher = teacherService.viewTeacher(teacherId);
         if (teacher != null) {
             return ResponseEntity.ok(teacher);
         } else {
@@ -73,8 +74,8 @@ public class TeacherController {
     }
 
     @GetMapping("/viewAll/{schoolId}")
-    public ResponseEntity<Set<Teacher>> viewAllTeachersInSchool(@PathVariable long schoolId) {
-        Set<Teacher> teachers = teacherService.viewAllTeachersInSchool(schoolId);
+    public ResponseEntity<Set<TeacherDtoResponse>> viewAllTeachersInSchool(@PathVariable long schoolId) {
+        Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
         return ResponseEntity.ok(teachers);
     }
 

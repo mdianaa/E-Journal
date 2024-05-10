@@ -27,16 +27,6 @@ public class Teacher extends User {
     @ManyToOne
     private School school;
 
-    @ManyToMany(mappedBy = "teachers", targetEntity = Student.class, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Student> students;
-
-    @Override
-    public String toString() {
-        return super.toString() + "Teacher{" +
-                "isHeadTeacher=" + isHeadTeacher +
-                ", subjects=" + subjects +
-                ", school=" + school +
-                ", students=" + students +
-                '}';
-    }
 }

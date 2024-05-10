@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.enums.PeriodType;
 import org.example.ejournal.enums.SemesterType;
 import org.example.ejournal.enums.ShiftType;
 import org.example.ejournal.enums.WeekDay;
@@ -28,6 +29,10 @@ public class ScheduleDtoRequest {
     @NotNull(message = "Shift shouldn't be empty")
     @Enumerated(EnumType.STRING)
     private ShiftType shiftType;
+
+    @NotNull(message = "Period shouldn't be empty")
+    @Enumerated(EnumType.ORDINAL)
+    private PeriodType periodType;
 
     // тук да се подаде в конструктора списък от всички предмети? - как ще се задава програмата?
 }

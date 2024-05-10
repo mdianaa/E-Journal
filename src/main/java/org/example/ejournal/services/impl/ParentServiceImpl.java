@@ -1,7 +1,9 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.ParentDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.response.ParentDtoResponse;
 import org.example.ejournal.models.Parent;
 import org.example.ejournal.models.School;
 import org.example.ejournal.models.Student;
@@ -64,15 +66,22 @@ public class ParentServiceImpl implements ParentService {
             return parentDto;
         }
 
-        // throw exception
         return null;
     }
 
+    @Transactional
     @Override
-    public Set<Parent> viewAllParentsInSchool(long schoolId) {
+    public Set<ParentDtoResponse> viewAllParentsInSchool(long schoolId) {
         School school = schoolRepository.findById(schoolId).get();
 
-        return new HashSet<>(school.getParents());
+        Set<Parent> parents = school.getParents();
+        Set<ParentDtoResponse> parentsDto = new HashSet<>();
+
+        for (Parent parent : parents) {
+            parentsDto.add(mapper.map(parent, ParentDtoResponse.class));
+        }
+
+        return parentsDto;
     }
 
     @Override
@@ -92,7 +101,5 @@ public class ParentServiceImpl implements ParentService {
 
             parentRepository.delete(parent);
         }
-
-        // throw exception
     }
 }

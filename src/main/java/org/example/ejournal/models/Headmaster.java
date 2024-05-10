@@ -21,11 +21,4 @@ public class Headmaster extends User {
 
     @OneToMany(fetch = FetchType.EAGER)
     private Set<Student> students;
-
-    @Override
-    public String toString() {
-        return super.toString() + "Headmaster{" +
-                "school=" + school +
-                '}';
-    }
 }

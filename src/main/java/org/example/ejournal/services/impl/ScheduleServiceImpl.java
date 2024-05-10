@@ -3,6 +3,9 @@ package org.example.ejournal.services.impl;
 import org.example.ejournal.dtos.request.ScheduleDtoRequest;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
+import org.example.ejournal.dtos.response.ScheduleDtoResponse;
+import org.example.ejournal.enums.SemesterType;
+import org.example.ejournal.enums.WeekDay;
 import org.example.ejournal.models.Schedule;
 import org.example.ejournal.models.SchoolClass;
 import org.example.ejournal.models.Subject;
@@ -35,51 +38,46 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleDtoRequest createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, Map<LocalDate, SubjectDtoRequest> subjectDtos) {
-//        // check whether this schedule exists
-//
-//        // create schedule
-//        Schedule schedule = mapper.map(scheduleDto, Schedule.class);
-//        SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
-//
-//        // add subjects
-//        schedule.setSubjects();
-//
-//        for (Map.Entry<LocalDate, SubjectDtoRequest> subjectDto : subjectDtos.entrySet()) {
-//            Subject subject = subjectRepository.findBySubjectType(subjectDto.getValue().getSubjectType()).get();
-//            LocalDate time = subjectDto.getKey();
-//
-//            schedule.getSubjectsPerHours().putIfAbsent(time, subject);
-//        }
-//
-//        // set the current school class for the schedule
-//        schedule.setSchoolClass(schoolClass);
-//
-//        // persist to db
-//        scheduleRepository.save(schedule);
-//
-//        // return dto
-//        return scheduleDto;
+    public ScheduleDtoRequest createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
+        // check whether this schedule exists
 
-        return null;
+        // create schedule
+        Schedule schedule = mapper.map(scheduleDto, Schedule.class);
+        SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
+        Subject subject = subjectRepository.findBySubjectType(subjectDtoRequest.getSubjectType()).get();
+
+        // set subject
+        schedule.setSubject(subject);
+
+        // set the current school class for the schedule
+        schedule.setSchoolClass(schoolClass);
+
+        // persist to db
+        scheduleRepository.save(schedule);
+
+        // return dto
+        return scheduleDto;
     }
 
     @Override
-    public ScheduleDtoRequest visualizeSchedule(long scheduleIds) {
-        return null;
+    public ScheduleDtoResponse viewScheduleForDay(String day, String schoolClass, String semester) {
+        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
+        SchoolClass aClass = schoolClassRepository.findByClassName(schoolClass).get();
+        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
+
+        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, aClass, semesterType).get();
     }
+
 
     @Override
     public void deleteSchedule(long scheduleId) {
-//        if (scheduleRepository.findById(scheduleId).isPresent()) {
-//            Schedule schedule = scheduleRepository.findById(scheduleId).get();
-//
-//            schedule.setSubjectsPerHours(null);
-//            schedule.setSchoolClass(null);
-//
-//            scheduleRepository.delete(schedule);
-//        }
+        if (scheduleRepository.findById(scheduleId).isPresent()) {
+            Schedule schedule = scheduleRepository.findById(scheduleId).get();
 
-        // throw exception
+            schedule.setSubject(null);
+            schedule.setSchoolClass(null);
+
+            scheduleRepository.delete(schedule);
+        }
     }
 }

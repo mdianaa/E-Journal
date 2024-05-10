@@ -1,10 +1,14 @@
 package org.example.ejournal.services;
 
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.AbsenceDtoResponse;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.models.Absence;
 import org.example.ejournal.models.Grade;
 import org.example.ejournal.models.Student;
 
+import java.util.List;
 import java.util.Set;
 
 public interface StudentService {
@@ -13,11 +17,13 @@ public interface StudentService {
 
     StudentDtoRequest editStudent(long studentId, StudentDtoRequest studentDto);
 
-    Set<Grade> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto);
+    List<GradeDtoResponse> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto);
 
-    Set<Absence> showAllAbsencesForStudent(long studentId);
+    Set<AbsenceDtoResponse> showAllAbsencesForStudent(long studentId);
 
-    Set<Student> showAllStudentsInSchool(long schoolId);
+    StudentDtoResponse viewStudent(long studentId);
+
+    Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId);
 
     void withdrawStudent(long studentId);
 }

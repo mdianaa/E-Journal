@@ -21,12 +21,4 @@ public class Parent extends User {
 
     @ManyToOne
     private School school;
-
-    @Override
-    public String toString() {
-        return super.toString() + "Parent{" +
-                "children=" + children +
-                ", school=" + school +
-                '}';
-    }
 }

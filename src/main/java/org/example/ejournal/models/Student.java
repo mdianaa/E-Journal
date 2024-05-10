@@ -28,7 +28,7 @@ public class Student extends User {
     @ManyToOne
     private School school;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "students", targetEntity = Teacher.class, fetch = FetchType.EAGER)
     private Set<Teacher> teachers;
 
     @OneToMany(mappedBy = "student", targetEntity = Grade.class, fetch = FetchType.EAGER)

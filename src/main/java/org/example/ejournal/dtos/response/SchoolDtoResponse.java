@@ -17,11 +17,18 @@ import java.util.Set;
 @Setter
 public class SchoolDtoResponse {
 
-    private Set<Subject> allSubjects;
+    private String name;
 
-    private Set<Teacher> allTeachers;
+    private String address;
 
-    private Set<Student> allStudents;
+    private HeadmasterDtoResponse headmaster;
 
-    private Set<Parent> allParents;
+    @Override
+    public String toString() {
+        return "SchoolDtoResponse{" +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", headmaster='" + headmaster + '\'' +
+                '}';
+    }
 }

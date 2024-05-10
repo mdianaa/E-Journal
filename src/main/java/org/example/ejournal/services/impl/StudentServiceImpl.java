@@ -1,12 +1,17 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.AbsenceDtoResponse;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.models.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,40 +71,66 @@ public class StudentServiceImpl implements StudentService {
             return studentDto;
         }
 
-        // throw exception
         return null;
     }
 
     @Override
-    public Set<Grade> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto) {
+    public List<GradeDtoResponse> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto) {
         if (studentRepository.findById(studentId).isPresent()) {
             Student student = studentRepository.findById(studentId).get();
             Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
 
-            return student.getGrades().stream().filter(g -> g.getSubject().equals(subject)).collect(Collectors.toSet());
+            List<Grade> grades = student.getGrades().stream().filter(g -> g.getSubject().getSubjectType().equals(subject.getSubjectType())).toList();
+            List<GradeDtoResponse> gradesDto = new ArrayList<>();
+
+            for (Grade grade : grades) {
+                gradesDto.add(mapper.map(grade, GradeDtoResponse.class));
+            }
+
+            return gradesDto;
         }
 
-        // throw exception
         return null;
     }
 
     @Override
-    public Set<Absence> showAllAbsencesForStudent(long studentId) {
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(long studentId) {
         if (studentRepository.findById(studentId).isPresent()) {
             Student student = studentRepository.findById(studentId).get();
 
-            return new HashSet<>(student.getAbsences());
+            Set<Absence> absences = student.getAbsences();
+            Set<AbsenceDtoResponse> absencesDto = new HashSet<>();
+
+            for (Absence absence : absences) {
+                absencesDto.add(mapper.map(absence, AbsenceDtoResponse.class));
+            }
+
+            return absencesDto;
         }
 
-        // throw exception
         return null;
     }
 
     @Override
-    public Set<Student> showAllStudentsInSchool(long schoolId) {
+    public StudentDtoResponse viewStudent(long studentId) {
+        Student student = studentRepository.findById(studentId).get();
+
+        return mapper.map(student, StudentDtoResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId) {
         School school = schoolRepository.findById(schoolId).get();
 
-        return new HashSet<>(school.getStudents());
+        Set<Student> students = school.getStudents();
+        Set<StudentDtoResponse> studentsDto = new HashSet<>();
+
+        for (Student student : students) {
+            studentsDto.add(mapper.map(student, StudentDtoResponse.class));
+        }
+
+        return studentsDto;
     }
 
     @Override
@@ -119,7 +150,5 @@ public class StudentServiceImpl implements StudentService {
 
             studentRepository.delete(student);
         }
-
-        // throw exception
     }
 }

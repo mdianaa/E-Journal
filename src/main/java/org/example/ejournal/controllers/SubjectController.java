@@ -3,6 +3,7 @@ package org.example.ejournal.controllers;
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
+import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.models.Subject;
 import org.example.ejournal.services.SubjectService;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class SubjectController {
     }
 
     @GetMapping("/viewAll/{schoolId}")
-    public ResponseEntity<Set<Subject>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
-        Set<Subject> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
+    public ResponseEntity<Set<SubjectDtoResponse>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
+        Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
         return ResponseEntity.ok(subjects);
     }
 

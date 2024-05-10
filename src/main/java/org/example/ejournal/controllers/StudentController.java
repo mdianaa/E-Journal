@@ -1,12 +1,14 @@
 package org.example.ejournal.controllers;
 
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.models.Grade;
 import org.example.ejournal.services.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -54,7 +56,7 @@ public class StudentController {
     public ResponseEntity<?> showAllGradesForStudent(@PathVariable("studentId") long studentId,
                                                      @RequestBody SubjectDtoRequest subjectDto) {
         try {
-            Set<Grade> grades = studentService.showAllGradesForSubject(studentId, subjectDto);
+            List<GradeDtoResponse> grades = studentService.showAllGradesForSubject(studentId, subjectDto);
             return ResponseEntity.ok(grades);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching grades: " + e.getMessage());

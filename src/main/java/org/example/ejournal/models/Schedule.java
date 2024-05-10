@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.enums.PeriodType;
 import org.example.ejournal.enums.SemesterType;
 import org.example.ejournal.enums.ShiftType;
 import org.example.ejournal.enums.WeekDay;
@@ -32,17 +33,14 @@ public class Schedule extends BasicEntity {
     @Enumerated(EnumType.STRING)
     private ShiftType shiftType;
 
+    @Enumerated(EnumType.STRING)
+    private PeriodType periodType;
+
+    @ManyToOne
+    private Subject subject;
+
     @ManyToOne
     @JoinColumn(name = "school_class_id")
     private SchoolClass schoolClass;
-
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "schedule_subjects",
-            joinColumns = @JoinColumn(name = "schedule_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id")
-    )
-    private List<Subject> subjects;
-
 
 }

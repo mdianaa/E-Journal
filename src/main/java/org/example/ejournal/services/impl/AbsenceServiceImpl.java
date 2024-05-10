@@ -56,11 +56,6 @@ public class AbsenceServiceImpl implements AbsenceService {
         }
 
         absence.setStudent(student);
-
-//        if (absence.getSubject() == null) {
-//            absence.setSubject(new ArrayList<>());
-//        }
-
         absence.setSubject(subject);
 
         // persist to db
@@ -82,7 +77,5 @@ public class AbsenceServiceImpl implements AbsenceService {
 
             absenceRepository.delete(absence);
         }
-
-        // throw exception
     }
 }

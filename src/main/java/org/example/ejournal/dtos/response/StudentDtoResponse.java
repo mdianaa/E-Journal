@@ -15,7 +15,24 @@ import java.util.Set;
 @Setter
 public class StudentDtoResponse {  // това също да се използва за показване на информацията и на родителя и на преподавателя
 
-    private Set<Grade> grades;
+    private String firstName;
 
-    private Set<Absence> absences;
+    private String lastName;
+
+    private String className;
+
+    private Set<GradeDtoResponse> grades;
+
+    private Set<AbsenceDtoResponse> absences;
+
+    @Override
+    public String toString() {
+        return "StudentDtoResponse{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", className='" + className + '\'' +
+                ", grades=" + grades +
+                ", absences=" + absences +
+                '}';
+    }
 }

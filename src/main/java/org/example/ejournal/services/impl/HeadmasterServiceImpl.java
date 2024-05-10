@@ -2,6 +2,7 @@ package org.example.ejournal.services.impl;
 
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.models.Headmaster;
 import org.example.ejournal.models.School;
 import org.example.ejournal.repositories.HeadmasterRepository;
@@ -46,8 +47,10 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     }
 
     @Override
-    public Headmaster viewHeadmaster(long headmasterId) {
-        return headmasterRepository.findById(headmasterId).get();
+    public HeadmasterDtoResponse viewHeadmaster(long headmasterId) {
+        Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
+
+        return mapper.map(headmaster, HeadmasterDtoResponse.class);
     }
 
     @Override
@@ -65,7 +68,6 @@ public class HeadmasterServiceImpl implements HeadmasterService {
             return headmasterDto;
         }
 
-        // throw exception
         return null;
     }
 
@@ -78,7 +80,5 @@ public class HeadmasterServiceImpl implements HeadmasterService {
 
             headmasterRepository.delete(headmaster);
         }
-
-        // throw exception
     }
 }

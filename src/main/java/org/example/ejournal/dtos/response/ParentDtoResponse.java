@@ -11,23 +11,20 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TeacherDtoResponse {
+public class ParentDtoResponse {
 
     private String firstName;
 
     private String lastName;
 
-    private Set<SubjectDtoResponse> subjects;
-
-    private SchoolDtoResponse school;
+    private String phoneNumber;
 
     @Override
     public String toString() {
-        return "TeacherDtoResponse{" +
+        return "ParentDtoResponse{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", subjects=" + subjects +
-                ", school=" + school +
+                ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
 }

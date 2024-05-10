@@ -76,7 +76,6 @@ public class SchoolClassServiceImpl implements SchoolClassService {
             return mapper.map(schoolClass, SchoolClassDtoRequest.class);
         }
 
-        // throw exception
         return null;
     }
 
@@ -96,6 +95,5 @@ public class SchoolClassServiceImpl implements SchoolClassService {
 
             schoolClassRepository.delete(schoolClass);
         }
-        // throw exception
     }
 }

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.models.Absence;
 import org.example.ejournal.models.School;
 import org.example.ejournal.models.Subject;
@@ -72,7 +73,7 @@ public class TeacherServiceImpl implements TeacherService {
             // return dto
             return teacherDto;
         }
-        // throw exception
+
         return null;
     }
 
@@ -92,7 +93,6 @@ public class TeacherServiceImpl implements TeacherService {
             return mapper.map(teacher, TeacherDtoRequest.class);
         }
 
-        // throw exception
         return null;
     }
 
@@ -110,20 +110,28 @@ public class TeacherServiceImpl implements TeacherService {
             return mapper.map(teacher, TeacherDtoRequest.class);
         }
 
-        // throw exception
         return null;
     }
 
     @Override
-    public Teacher viewTeacher(long teacherId) {
-        return teacherRepository.findById(teacherId).get();
+    public TeacherDtoResponse viewTeacher(long teacherId) {
+        Teacher teacher = teacherRepository.findById(teacherId).get();
+
+        return mapper.map(teacher, TeacherDtoResponse.class);
     }
 
     @Override
-    public Set<Teacher> viewAllTeachersInSchool(long schoolId) {
+    public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
         School school = schoolRepository.findById(schoolId).get();
 
-        return new HashSet<>(school.getTeachers());
+        Set<Teacher> teachers = school.getTeachers();
+        Set<TeacherDtoResponse> teachersDto = new HashSet<>();
+
+        for (Teacher teacher : teachers) {
+            teachersDto.add(mapper.map(teacher, TeacherDtoResponse.class));
+        }
+
+        return teachersDto;
     }
 
     @Override
@@ -143,7 +151,5 @@ public class TeacherServiceImpl implements TeacherService {
 
             teacherRepository.delete(teacher);
         }
-
-        // throw exception
     }
 }
