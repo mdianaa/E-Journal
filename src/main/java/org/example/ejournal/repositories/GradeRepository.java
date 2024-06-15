@@ -1,16 +1,12 @@
 package org.example.ejournal.repositories;
 
 import org.example.ejournal.enums.SubjectType;
-import org.example.ejournal.models.Grade;
-import org.example.ejournal.models.SchoolClass;
-import org.example.ejournal.models.Subject;
-import org.example.ejournal.models.Teacher;
+import org.example.ejournal.entities.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long> {

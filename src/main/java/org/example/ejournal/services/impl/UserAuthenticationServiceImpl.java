@@ -1,10 +1,11 @@
 package org.example.ejournal.services.impl;
 
 import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import org.example.ejournal.entities.User;
 import org.example.ejournal.enums.RoleType;
-import org.example.ejournal.models.User;
-import org.example.ejournal.models.UserAuthentication;
+import org.example.ejournal.entities.UserAuthentication;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
+import org.example.ejournal.repositories.UserRepository;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -13,38 +14,40 @@ import org.springframework.stereotype.Service;
 public class UserAuthenticationServiceImpl implements UserAuthenticationService {
 
     private final UserAuthenticationRepository userAuthenticationRepository;
+    private final UserRepository userRepository;
     private final ModelMapper mapper;
 
-    public UserAuthenticationServiceImpl(UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
+    public UserAuthenticationServiceImpl(UserAuthenticationRepository userAuthenticationRepository, UserRepository userRepository, ModelMapper mapper) {
         this.userAuthenticationRepository = userAuthenticationRepository;
+        this.userRepository = userRepository;
         this.mapper = mapper;
     }
 
     @Override
     public UserRegisterDtoRequest changeUserRole(long userId, RoleType role) {
         if (userAuthenticationRepository.findById(userId).isPresent()) {
-//            User user = userAuthenticationRepository.findById(userId).get();
-//
-//            // set role
-//            user.setRole(role);
-//
-//            // persist to db
-//            userAuthenticationRepository.save(user);
+            UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).get();
 
-            // return dto
-//            mapper.map(user, UserRegisterDtoRequest.class);
+            // set role
+            User user = userAuthentication.getUser();
+            user.setRole(role);
+
+            // persist to db
+            userRepository.save(user);
         }
-
         return null;
     }
 
     @Override
     public void register(UserRegisterDtoRequest userDto) {
-//        if (userAuthenticationRepository.findByUsername(userDto.getUsername()).isEmpty()) {
-//            User user = mapper.map(userDto, User.class);
-//
-//            userAuthenticationRepository.save(user);
-//        }
+        if (userAuthenticationRepository.findByUsername(userDto.getUsername()).isEmpty()) {
+            User user = mapper.map(userDto, User.class);
+            UserAuthentication userAuthentication = mapper.map(userDto, UserAuthentication.class);
+
+            user.setUserAuthentication(userAuthentication);
+
+            userRepository.save(user);
+        }
     }
 
     @Override

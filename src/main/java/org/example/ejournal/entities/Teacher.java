@@ -1,12 +1,10 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.enums.SubjectType;
 
 import java.util.Set;
 

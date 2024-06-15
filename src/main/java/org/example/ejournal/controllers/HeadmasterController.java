@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
-import org.example.ejournal.models.Headmaster;
 import org.example.ejournal.services.HeadmasterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

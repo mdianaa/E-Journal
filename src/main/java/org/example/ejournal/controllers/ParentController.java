@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.ParentDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.ParentDtoResponse;
-import org.example.ejournal.models.Parent;
 import org.example.ejournal.services.ParentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

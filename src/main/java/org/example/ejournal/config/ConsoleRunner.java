@@ -1,19 +1,12 @@
 package org.example.ejournal.config;
 
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.GradeDtoResponse;
-import org.example.ejournal.dtos.response.ParentDtoResponse;
-import org.example.ejournal.dtos.response.StudentDtoResponse;
-import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.enums.*;
-import org.example.ejournal.models.School;
-import org.example.ejournal.models.Subject;
 import org.example.ejournal.services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component

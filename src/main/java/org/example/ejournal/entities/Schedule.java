@@ -1,4 +1,4 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 
 import jakarta.persistence.*;
@@ -11,18 +11,13 @@ import org.example.ejournal.enums.SemesterType;
 import org.example.ejournal.enums.ShiftType;
 import org.example.ejournal.enums.WeekDay;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @Table(name = "schedules")
-public class Schedule extends BasicEntity {
+public class Schedule extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private WeekDay day;

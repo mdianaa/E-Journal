@@ -1,4 +1,4 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "subjects")
-public class Subject extends BasicEntity {
+public class Subject extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private SubjectType subjectType;

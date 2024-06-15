@@ -1,4 +1,4 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import org.example.ejournal.enums.RoleType;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User extends BasicEntity {
+public abstract class User extends BaseEntity {
 
     @Column(name = "first_name", length = 30, nullable = false)
     private String firstName;

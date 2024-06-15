@@ -1,14 +1,13 @@
 package org.example.ejournal.services.impl;
 
-import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.AbsenceDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.models.Absence;
-import org.example.ejournal.models.Student;
-import org.example.ejournal.models.Subject;
-import org.example.ejournal.models.Teacher;
+import org.example.ejournal.entities.Absence;
+import org.example.ejournal.entities.Student;
+import org.example.ejournal.entities.Subject;
+import org.example.ejournal.entities.Teacher;
 import org.example.ejournal.repositories.AbsenceRepository;
 import org.example.ejournal.repositories.StudentRepository;
 import org.example.ejournal.repositories.SubjectRepository;
@@ -17,7 +16,6 @@ import org.example.ejournal.services.AbsenceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service

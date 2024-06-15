@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.models.Absence;
-import org.example.ejournal.models.Grade;
 
 import java.util.Set;
 

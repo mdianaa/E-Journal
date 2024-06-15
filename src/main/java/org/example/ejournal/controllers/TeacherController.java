@@ -5,7 +5,6 @@ import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
-import org.example.ejournal.models.Teacher;
 import org.example.ejournal.services.TeacherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

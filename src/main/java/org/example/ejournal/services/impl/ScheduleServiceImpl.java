@@ -6,21 +6,15 @@ import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.enums.SemesterType;
 import org.example.ejournal.enums.WeekDay;
-import org.example.ejournal.models.Schedule;
-import org.example.ejournal.models.SchoolClass;
-import org.example.ejournal.models.Subject;
+import org.example.ejournal.entities.Schedule;
+import org.example.ejournal.entities.SchoolClass;
+import org.example.ejournal.entities.Subject;
 import org.example.ejournal.repositories.ScheduleRepository;
 import org.example.ejournal.repositories.SchoolClassRepository;
 import org.example.ejournal.repositories.SubjectRepository;
 import org.example.ejournal.services.ScheduleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {

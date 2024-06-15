@@ -5,7 +5,7 @@ import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
-import org.example.ejournal.models.*;
+import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.modelmapper.ModelMapper;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {

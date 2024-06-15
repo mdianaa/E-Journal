@@ -4,7 +4,6 @@ import org.example.ejournal.dtos.request.AbsenceDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.models.Absence;
 
 public interface AbsenceService {
 

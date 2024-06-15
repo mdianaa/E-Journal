@@ -1,7 +1,6 @@
 package org.example.ejournal.repositories;
 
-import org.example.ejournal.models.User;
-import org.example.ejournal.models.UserAuthentication;
+import org.example.ejournal.entities.UserAuthentication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

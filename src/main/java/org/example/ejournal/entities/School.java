@@ -1,4 +1,4 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "schools")
-public class School extends BasicEntity {
+public class School extends BaseEntity {
 
     @Column(length = 20, nullable = false, unique = true)
     private String name;

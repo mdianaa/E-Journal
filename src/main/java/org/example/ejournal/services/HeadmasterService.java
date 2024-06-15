@@ -3,7 +3,6 @@ package org.example.ejournal.services;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
-import org.example.ejournal.models.Headmaster;
 
 public interface HeadmasterService {
 

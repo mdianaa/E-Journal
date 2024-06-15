@@ -4,9 +4,6 @@ import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
-import org.example.ejournal.models.Absence;
-import org.example.ejournal.models.Grade;
-import org.example.ejournal.models.Student;
 
 import java.util.List;
 import java.util.Set;

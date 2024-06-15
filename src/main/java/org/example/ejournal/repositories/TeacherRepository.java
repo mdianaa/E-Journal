@@ -1,13 +1,10 @@
 package org.example.ejournal.repositories;
 
-import org.example.ejournal.dtos.response.TeacherDtoResponse;
-import org.example.ejournal.models.School;
-import org.example.ejournal.models.Teacher;
+import org.example.ejournal.entities.School;
+import org.example.ejournal.entities.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 

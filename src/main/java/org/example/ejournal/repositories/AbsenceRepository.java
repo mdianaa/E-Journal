@@ -1,9 +1,9 @@
 package org.example.ejournal.repositories;
 
-import org.example.ejournal.models.Absence;
-import org.example.ejournal.models.Student;
-import org.example.ejournal.models.Subject;
-import org.example.ejournal.models.Teacher;
+import org.example.ejournal.entities.Absence;
+import org.example.ejournal.entities.Student;
+import org.example.ejournal.entities.Subject;
+import org.example.ejournal.entities.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -4,14 +4,9 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.enums.SubjectType;
-import org.example.ejournal.models.*;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public interface GradeService {
 

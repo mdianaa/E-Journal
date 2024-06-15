@@ -1,19 +1,15 @@
 package org.example.ejournal.services.impl;
 
 import jakarta.transaction.Transactional;
-import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.SchoolDtoResponse;
-import org.example.ejournal.models.*;
+import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
-import org.example.ejournal.services.ScheduleService;
 import org.example.ejournal.services.SchoolService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class SchoolServiceImpl implements SchoolService {

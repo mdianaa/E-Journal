@@ -4,9 +4,8 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.enums.SubjectType;
-import org.example.ejournal.models.*;
+import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.GradeService;
 import org.modelmapper.ModelMapper;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class GradeServiceImpl implements GradeService {

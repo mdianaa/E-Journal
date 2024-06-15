@@ -1,29 +1,31 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.enums.WeekDay;
 
-import java.math.BigDecimal;
-
-@NoArgsConstructor
+/**
+ * The type Absence.
+ */
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name = "grades")
-public class Grade extends BasicEntity {
+@Table(name = "absences")
+public class Absence extends BaseEntity {
 
-    @Column(precision = 3, scale = 2, nullable = false)
-    private BigDecimal value;
+    @Enumerated(EnumType.STRING)
+    private WeekDay day;
 
     @ManyToOne
     private Subject subject;
 
     @ManyToOne
-    private Teacher gradedByTeacher;
+    private Teacher teacher;
 
     @ManyToOne
     private Student student;

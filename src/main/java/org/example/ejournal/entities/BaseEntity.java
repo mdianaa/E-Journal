@@ -1,4 +1,4 @@
-package org.example.ejournal.models;
+package org.example.ejournal.entities;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,12 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The type Basic entity.
+ * The type Base entity.
  */
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class BasicEntity {
+public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

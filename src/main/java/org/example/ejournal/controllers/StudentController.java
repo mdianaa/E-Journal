@@ -2,14 +2,12 @@ package org.example.ejournal.controllers;
 
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
-import org.example.ejournal.models.Grade;
 import org.example.ejournal.services.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/students")

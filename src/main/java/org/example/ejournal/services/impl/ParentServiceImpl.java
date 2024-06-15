@@ -4,9 +4,9 @@ import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.ParentDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.ParentDtoResponse;
-import org.example.ejournal.models.Parent;
-import org.example.ejournal.models.School;
-import org.example.ejournal.models.Student;
+import org.example.ejournal.entities.Parent;
+import org.example.ejournal.entities.School;
+import org.example.ejournal.entities.Student;
 import org.example.ejournal.repositories.ParentRepository;
 import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.StudentRepository;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ParentServiceImpl implements ParentService {
