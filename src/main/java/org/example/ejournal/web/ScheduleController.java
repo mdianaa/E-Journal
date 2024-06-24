@@ -1,4 +1,4 @@
-package org.example.ejournal.controllers;
+package org.example.ejournal.web;
 
 import org.example.ejournal.dtos.request.ScheduleDtoRequest;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;

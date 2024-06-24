@@ -1,4 +1,4 @@
-package org.example.ejournal.controllers;
+package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
