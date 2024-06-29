@@ -22,7 +22,7 @@ public class Config {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // to match all patterns
-                        .allowedOrigins("http://localhost:8080")
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE"); // for these requests
             }
         };
