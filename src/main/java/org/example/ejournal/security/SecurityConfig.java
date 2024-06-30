@@ -31,10 +31,17 @@ public class SecurityConfig {
 //                        .requestMatchers("/").permitAll() // Allow access to the root URL and home without authentication
                         .requestMatchers("/auth/login").permitAll() // Allow access to login endpoint for all users
                         .requestMatchers("/auth/register", "/auth/role/**").hasRole("ADMIN") // Require "ADMIN" role to access registration and role change
-                        .requestMatchers("/absences/**").hasRole("TEACHER") // Only teachers can manage absences
-                        .requestMatchers("/grades/**").hasRole("TEACHER") // Only teachers can manage grades
-                        .requestMatchers("/headmasters/**").hasRole("ADMIN") // Only admins can manage headmasters
-                        .requestMatchers("/parents/**").hasRole("ADMIN") // Only admins can manage parents
+                        .requestMatchers("/absences/**").hasAnyRole("TEACHER", "ADMIN") // Only teachers can manage absences
+                        .requestMatchers("/grades/create").hasRole("TEACHER") // Only teachers can manage grades
+                        .requestMatchers("/grades/edit/").hasAnyRole("TEACHER", "ADMIN", "HEADMASTER")
+                        .requestMatchers("/headmasters/create").hasRole("ADMIN") // Only admins can manage headmasters
+                        .requestMatchers("/headmasters/edit").hasRole("ADMIN") // Only admins can manage headmasters
+                        .requestMatchers("/headmasters/delete/").hasRole("ADMIN") // Only admins can manage headmasters
+                        .requestMatchers("/headmasters/view/").hasAnyRole("TEACHER", "ADMIN", "HEADMASTER", "STUDENT", "PARENT")
+                        .requestMatchers("/parents/create").hasRole("ADMIN") // Only admins can manage parents
+                        .requestMatchers("/parents/edit").hasRole("ADMIN") // Only admins can manage parents
+                        .requestMatchers("/parents/delete").hasRole("ADMIN") // Only admins can manage parents
+                        .requestMatchers("/parents/viewAll/").hasAnyRole("ADMIN", "HEADMASTER", "TEACHER") // Only admins can manage parents
                         .requestMatchers("/schedules/**").hasRole("TEACHER") // Only teachers can manage schedules
                         .requestMatchers("/school-classes/**").hasRole("ADMIN") // Only admins can manage school classes
                         .requestMatchers("/schools/**").hasRole("ADMIN") // Only admins can manage schools

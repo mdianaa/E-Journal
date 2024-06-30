@@ -37,6 +37,7 @@ public class SubjectController {
     }
 
     @GetMapping("/viewAll/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<Set<SubjectDtoResponse>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
         Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
         return ResponseEntity.ok(subjects);

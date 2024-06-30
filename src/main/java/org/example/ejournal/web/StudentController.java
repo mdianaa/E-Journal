@@ -2,7 +2,9 @@ package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.services.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/students")
@@ -68,6 +71,7 @@ public class StudentController {
     }
 
     @GetMapping("/{studentId}/grades")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<?> showAllGradesForStudent(@PathVariable("studentId") long studentId,
                                                      @RequestBody SubjectDtoRequest subjectDto) {
         try {
@@ -77,5 +81,29 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching grades: " + e.getMessage());
         }
 
+    }
+
+    @GetMapping("/{studentId}/absences")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(@PathVariable long studentId) {
+        return studentService.showAllAbsencesForStudent(studentId);
+    }
+
+    @GetMapping("/{studentId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    public StudentDtoResponse viewStudent(@PathVariable long studentId) {
+        return studentService.viewStudent(studentId);
+    }
+
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
+    public Set<StudentDtoResponse> showAllStudentsInSchool(@PathVariable long schoolId) {
+        return studentService.showAllStudentsInSchool(schoolId);
+    }
+
+    @DeleteMapping("/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void withdrawStudent(@PathVariable long studentId) {
+        studentService.withdrawStudent(studentId);
     }
 }

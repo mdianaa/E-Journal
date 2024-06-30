@@ -3,6 +3,7 @@ package org.example.ejournal.services;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.dtos.response.ParentDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
 
 import java.util.List;

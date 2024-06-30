@@ -22,13 +22,13 @@ public class AbsenceController {
     }
 
     @GetMapping("/create")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public String showCreateAbsencePage() {
         return "create absence";
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<AbsenceDtoRequest> createAbsence(@RequestBody AbsenceDtoRequest absence,
                                                            @RequestBody TeacherDtoRequest teacherDto,
                                                            @RequestBody StudentDtoRequest studentDto,
@@ -38,7 +38,7 @@ public class AbsenceController {
     }
 
     @DeleteMapping("delete/{id}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<Void> deleteAbsence(@PathVariable long id) {
         absenceService.deleteAbsence(id);
         return ResponseEntity.noContent().build();

@@ -31,10 +31,10 @@ public class ParentController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ParentDtoRequest> createParent(@Valid @RequestBody ParentDtoRequest parentDto,
+    public ResponseEntity<ParentDtoResponse> createParent(@Valid @RequestBody ParentDtoRequest parentDto,
                                                          @Valid @RequestBody SchoolDtoRequest schoolDto,
                                                          @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
-        ParentDtoRequest createdParentDto = parentService.createParent(parentDto, schoolDto, userRegisterDtoRequest);
+        ParentDtoResponse createdParentDto = parentService.createParent(parentDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdParentDto, HttpStatus.CREATED);
     }
 
@@ -46,9 +46,9 @@ public class ParentController {
 
     @PutMapping("/edit/{parentId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ParentDtoRequest> editParent(@PathVariable long parentId,
+    public ResponseEntity<ParentDtoResponse> editParent(@PathVariable long parentId,
                                                        @Valid @RequestBody ParentDtoRequest parentDto) {
-        ParentDtoRequest editedParentDto = parentService.editParent(parentId, parentDto);
+        ParentDtoResponse editedParentDto = parentService.editParent(parentId, parentDto);
         if (editedParentDto != null) {
             return ResponseEntity.ok(editedParentDto);
         } else {
@@ -56,7 +56,14 @@ public class ParentController {
         }
     }
 
+    @GetMapping("/{parentId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    public ParentDtoResponse viewParent(@PathVariable long parentId) {
+        return parentService.viewParent(parentId);
+    }
+
     @GetMapping("/viewAll/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<Set<ParentDtoResponse>> viewAllParentsInSchool(@PathVariable long schoolId) {
         Set<ParentDtoResponse> parents = parentService.viewAllParentsInSchool(schoolId);
         return ResponseEntity.ok(parents);

@@ -37,6 +37,7 @@ public class HeadmasterController {
     }
 
     @GetMapping("/view/{headmasterId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'HEADMASTER')")
     public ResponseEntity<HeadmasterDtoResponse> viewHeadmaster(@PathVariable long headmasterId) {
         HeadmasterDtoResponse headmaster = headmasterService.viewHeadmaster(headmasterId);
         if (headmaster != null) {

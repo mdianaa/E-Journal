@@ -42,6 +42,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/{day}/{schoolClass}/{semester}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<ScheduleDtoResponse> viewScheduleForDay(@PathVariable String day,
                                                                   @PathVariable String schoolClass,
                                                                   @PathVariable String semester) {
@@ -56,7 +57,7 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{scheduleId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<Void> deleteSchedule(@PathVariable long scheduleId) {
         try {
             scheduleService.deleteSchedule(scheduleId);

@@ -9,9 +9,11 @@ import java.util.Set;
 
 public interface ParentService {
 
-    ParentDtoRequest createParent(ParentDtoRequest parentDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest);
+    ParentDtoResponse createParent(ParentDtoRequest parentDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest);
 
-    ParentDtoRequest editParent(long parentId, ParentDtoRequest parentDto);
+    ParentDtoResponse editParent(long parentId, ParentDtoRequest parentDto);
+
+    ParentDtoResponse viewParent(long parentId);
 
     Set<ParentDtoResponse> viewAllParentsInSchool(long schoolId);
 

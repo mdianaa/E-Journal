@@ -39,7 +39,7 @@ public class ParentServiceImpl implements ParentService {
     }
 
     @Override
-    public ParentDtoRequest createParent(ParentDtoRequest parentDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
+    public ParentDtoResponse createParent(ParentDtoRequest parentDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if parent already exist
 
         // register parent
@@ -57,11 +57,11 @@ public class ParentServiceImpl implements ParentService {
         parentRepository.save(parent);
 
         // return dto
-        return parentDto;
+        return mapper.map(parent, ParentDtoResponse.class);
     }
 
     @Override
-    public ParentDtoRequest editParent(long parentId, ParentDtoRequest parentDto) {
+    public ParentDtoResponse editParent(long parentId, ParentDtoRequest parentDto) {
         if (parentRepository.findById(parentId).isPresent()) {
             Parent parent = parentRepository.findById(parentId).get();
 
@@ -72,10 +72,16 @@ public class ParentServiceImpl implements ParentService {
             parentRepository.save(parent);
 
             // return dto
-            return parentDto;
+            return mapper.map(parent, ParentDtoResponse.class);
         }
 
         return null;
+    }
+
+    @Override
+    public ParentDtoResponse viewParent(long parentId) {
+        Parent parent = parentRepository.findById(parentId).get();
+        return mapper.map(parent, ParentDtoResponse.class);
     }
 
     @Transactional

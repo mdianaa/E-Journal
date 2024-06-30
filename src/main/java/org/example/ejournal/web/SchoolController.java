@@ -38,6 +38,7 @@ public class SchoolController {
     }
 
     @GetMapping("/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<SchoolDtoResponse> viewSchoolInfo(@PathVariable long schoolId) {
         try {
             SchoolDtoResponse schoolInfo = schoolService.viewSchoolInfo(schoolId);

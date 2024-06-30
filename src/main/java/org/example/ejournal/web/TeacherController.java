@@ -88,6 +88,7 @@ public class TeacherController {
     }
 
     @GetMapping("/view/{teacherId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<TeacherDtoResponse> viewTeacher(@PathVariable long teacherId) {
         TeacherDtoResponse teacher = teacherService.viewTeacher(teacherId);
         if (teacher != null) {
@@ -98,6 +99,7 @@ public class TeacherController {
     }
 
     @GetMapping("/viewAll/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<Set<TeacherDtoResponse>> viewAllTeachersInSchool(@PathVariable long schoolId) {
         Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
         return ResponseEntity.ok(teachers);
