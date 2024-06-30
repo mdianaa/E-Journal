@@ -3,6 +3,7 @@ package org.example.ejournal.web;
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.services.HeadmasterService;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,9 @@ public class HeadmasterController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HeadmasterDtoRequest> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
-                                                                 @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        HeadmasterDtoRequest createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto);
+                                                                 @Valid @RequestBody SchoolDtoRequest schoolDto,
+                                                                 @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+        HeadmasterDtoRequest createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdHeadmasterDto, HttpStatus.CREATED);
     }
 

@@ -16,7 +16,7 @@ import java.util.Set;
 @Table(name = "parents")
 public class Parent extends User {
 
-    @OneToMany(mappedBy = "parent", targetEntity = Student.class, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent", targetEntity = Student.class)
     private Set<Student> children;
 
     @ManyToOne

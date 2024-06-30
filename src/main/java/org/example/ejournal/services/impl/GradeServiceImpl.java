@@ -1,5 +1,6 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
@@ -34,6 +35,7 @@ public class GradeServiceImpl implements GradeService {
         this.mapper = mapper;
     }
 
+    @Transactional
     @Override
     public GradeDtoRequest createGrade(GradeDtoRequest gradeDto, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto) {
         // create grade

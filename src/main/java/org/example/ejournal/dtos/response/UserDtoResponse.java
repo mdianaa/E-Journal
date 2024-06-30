@@ -17,12 +17,4 @@ public class UserDtoResponse {
 
     private String roleType;
 
-    @Override
-    public String toString() {
-        return "UserDtoResponse{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", roleType=" + roleType +
-                '}';
-    }
 }

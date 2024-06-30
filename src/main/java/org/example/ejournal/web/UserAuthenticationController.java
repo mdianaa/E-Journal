@@ -1,7 +1,7 @@
 package org.example.ejournal.web;
 
 import org.example.ejournal.dtos.request.UserLoginDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import org.example.ejournal.dtos.request.AdminRegisterDtoRequest;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
@@ -42,7 +42,7 @@ public class UserAuthenticationController {
 
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDtoRequest request) {
+    public ResponseEntity<?> register(@RequestBody AdminRegisterDtoRequest request) {
         userAuthenticationService.register(request);
         return ResponseEntity.ok("Registration successful");
     }

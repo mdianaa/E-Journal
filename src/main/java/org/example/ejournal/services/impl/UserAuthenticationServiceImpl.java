@@ -1,6 +1,8 @@
 package org.example.ejournal.services.impl;
 
+import org.example.ejournal.dtos.request.AdminRegisterDtoRequest;
 import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import org.example.ejournal.dtos.response.UserDtoResponse;
 import org.example.ejournal.entities.User;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.entities.UserAuthentication;
@@ -24,7 +26,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     }
 
     @Override
-    public UserRegisterDtoRequest changeUserRole(long userId, RoleType role) {
+    public UserDtoResponse changeUserRole(long userId, RoleType role) {
         if (userAuthenticationRepository.findById(userId).isPresent()) {
             UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).get();
 
@@ -37,13 +39,14 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     }
 
     @Override
-    public void register(UserRegisterDtoRequest userDto) {
+    public void register(AdminRegisterDtoRequest userDto) {
         if (userAuthenticationRepository.findByUsername(userDto.getUsername()).isEmpty()) {
             User user = mapper.map(userDto, User.class);
             UserAuthentication userAuthentication = mapper.map(userDto, UserAuthentication.class);
 
             user.setUserAuthentication(userAuthentication);
 
+            userAuthenticationRepository.save(userAuthentication);
             userRepository.save(user);
         }
     }

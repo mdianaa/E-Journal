@@ -26,13 +26,13 @@ public class Student extends User {
     @ManyToOne
     private School school;
 
-    @ManyToMany(mappedBy = "students", targetEntity = Teacher.class, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "students", targetEntity = Teacher.class)
     private Set<Teacher> teachers;
 
-    @OneToMany(mappedBy = "student", targetEntity = Grade.class, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", targetEntity = Grade.class)
     private Set<Grade> grades;
 
-    @OneToMany(mappedBy = "student", targetEntity = Absence.class, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", targetEntity = Absence.class)
     private Set<Absence> absences;
 
     @ManyToOne

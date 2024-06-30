@@ -19,12 +19,12 @@ public class Teacher extends User {
     @Column(name = "is_head_teacher", nullable = false, columnDefinition = "boolean default false")
     private boolean isHeadTeacher;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     private Set<Subject> subjects;
 
     @ManyToOne
     private School school;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     private Set<Student> students;
 }

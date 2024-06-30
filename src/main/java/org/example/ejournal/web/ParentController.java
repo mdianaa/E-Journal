@@ -3,6 +3,7 @@ package org.example.ejournal.web;
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.ParentDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.ParentDtoResponse;
 import org.example.ejournal.services.ParentService;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,9 @@ public class ParentController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ParentDtoRequest> createParent(@Valid @RequestBody ParentDtoRequest parentDto,
-                                                         @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        ParentDtoRequest createdParentDto = parentService.createParent(parentDto, schoolDto);
+                                                         @Valid @RequestBody SchoolDtoRequest schoolDto,
+                                                         @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+        ParentDtoRequest createdParentDto = parentService.createParent(parentDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdParentDto, HttpStatus.CREATED);
     }
 

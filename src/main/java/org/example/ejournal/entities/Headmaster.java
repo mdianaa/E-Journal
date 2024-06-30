@@ -19,6 +19,6 @@ public class Headmaster extends User {
     @OneToOne
     private School school;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany()
     private Set<Student> students;
 }

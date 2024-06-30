@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface StudentService {
 
-    StudentDtoRequest createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto);
+    StudentDtoRequest createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest);
 
     StudentDtoRequest editStudent(long studentId, StudentDtoRequest studentDto);
 

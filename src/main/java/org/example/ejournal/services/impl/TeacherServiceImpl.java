@@ -4,15 +4,10 @@ import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
-import org.example.ejournal.entities.Absence;
-import org.example.ejournal.entities.School;
-import org.example.ejournal.entities.Subject;
-import org.example.ejournal.entities.Teacher;
-import org.example.ejournal.repositories.AbsenceRepository;
-import org.example.ejournal.repositories.SchoolRepository;
-import org.example.ejournal.repositories.SubjectRepository;
-import org.example.ejournal.repositories.TeacherRepository;
+import org.example.ejournal.entities.*;
+import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -29,19 +24,21 @@ public class TeacherServiceImpl implements TeacherService {
     private final SchoolRepository schoolRepository;
     private final SubjectRepository subjectRepository;
     private final AbsenceRepository absenceRepository;
+    private final UserAuthenticationRepository userAuthenticationRepository;
     private final ModelMapper mapper;
 
-    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, ModelMapper mapper) {
+    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
         this.teacherRepository = teacherRepository;
         this.schoolRepository = schoolRepository;
         this.subjectRepository = subjectRepository;
         this.absenceRepository = absenceRepository;
+        this.userAuthenticationRepository = userAuthenticationRepository;
         this.mapper = mapper;
     }
 
     @Transactional
     @Override
-    public TeacherDtoRequest createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos) {
+    public TeacherDtoRequest createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if this teacher exists already
 
         // register teacher
@@ -53,7 +50,12 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setSubjects(subjects);
         teacher.setSchool(school);
 
+        // map the user credentials
+        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
+        teacher.setUserAuthentication(userAuthentication);
+
         // persist to db
+        userAuthenticationRepository.save(userAuthentication);
         teacherRepository.save(teacher);
 
         // return dto

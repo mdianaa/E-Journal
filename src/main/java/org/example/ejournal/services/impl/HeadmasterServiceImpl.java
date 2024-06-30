@@ -2,11 +2,14 @@ package org.example.ejournal.services.impl;
 
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.entities.Headmaster;
 import org.example.ejournal.entities.School;
+import org.example.ejournal.entities.UserAuthentication;
 import org.example.ejournal.repositories.HeadmasterRepository;
 import org.example.ejournal.repositories.SchoolRepository;
+import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.HeadmasterService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -17,16 +20,18 @@ public class HeadmasterServiceImpl implements HeadmasterService {
 
     private final HeadmasterRepository headmasterRepository;
     private final SchoolRepository schoolRepository;
+    private final UserAuthenticationRepository userAuthenticationRepository;
     private final ModelMapper mapper;
 
-    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, ModelMapper mapper) {
+    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
         this.headmasterRepository = headmasterRepository;
         this.schoolRepository = schoolRepository;
+        this.userAuthenticationRepository = userAuthenticationRepository;
         this.mapper = mapper;
     }
 
     @Override
-    public HeadmasterDtoRequest createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto) {
+    public HeadmasterDtoRequest createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check whether the headmaster exists already
 
         // check whether the school has already a headmaster
@@ -39,7 +44,12 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         Headmaster headmaster = mapper.map(headmasterDto, Headmaster.class);
         headmaster.setSchool(school);
 
+        // map the user credentials
+        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
+        headmaster.setUserAuthentication(userAuthentication);
+
         // persist to db
+        userAuthenticationRepository.save(userAuthentication);
         headmasterRepository.save(headmaster);
 
         // return dto

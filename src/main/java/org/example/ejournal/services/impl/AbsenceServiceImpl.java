@@ -1,5 +1,6 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.AbsenceDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
@@ -35,6 +36,7 @@ public class AbsenceServiceImpl implements AbsenceService {
         this.mapper = mapper;
     }
 
+    @Transactional
     @Override
     public AbsenceDtoRequest createAbsence(AbsenceDtoRequest absenceDto, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto, SubjectDtoRequest subjectDto) {
         // check whether this absence already exists

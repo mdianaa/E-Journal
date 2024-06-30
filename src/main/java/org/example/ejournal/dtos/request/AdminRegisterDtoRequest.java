@@ -1,6 +1,5 @@
 package org.example.ejournal.dtos.request;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +13,7 @@ import org.example.ejournal.enums.RoleType;
 @NoArgsConstructor
 @Getter
 @Setter
-public class StudentDtoRequest {
+public class AdminRegisterDtoRequest {
 
     @NotNull(message = "First name shouldn't be empty")
     private String firstName;
@@ -22,9 +21,15 @@ public class StudentDtoRequest {
     @NotNull(message = "Last name shouldn't be empty")
     private String lastName;
 
-    @NotNull(message = "Address shouldn't be empty")
-    private String address;
-
-    @NotNull(message = "Phone number shouldn't be empty")
+    @NotNull(message = "Phone number name shouldn't be empty")
     private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
+    @NotNull(message = "Username cannot be empty")
+    private String username;
+
+    @NotNull(message = "Password cannot be empty")
+    private String password;
 }

@@ -28,8 +28,4 @@ public class TeacherDtoRequest {
 
     @NotNull(message = "Address shouldn't be empty")
     private String address;
-
-    @NotNull(message = "Please select the correct role")
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
 }

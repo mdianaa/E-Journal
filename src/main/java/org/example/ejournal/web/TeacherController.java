@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.services.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -33,8 +34,9 @@ public class TeacherController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TeacherDtoRequest> createTeacher(@Valid @RequestBody TeacherDtoRequest teacherDto,
                                                            @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                           @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos) {
-        TeacherDtoRequest createdTeacherDto = teacherService.createTeacher(teacherDto, schoolDto, subjectDtos);
+                                                           @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos,
+                                                           @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+        TeacherDtoRequest createdTeacherDto = teacherService.createTeacher(teacherDto, schoolDto, subjectDtos, userRegisterDtoRequest);
         return new ResponseEntity<>(createdTeacherDto, HttpStatus.CREATED);
     }
 

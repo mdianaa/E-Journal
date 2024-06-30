@@ -24,8 +24,4 @@ public class ParentDtoRequest {
 
     @NotNull(message = "Phone number shouldn't be empty")
     private String phoneNumber;
-
-    @NotNull(message = "Please select the correct role")
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
 }

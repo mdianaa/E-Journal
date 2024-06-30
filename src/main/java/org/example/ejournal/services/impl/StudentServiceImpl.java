@@ -25,20 +25,22 @@ public class StudentServiceImpl implements StudentService {
     private final SubjectRepository subjectRepository;
     private final ParentRepository parentRepository;
     private final AbsenceRepository absenceRepository;
+    private final UserAuthenticationRepository userAuthenticationRepository;
     private final ModelMapper mapper;
 
-    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, ModelMapper mapper) {
+    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
         this.studentRepository = studentRepository;
         this.schoolRepository = schoolRepository;
         this.schoolClassRepository = schoolClassRepository;
         this.subjectRepository = subjectRepository;
         this.parentRepository = parentRepository;
         this.absenceRepository = absenceRepository;
+        this.userAuthenticationRepository = userAuthenticationRepository;
         this.mapper = mapper;
     }
 
     @Override
-    public StudentDtoRequest createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto) {
+    public StudentDtoRequest createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if student exists already
 
         // register student
@@ -46,14 +48,18 @@ public class StudentServiceImpl implements StudentService {
         School school = schoolRepository.findByName(schoolDto.getName()).get();
         SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
 
-        // TODO: find by ID, not names
         Parent parent = parentRepository.findByFirstNameAndLastName(parentDto.getFirstName(), parentDto.getLastName()).get();
 
         student.setSchool(school);
         student.setSchoolClass(schoolClass);
         student.setParent(parent);
 
+        // map the user credentials
+        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
+        student.setUserAuthentication(userAuthentication);
+
         // persist to db
+        userAuthenticationRepository.save(userAuthentication);
         studentRepository.save(student);
 
         // return dto

@@ -1,5 +1,6 @@
 package org.example.ejournal.web;
 
+import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.services.StudentService;
@@ -31,7 +32,8 @@ public class StudentController {
     public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto,
                                            @RequestParam("schoolName") String schoolName,
                                            @RequestParam("className") String className,
-                                           @RequestBody ParentDtoRequest parentDto) {
+                                           @RequestBody ParentDtoRequest parentDto,
+                                           @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
         try {
             SchoolDtoRequest schoolDto = new SchoolDtoRequest();
             schoolDto.setName(schoolName);
@@ -39,7 +41,7 @@ public class StudentController {
             SchoolClassDtoRequest schoolClassDto = new SchoolClassDtoRequest();
             schoolClassDto.setClassName(className);
 
-            StudentDtoRequest createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto);
+            StudentDtoRequest createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
 
             return ResponseEntity.ok(createdStudent);
         } catch (Exception e) {
