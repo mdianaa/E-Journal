@@ -8,6 +8,7 @@ import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.services.AbsenceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,18 +21,27 @@ public class AbsenceController {
         this.absenceService = absenceService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<AbsenceDtoRequest> createAbsence(@Valid @RequestBody AbsenceDtoRequest absenceDto,
-                                                           @Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                           @Valid @RequestBody StudentDtoRequest studentDto,
-                                                           @Valid @RequestBody SubjectDtoRequest subjectDto) {
-        AbsenceDtoRequest createdAbsenceDto = absenceService.createAbsence(absenceDto, teacherDto, studentDto, subjectDto);
-        return new ResponseEntity<>(createdAbsenceDto, HttpStatus.CREATED);
+    @GetMapping("/create")
+    @PreAuthorize("hasRole('TEACHER')")
+    public String showCreateAbsencePage() {
+        return "create absence";
     }
 
-    @DeleteMapping("/delete/{absenceId}")
-    public ResponseEntity<Void> deleteAbsence(@PathVariable long absenceId) {
-        absenceService.deleteAbsence(absenceId);
+    @PostMapping("/create")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<AbsenceDtoRequest> createAbsence(@RequestBody AbsenceDtoRequest absence,
+                                                           @RequestBody TeacherDtoRequest teacherDto,
+                                                           @RequestBody StudentDtoRequest studentDto,
+                                                           @RequestBody SubjectDtoRequest subjectDto) {
+        AbsenceDtoRequest createdAbsence = absenceService.createAbsence(absence, teacherDto, studentDto, subjectDto);
+        return ResponseEntity.ok(createdAbsence);
+    }
+
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> deleteAbsence(@PathVariable long id) {
+        absenceService.deleteAbsence(id);
         return ResponseEntity.noContent().build();
     }
 }
+

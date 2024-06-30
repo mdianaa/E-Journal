@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.services.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,14 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    @GetMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showCreateStudentPage() {
+        return "create student";
+    }
+
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto,
                                            @RequestParam("schoolName") String schoolName,
                                            @RequestParam("className") String className,
@@ -39,7 +47,14 @@ public class StudentController {
         }
     }
 
-    @PutMapping("/{studentId}/edit")
+    @GetMapping("/edit")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showEditStudentPage() {
+        return "edit student";
+    }
+
+    @PutMapping("/edit/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> editStudent(@PathVariable("studentId") long studentId,
                                          @RequestBody StudentDtoRequest studentDto) {
         try {

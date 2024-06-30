@@ -29,11 +29,9 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
             UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).get();
 
             // set role
-            User user = userAuthentication.getUser();
-            user.setRole(role);
+            userAuthentication.setRole(role);
 
-            // persist to db
-            userRepository.save(user);
+            userAuthenticationRepository.save(userAuthentication);
         }
         return null;
     }

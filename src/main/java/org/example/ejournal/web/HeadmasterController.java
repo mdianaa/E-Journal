@@ -7,6 +7,7 @@ import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.services.HeadmasterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +20,14 @@ public class HeadmasterController {
         this.headmasterService = headmasterService;
     }
 
+    @GetMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showCreateHeadmasterPage() {
+        return "create headmaster";
+    }
+
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HeadmasterDtoRequest> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
                                                                  @Valid @RequestBody SchoolDtoRequest schoolDto) {
         HeadmasterDtoRequest createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto);
@@ -36,7 +44,14 @@ public class HeadmasterController {
         }
     }
 
+    @GetMapping("/edit")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String showEditHeadmasterPage() {
+        return "edit headmaster";
+    }
+
     @PutMapping("/edit/{headmasterId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HeadmasterDtoRequest> editHeadmaster(@PathVariable long headmasterId,
                                                                @Valid @RequestBody HeadmasterDtoRequest headmasterDto) {
         HeadmasterDtoRequest editedHeadmasterDto = headmasterService.editHeadmaster(headmasterId, headmasterDto);
@@ -48,6 +63,7 @@ public class HeadmasterController {
     }
 
     @DeleteMapping("/delete/{headmasterId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteHeadmaster(@PathVariable long headmasterId) {
         headmasterService.deleteHeadmaster(headmasterId);
         return ResponseEntity.noContent().build();

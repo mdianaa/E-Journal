@@ -37,4 +37,7 @@ public interface GradeService {
 
     // броя на оценките в дадено училище
     int viewGradeCountInSchool(BigDecimal grade, long schoolId);
+
+    // средна оценка на определен ученик за определен срок
+//    BigDecimal viewAverageGradeForSubjectPerSemester(long subjectId, String semester, long studentId);
 }

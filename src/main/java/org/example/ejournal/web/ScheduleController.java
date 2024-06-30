@@ -8,6 +8,7 @@ import org.example.ejournal.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +22,14 @@ public class ScheduleController {
         this.scheduleService = scheduleService;
     }
 
+    @GetMapping("/create")
+    @PreAuthorize("hasRole('TEACHER')")
+    public String showCreateSchedulePage() {
+        return "create schedule";
+    }
+
     @PostMapping("/create")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ScheduleDtoRequest> createSchedule(@RequestBody ScheduleDtoRequest scheduleDto,
                                                              @RequestBody SchoolClassDtoRequest schoolClassDto,
                                                              @RequestBody SubjectDtoRequest subjectDtoRequest) {
@@ -48,6 +56,7 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{scheduleId}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> deleteSchedule(@PathVariable long scheduleId) {
         try {
             scheduleService.deleteSchedule(scheduleId);

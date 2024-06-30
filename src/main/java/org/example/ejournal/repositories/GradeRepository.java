@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long> {
@@ -47,4 +48,5 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     @Query(value = "SELECT AVG(g.value) FROM Grade g " +
             "WHERE g.gradedByTeacher.school.id = :schoolId")
     BigDecimal findAverageGradeForSchool(long schoolId);
+
 }

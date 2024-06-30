@@ -28,9 +28,6 @@ public abstract class User extends BaseEntity {
     @Column(name = "phone_number", length = 15, nullable = false)
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType role;
-
     @OneToOne
     private UserAuthentication userAuthentication;
 }

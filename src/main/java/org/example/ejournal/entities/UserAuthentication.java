@@ -1,13 +1,11 @@
 package org.example.ejournal.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.enums.RoleType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,6 +20,9 @@ public class UserAuthentication extends BaseEntity {
 
     @Column(length = 30, nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @OneToOne(mappedBy = "userAuthentication", targetEntity = User.class)
     private User user;
