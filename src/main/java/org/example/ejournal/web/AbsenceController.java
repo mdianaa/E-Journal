@@ -24,25 +24,24 @@ public class AbsenceController {
 
     @GetMapping("/create")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-    public String showCreateAbsencePage() {
-        return "create absence";
+    public ResponseEntity<String> showCreateAbsencePage() {
+        return ResponseEntity.ok("create absence");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-    public ResponseEntity<AbsenceDtoResponse> createAbsence(@RequestBody AbsenceDtoRequest absence,
-                                                           @RequestBody TeacherDtoRequest teacherDto,
-                                                           @RequestBody StudentDtoRequest studentDto,
-                                                           @RequestBody SubjectDtoRequest subjectDto) {
+    public ResponseEntity<AbsenceDtoResponse> createAbsence(@Valid @RequestBody AbsenceDtoRequest absence,
+                                                            @Valid @RequestBody TeacherDtoRequest teacherDto,
+                                                            @Valid @RequestBody StudentDtoRequest studentDto,
+                                                            @Valid @RequestBody SubjectDtoRequest subjectDto) {
         AbsenceDtoResponse createdAbsence = absenceService.createAbsence(absence, teacherDto, studentDto, subjectDto);
-        return ResponseEntity.ok(createdAbsence);
+        return new ResponseEntity<>(createdAbsence, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     @PatchMapping("/{absenceId}/excuse")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<Void> excuseAbsence(@PathVariable long absenceId) {
         absenceService.excuseAbsence(absenceId);
         return ResponseEntity.noContent().build();
     }
 }
-

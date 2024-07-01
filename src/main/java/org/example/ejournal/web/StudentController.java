@@ -27,8 +27,8 @@ public class StudentController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateStudentPage() {
-        return "create student";
+    public ResponseEntity<String> showCreateStudentPage() {
+        return ResponseEntity.ok("create student");
     }
 
     @PostMapping("/create")
@@ -55,8 +55,8 @@ public class StudentController {
 
     @GetMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showEditStudentPage() {
-        return "edit student";
+    public ResponseEntity<String> showEditStudentPage() {
+        return ResponseEntity.ok("edit student");
     }
 
     @PutMapping("/edit/{studentId}")
@@ -81,17 +81,17 @@ public class StudentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching grades: " + e.getMessage());
         }
-
     }
 
     @GetMapping("/{studentId}/absences")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(@PathVariable long studentId) {
-        return studentService.showAllAbsencesForStudent(studentId);
+    public ResponseEntity<Set<AbsenceDtoResponse>> showAllAbsencesForStudent(@PathVariable long studentId) {
+        Set<AbsenceDtoResponse> absences = studentService.showAllAbsencesForStudent(studentId);
+        return ResponseEntity.ok(absences);
     }
 
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     @GetMapping("/{studentId}/bad-notes")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<List<BadNoteDtoResponse>> showAllBadNotesForStudent(@PathVariable long studentId) {
         List<BadNoteDtoResponse> badNotes = studentService.showAllBadNotesForStudent(studentId);
         return badNotes != null ? ResponseEntity.ok(badNotes) : ResponseEntity.notFound().build();
@@ -99,19 +99,22 @@ public class StudentController {
 
     @GetMapping("/{studentId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public StudentDtoResponse viewStudent(@PathVariable long studentId) {
-        return studentService.viewStudent(studentId);
+    public ResponseEntity<StudentDtoResponse> viewStudent(@PathVariable long studentId) {
+        StudentDtoResponse student = studentService.viewStudent(studentId);
+        return student != null ? ResponseEntity.ok(student) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/school/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public Set<StudentDtoResponse> showAllStudentsInSchool(@PathVariable long schoolId) {
-        return studentService.showAllStudentsInSchool(schoolId);
+    public ResponseEntity<Set<StudentDtoResponse>> showAllStudentsInSchool(@PathVariable long schoolId) {
+        Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
+        return ResponseEntity.ok(students);
     }
 
     @DeleteMapping("/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void withdrawStudent(@PathVariable long studentId) {
+    public ResponseEntity<Void> withdrawStudent(@PathVariable long studentId) {
         studentService.withdrawStudent(studentId);
+        return ResponseEntity.noContent().build();
     }
 }

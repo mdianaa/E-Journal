@@ -24,14 +24,14 @@ public class SubjectController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateSubjectPage() {
-        return "create subject";
+    public ResponseEntity<String> showCreateSubjectPage() {
+        return ResponseEntity.ok("create subject");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto,
-                                                           @Valid @RequestBody SchoolDtoRequest schoolDto) {
+                                                            @Valid @RequestBody SchoolDtoRequest schoolDto) {
         SubjectDtoResponse createdSubjectDto = subjectService.createSubject(subjectDto, schoolDto);
         return new ResponseEntity<>(createdSubjectDto, HttpStatus.CREATED);
     }

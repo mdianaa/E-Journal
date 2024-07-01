@@ -22,8 +22,8 @@ public class SchoolController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateSchoolPage() {
-        return "create school";
+    public ResponseEntity<String> showCreateSchoolPage() {
+        return ResponseEntity.ok("create school");
     }
 
     @PostMapping("/create")

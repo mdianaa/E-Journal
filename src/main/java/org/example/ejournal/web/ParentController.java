@@ -25,29 +25,29 @@ public class ParentController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateParentPage() {
-        return "create parent";
+    public ResponseEntity<String> showCreateParentPage() {
+        return ResponseEntity.ok("create parent");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ParentDtoResponse> createParent(@Valid @RequestBody ParentDtoRequest parentDto,
-                                                         @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                         @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+                                                          @Valid @RequestBody SchoolDtoRequest schoolDto,
+                                                          @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
         ParentDtoResponse createdParentDto = parentService.createParent(parentDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdParentDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showEditParentPage() {
-        return "edit parent";
+    public ResponseEntity<String> showEditParentPage() {
+        return ResponseEntity.ok("edit parent");
     }
 
     @PutMapping("/edit/{parentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ParentDtoResponse> editParent(@PathVariable long parentId,
-                                                       @Valid @RequestBody ParentDtoRequest parentDto) {
+                                                        @Valid @RequestBody ParentDtoRequest parentDto) {
         ParentDtoResponse editedParentDto = parentService.editParent(parentId, parentDto);
         if (editedParentDto != null) {
             return ResponseEntity.ok(editedParentDto);
@@ -58,8 +58,9 @@ public class ParentController {
 
     @GetMapping("/{parentId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ParentDtoResponse viewParent(@PathVariable long parentId) {
-        return parentService.viewParent(parentId);
+    public ResponseEntity<ParentDtoResponse> viewParent(@PathVariable long parentId) {
+        ParentDtoResponse parent = parentService.viewParent(parentId);
+        return parent != null ? ResponseEntity.ok(parent) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/viewAll/{schoolId}")

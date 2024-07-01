@@ -20,12 +20,12 @@ public class UserAuthenticationController {
     }
 
     @GetMapping("/login")
-    public String showLoginPage() {
-        return "login";
+    public ResponseEntity<String> showLoginPage() {
+        return ResponseEntity.ok("login");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDtoRequest request) {
+    public ResponseEntity<String> login(@RequestBody UserLoginDtoRequest request) {
         boolean isAuthenticated = userAuthenticationService.login(request.getUsername(), request.getPassword());
         if (isAuthenticated) {
             return ResponseEntity.ok("Login successful");
@@ -36,26 +36,26 @@ public class UserAuthenticationController {
 
     @GetMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showRegisterPage() {
-        return "register";
+    public ResponseEntity<String> showRegisterPage() {
+        return ResponseEntity.ok("register");
     }
 
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> register(@RequestBody AdminRegisterDtoRequest request) {
+    public ResponseEntity<String> register(@RequestBody AdminRegisterDtoRequest request) {
         userAuthenticationService.register(request);
         return ResponseEntity.ok("Registration successful");
     }
 
     @GetMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showChangeRolePage() {
-        return "change role";
+    public ResponseEntity<String> showChangeRolePage() {
+        return ResponseEntity.ok("change role");
     }
 
     @PostMapping("/role/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> changeUserRole(@PathVariable long userId, @RequestBody RoleType roleType) {
+    public ResponseEntity<String> changeUserRole(@PathVariable long userId, @RequestBody RoleType roleType) {
         userAuthenticationService.changeUserRole(userId, roleType);
         return ResponseEntity.ok("Role changed successfully");
     }

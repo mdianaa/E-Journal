@@ -26,30 +26,30 @@ public class TeacherController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateTeacherPage() {
-        return "create teacher";
+    public ResponseEntity<String> showCreateTeacherPage() {
+        return ResponseEntity.ok("create teacher");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TeacherDtoResponse> createTeacher(@Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                           @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                           @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos,
-                                                           @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+                                                            @Valid @RequestBody SchoolDtoRequest schoolDto,
+                                                            @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos,
+                                                            @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
         TeacherDtoResponse createdTeacherDto = teacherService.createTeacher(teacherDto, schoolDto, subjectDtos, userRegisterDtoRequest);
         return new ResponseEntity<>(createdTeacherDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showEditTeacherPage() {
-        return "edit teacher";
+    public ResponseEntity<String> showEditTeacherPage() {
+        return ResponseEntity.ok("edit teacher");
     }
 
     @PutMapping("/edit/{teacherId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TeacherDtoResponse> editTeacher(@PathVariable long teacherId,
-                                                         @Valid @RequestBody TeacherDtoRequest teacherDto) {
+                                                          @Valid @RequestBody TeacherDtoRequest teacherDto) {
         TeacherDtoResponse editedTeacherDto = teacherService.editTeacher(teacherId, teacherDto);
         if (editedTeacherDto != null) {
             return ResponseEntity.ok(editedTeacherDto);
@@ -60,14 +60,14 @@ public class TeacherController {
 
     @GetMapping("/changeSubjects")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showChangeSubjectsPage() {
-        return "change subjects";
+    public ResponseEntity<String> showChangeSubjectsPage() {
+        return ResponseEntity.ok("change subjects");
     }
 
     @PutMapping("/changeSubjects/{teacherId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TeacherDtoResponse> changeSubjects(@PathVariable long teacherId,
-                                                            @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos) {
+                                                             @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos) {
         TeacherDtoResponse updatedTeacherDto = teacherService.changeSubjects(teacherId, subjectDtos);
         if (updatedTeacherDto != null) {
             return ResponseEntity.ok(updatedTeacherDto);

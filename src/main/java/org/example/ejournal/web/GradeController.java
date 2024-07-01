@@ -27,16 +27,16 @@ public class GradeController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('TEACHER')")
-    public String showCreateGradePage() {
-        return "create grade";
+    public ResponseEntity<String> showCreateGradePage() {
+        return ResponseEntity.ok("create grade");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<GradeDtoResponse> createGrade(@Valid @RequestBody GradeDtoRequest gradeDto,
-                                                       @Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                       @Valid @RequestBody SubjectDtoRequest subjectDto,
-                                                       @Valid @RequestBody StudentDtoRequest studentDto) {
+                                                        @Valid @RequestBody TeacherDtoRequest teacherDto,
+                                                        @Valid @RequestBody SubjectDtoRequest subjectDto,
+                                                        @Valid @RequestBody StudentDtoRequest studentDto) {
         GradeDtoResponse createdGradeDto = gradeService.createGrade(gradeDto, teacherDto, subjectDto, studentDto);
         return new ResponseEntity<>(createdGradeDto, HttpStatus.CREATED);
     }
@@ -44,13 +44,9 @@ public class GradeController {
     @PutMapping("/edit/{gradeId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<GradeDtoResponse> editGrade(@PathVariable long gradeId,
-                                                     @Valid @RequestBody GradeDtoRequest gradeDto) {
+                                                      @Valid @RequestBody GradeDtoRequest gradeDto) {
         GradeDtoResponse editedGradeDto = gradeService.editGrade(gradeId, gradeDto);
-        if (editedGradeDto != null) {
-            return ResponseEntity.ok(editedGradeDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return editedGradeDto != null ? ResponseEntity.ok(editedGradeDto) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/average-for-school/{schoolId}")
@@ -62,7 +58,9 @@ public class GradeController {
 
     @GetMapping("/average-for-subject/{schoolId}/{subjectType}/{classNumber}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<BigDecimal> viewAverageGradeForSubject(@PathVariable long schoolId, @PathVariable SubjectType subjectType, @PathVariable String classNumber) {
+    public ResponseEntity<BigDecimal> viewAverageGradeForSubject(@PathVariable long schoolId,
+                                                                 @PathVariable SubjectType subjectType,
+                                                                 @PathVariable String classNumber) {
         BigDecimal averageGradeForSubject = gradeService.viewAverageGradeForSubject(schoolId, subjectType, classNumber);
         return new ResponseEntity<>(averageGradeForSubject, HttpStatus.OK);
     }
@@ -83,28 +81,32 @@ public class GradeController {
 
     @GetMapping("/grade-count-in-school-class/{grade}/{schoolClassId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Integer> viewGradeCountInSchoolClass(@PathVariable BigDecimal grade, @PathVariable long schoolClassId) {
+    public ResponseEntity<Integer> viewGradeCountInSchoolClass(@PathVariable BigDecimal grade,
+                                                               @PathVariable long schoolClassId) {
         int gradeCount = gradeService.viewGradeCountInSchoolClass(grade, schoolClassId);
         return new ResponseEntity<>(gradeCount, HttpStatus.OK);
     }
 
     @GetMapping("/grade-count-for-subject/{grade}/{subjectId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Integer> viewGradeCountForSubject(@PathVariable BigDecimal grade, @PathVariable long subjectId) {
+    public ResponseEntity<Integer> viewGradeCountForSubject(@PathVariable BigDecimal grade,
+                                                            @PathVariable long subjectId) {
         int gradeCount = gradeService.viewGradeCountForSubject(grade, subjectId);
         return new ResponseEntity<>(gradeCount, HttpStatus.OK);
     }
 
     @GetMapping("/grade-count-for-teacher/{grade}/{teacherId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Integer> viewGradeCountForTeacher(@PathVariable BigDecimal grade, @PathVariable long teacherId) {
+    public ResponseEntity<Integer> viewGradeCountForTeacher(@PathVariable BigDecimal grade,
+                                                            @PathVariable long teacherId) {
         int gradeCount = gradeService.viewGradeCountForTeacher(grade, teacherId);
         return new ResponseEntity<>(gradeCount, HttpStatus.OK);
     }
 
     @GetMapping("/grade-count-in-school/{grade}/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Integer> viewGradeCountInSchool(@PathVariable BigDecimal grade, @PathVariable long schoolId) {
+    public ResponseEntity<Integer> viewGradeCountInSchool(@PathVariable BigDecimal grade,
+                                                          @PathVariable long schoolId) {
         int gradeCount = gradeService.viewGradeCountInSchool(grade, schoolId);
         return new ResponseEntity<>(gradeCount, HttpStatus.OK);
     }

@@ -24,15 +24,15 @@ public class ScheduleController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('TEACHER')")
-    public String showCreateSchedulePage() {
-        return "create schedule";
+    public ResponseEntity<String> showCreateSchedulePage() {
+        return ResponseEntity.ok("create schedule");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ScheduleDtoResponse> createSchedule(@RequestBody ScheduleDtoRequest scheduleDto,
-                                                             @RequestBody SchoolClassDtoRequest schoolClassDto,
-                                                             @RequestBody SubjectDtoRequest subjectDtoRequest) {
+                                                              @RequestBody SchoolClassDtoRequest schoolClassDto,
+                                                              @RequestBody SubjectDtoRequest subjectDtoRequest) {
         try {
             ScheduleDtoResponse createdSchedule = scheduleService.createSchedule(scheduleDto, schoolClassDto, subjectDtoRequest);
             return new ResponseEntity<>(createdSchedule, HttpStatus.CREATED);

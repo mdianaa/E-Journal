@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.SchoolClassDtoResponse;
 import org.example.ejournal.services.SchoolClassService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,29 +23,29 @@ public class SchoolClassController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateSchoolClassPage() {
-        return "create school class";
+    public ResponseEntity<String> showCreateSchoolClassPage() {
+        return ResponseEntity.ok("create school class");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SchoolClassDtoRequest> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto,
-                                                             @Valid @RequestBody TeacherDtoRequest headTeacherDto,
-                                                             @Valid @RequestBody SchoolDtoRequest schoolDto) {
+                                                              @Valid @RequestBody TeacherDtoRequest headTeacherDto,
+                                                              @Valid @RequestBody SchoolDtoRequest schoolDto) {
         SchoolClassDtoRequest createdClassDto = schoolClassService.createClass(schoolClassDto, headTeacherDto, schoolDto);
         return new ResponseEntity<>(createdClassDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/changeHeadTeacher")
     @PreAuthorize("hasRole('ADMIN')")
-    public String changeHeadTeacherPage() {
-        return "change head teacher";
+    public ResponseEntity<String> changeHeadTeacherPage() {
+        return ResponseEntity.ok("change head teacher");
     }
 
     @PutMapping("/changeHeadTeacher/{classId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SchoolClassDtoRequest> changeHeadTeacher(@PathVariable long classId,
-                                                                   @Valid @RequestBody TeacherDtoRequest headTeacherDto) {
+                                                                    @Valid @RequestBody TeacherDtoRequest headTeacherDto) {
         SchoolClassDtoRequest changedClassDto = schoolClassService.changeHeadTeacher(classId, headTeacherDto);
         if (changedClassDto != null) {
             return ResponseEntity.ok(changedClassDto);

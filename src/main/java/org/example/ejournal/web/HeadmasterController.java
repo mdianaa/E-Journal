@@ -23,15 +23,15 @@ public class HeadmasterController {
 
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showCreateHeadmasterPage() {
-        return "create headmaster";
+    public ResponseEntity<String> showCreateHeadmasterPage() {
+        return ResponseEntity.ok("create headmaster");
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HeadmasterDtoResponse> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
-                                                                 @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                                 @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+                                                                  @Valid @RequestBody SchoolDtoRequest schoolDto,
+                                                                  @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
         HeadmasterDtoResponse createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdHeadmasterDto, HttpStatus.CREATED);
     }
@@ -40,29 +40,21 @@ public class HeadmasterController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'HEADMASTER')")
     public ResponseEntity<HeadmasterDtoResponse> viewHeadmaster(@PathVariable long headmasterId) {
         HeadmasterDtoResponse headmaster = headmasterService.viewHeadmaster(headmasterId);
-        if (headmaster != null) {
-            return ResponseEntity.ok(headmaster);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return headmaster != null ? ResponseEntity.ok(headmaster) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showEditHeadmasterPage() {
-        return "edit headmaster";
+    public ResponseEntity<String> showEditHeadmasterPage() {
+        return ResponseEntity.ok("edit headmaster");
     }
 
     @PutMapping("/edit/{headmasterId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HeadmasterDtoResponse> editHeadmaster(@PathVariable long headmasterId,
-                                                               @Valid @RequestBody HeadmasterDtoRequest headmasterDto) {
+                                                                @Valid @RequestBody HeadmasterDtoRequest headmasterDto) {
         HeadmasterDtoResponse editedHeadmasterDto = headmasterService.editHeadmaster(headmasterId, headmasterDto);
-        if (editedHeadmasterDto != null) {
-            return ResponseEntity.ok(editedHeadmasterDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return editedHeadmasterDto != null ? ResponseEntity.ok(editedHeadmasterDto) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/delete/{headmasterId}")
