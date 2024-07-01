@@ -3,6 +3,7 @@ package org.example.ejournal.web;
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
+import org.example.ejournal.dtos.response.BadNoteDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.services.StudentService;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/students")
 public class StudentController {
 
     private final StudentService studentService;
@@ -44,7 +45,7 @@ public class StudentController {
             SchoolClassDtoRequest schoolClassDto = new SchoolClassDtoRequest();
             schoolClassDto.setClassName(className);
 
-            StudentDtoRequest createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
+            StudentDtoResponse createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
 
             return ResponseEntity.ok(createdStudent);
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class StudentController {
     public ResponseEntity<?> editStudent(@PathVariable("studentId") long studentId,
                                          @RequestBody StudentDtoRequest studentDto) {
         try {
-            StudentDtoRequest editedStudent = studentService.editStudent(studentId, studentDto);
+            StudentDtoResponse editedStudent = studentService.editStudent(studentId, studentDto);
             return ResponseEntity.ok(editedStudent);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error editing student: " + e.getMessage());
@@ -87,6 +88,13 @@ public class StudentController {
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public Set<AbsenceDtoResponse> showAllAbsencesForStudent(@PathVariable long studentId) {
         return studentService.showAllAbsencesForStudent(studentId);
+    }
+
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    @GetMapping("/{studentId}/bad-notes")
+    public ResponseEntity<List<BadNoteDtoResponse>> showAllBadNotesForStudent(@PathVariable long studentId) {
+        List<BadNoteDtoResponse> badNotes = studentService.showAllBadNotesForStudent(studentId);
+        return badNotes != null ? ResponseEntity.ok(badNotes) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{studentId}")

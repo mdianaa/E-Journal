@@ -18,7 +18,7 @@ public class UserAuthentication extends BaseEntity {
     @Column(length = 30, nullable = false, unique = true)
     private String username;
 
-    @Column(length = 30, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

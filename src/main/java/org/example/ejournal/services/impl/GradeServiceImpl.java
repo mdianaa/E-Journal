@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
@@ -37,7 +38,7 @@ public class GradeServiceImpl implements GradeService {
 
     @Transactional
     @Override
-    public GradeDtoRequest createGrade(GradeDtoRequest gradeDto, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto) {
+    public GradeDtoResponse createGrade(GradeDtoRequest gradeDto, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto) {
         // create grade
         Grade grade = mapper.map(gradeDto, Grade.class);
         Teacher teacher = teacherRepository.findByFirstNameAndLastName(teacherDto.getFirstName(), teacherDto.getLastName()).get();
@@ -55,14 +56,14 @@ public class GradeServiceImpl implements GradeService {
             gradeRepository.save(grade);
 
             // return dto
-            return gradeDto;
+            return mapper.map(grade, GradeDtoResponse.class);
         }
 
        return null;
     }
 
     @Override
-    public GradeDtoRequest editGrade(long gradeId, GradeDtoRequest gradeDto) {
+    public GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto) {
         // find grade in the db
         if (gradeRepository.findById(gradeId).isPresent()) {
             Grade grade = gradeRepository.findById(gradeId).get();
@@ -74,7 +75,7 @@ public class GradeServiceImpl implements GradeService {
             gradeRepository.save(grade);
 
             // return dto
-            return gradeDto;
+            return mapper.map(grade, GradeDtoResponse.class);
         }
 
         return null;

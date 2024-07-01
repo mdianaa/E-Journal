@@ -19,14 +19,14 @@ public class SchoolClass extends BaseEntity {
     @Column(length = 3, nullable = false)
     private String className;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "head_teacher_id")
     private Teacher headTeacher;
 
     @OneToMany(mappedBy = "schoolClass", targetEntity = Student.class, fetch = FetchType.EAGER)
     private Set<Student> students;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private School school;
 
 }

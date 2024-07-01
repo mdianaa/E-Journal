@@ -16,9 +16,9 @@ import java.util.Set;
 @Table(name = "headmasters")
 public class Headmaster extends User {
 
-    @OneToOne
+    @OneToOne(optional = false)
     private School school;
 
-    @OneToMany()
+    @OneToMany
     private Set<Student> students;
 }

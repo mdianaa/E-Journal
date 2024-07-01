@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.request.AbsenceDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.services.AbsenceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,18 +30,18 @@ public class AbsenceController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-    public ResponseEntity<AbsenceDtoRequest> createAbsence(@RequestBody AbsenceDtoRequest absence,
+    public ResponseEntity<AbsenceDtoResponse> createAbsence(@RequestBody AbsenceDtoRequest absence,
                                                            @RequestBody TeacherDtoRequest teacherDto,
                                                            @RequestBody StudentDtoRequest studentDto,
                                                            @RequestBody SubjectDtoRequest subjectDto) {
-        AbsenceDtoRequest createdAbsence = absenceService.createAbsence(absence, teacherDto, studentDto, subjectDto);
+        AbsenceDtoResponse createdAbsence = absenceService.createAbsence(absence, teacherDto, studentDto, subjectDto);
         return ResponseEntity.ok(createdAbsence);
     }
 
-    @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-    public ResponseEntity<Void> deleteAbsence(@PathVariable long id) {
-        absenceService.deleteAbsence(id);
+    @PatchMapping("/{absenceId}/excuse")
+    public ResponseEntity<Void> excuseAbsence(@PathVariable long absenceId) {
+        absenceService.excuseAbsence(absenceId);
         return ResponseEntity.noContent().build();
     }
 }

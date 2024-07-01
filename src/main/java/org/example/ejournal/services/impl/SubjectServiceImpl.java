@@ -34,7 +34,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public SubjectDtoRequest createSubject(SubjectDtoRequest subjectDto, SchoolDtoRequest schoolDto) {
+    public SubjectDtoResponse createSubject(SubjectDtoRequest subjectDto, SchoolDtoRequest schoolDto) {
         // check if this subject exists already
 
         // register subject
@@ -51,7 +51,7 @@ public class SubjectServiceImpl implements SubjectService {
         schoolRepository.save(school);
 
         // return dto
-        return subjectDto;
+        return mapper.map(subject, SubjectDtoResponse.class);
     }
 
     @Override

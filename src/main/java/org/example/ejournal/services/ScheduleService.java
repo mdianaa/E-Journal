@@ -7,7 +7,7 @@ import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 
 public interface ScheduleService {
 
-    ScheduleDtoRequest createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest);
+    ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest);
 
     ScheduleDtoResponse viewScheduleForDay(String day, String schoolClass, String semester);
 

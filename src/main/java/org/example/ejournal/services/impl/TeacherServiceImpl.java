@@ -10,6 +10,7 @@ import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,21 +26,26 @@ public class TeacherServiceImpl implements TeacherService {
     private final SubjectRepository subjectRepository;
     private final AbsenceRepository absenceRepository;
     private final UserAuthenticationRepository userAuthenticationRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
-    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
+    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
         this.teacherRepository = teacherRepository;
         this.schoolRepository = schoolRepository;
         this.subjectRepository = subjectRepository;
         this.absenceRepository = absenceRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
+        this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
 
     @Transactional
     @Override
-    public TeacherDtoRequest createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest) {
+    public TeacherDtoResponse createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if this teacher exists already
+        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists!");
+        }
 
         // register teacher
         Teacher teacher = mapper.map(teacherDto, Teacher.class);
@@ -51,19 +57,21 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setSchool(school);
 
         // map the user credentials
-        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
-        teacher.setUserAuthentication(userAuthentication);
+        UserAuthentication userAuthentication = new UserAuthentication();
+        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
+        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
+        userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         teacherRepository.save(teacher);
 
         // return dto
-        return teacherDto;
+        return mapper.map(teacher, TeacherDtoResponse.class);
     }
 
     @Override
-    public TeacherDtoRequest editTeacher(long teacherId, TeacherDtoRequest teacherDto) {
+    public TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto) {
         if (teacherRepository.findById(teacherId).isPresent()) {
             Teacher teacher = teacherRepository.findById(teacherId).get();
 
@@ -73,14 +81,14 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.save(teacher);
 
             // return dto
-            return teacherDto;
+            return mapper.map(teacher, TeacherDtoResponse.class);
         }
 
         return null;
     }
 
     @Override
-    public TeacherDtoRequest changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos) {
+    public TeacherDtoResponse changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos) {
         if (teacherRepository.findById(teacherId).isPresent()) {
             Teacher teacher = teacherRepository.findById(teacherId).get();
 
@@ -92,14 +100,14 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.save(teacher);
 
             // return dto
-            return mapper.map(teacher, TeacherDtoRequest.class);
+            return mapper.map(teacher, TeacherDtoResponse.class);
         }
 
         return null;
     }
 
     @Override
-    public TeacherDtoRequest removeHeadTeacherTitle(long teacherId) {
+    public TeacherDtoResponse removeHeadTeacherTitle(long teacherId) {
         if (teacherRepository.findById(teacherId).isPresent()) {
             Teacher teacher = teacherRepository.findById(teacherId).get();
 
@@ -109,7 +117,7 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.save(teacher);
 
             // return dto
-            return mapper.map(teacher, TeacherDtoRequest.class);
+            return mapper.map(teacher, TeacherDtoResponse.class);
         }
 
         return null;

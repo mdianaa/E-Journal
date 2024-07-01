@@ -11,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class StudentDtoResponse {  // това също да се използва за показване на информацията и на родителя и на преподавателя
+public class StudentDtoResponse {
 
     private String firstName;
 
@@ -23,14 +23,4 @@ public class StudentDtoResponse {  // това също да се използв
 
     private Set<AbsenceDtoResponse> absences;
 
-    @Override
-    public String toString() {
-        return "StudentDtoResponse{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", className='" + className + '\'' +
-                ", grades=" + grades +
-                ", absences=" + absences +
-                '}';
-    }
 }

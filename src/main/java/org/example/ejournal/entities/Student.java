@@ -35,6 +35,9 @@ public class Student extends User {
     @OneToMany(mappedBy = "student", targetEntity = Absence.class)
     private Set<Absence> absences;
 
+    @OneToMany(mappedBy = "student", targetEntity = BadNote.class)
+    private Set<BadNote> badNotes;
+
     @ManyToOne
     private Parent parent;
 }

@@ -17,12 +17,4 @@ public class AbsenceDtoResponse {
 
     private TeacherDtoResponse teacher;
 
-    @Override
-    public String toString() {
-        return "AbsenceDtoResponse{" +
-                "day='" + day + '\'' +
-                ", subject='" + subjectType + '\'' +
-                ", teacher='" + teacher + '\'' +
-                '}';
-    }
 }

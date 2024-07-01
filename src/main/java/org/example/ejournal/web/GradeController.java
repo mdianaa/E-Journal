@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.services.GradeService;
 import org.springframework.http.HttpStatus;
@@ -32,19 +33,19 @@ public class GradeController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<GradeDtoRequest> createGrade(@Valid @RequestBody GradeDtoRequest gradeDto,
+    public ResponseEntity<GradeDtoResponse> createGrade(@Valid @RequestBody GradeDtoRequest gradeDto,
                                                        @Valid @RequestBody TeacherDtoRequest teacherDto,
                                                        @Valid @RequestBody SubjectDtoRequest subjectDto,
                                                        @Valid @RequestBody StudentDtoRequest studentDto) {
-        GradeDtoRequest createdGradeDto = gradeService.createGrade(gradeDto, teacherDto, subjectDto, studentDto);
+        GradeDtoResponse createdGradeDto = gradeService.createGrade(gradeDto, teacherDto, subjectDto, studentDto);
         return new ResponseEntity<>(createdGradeDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/edit/{gradeId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<GradeDtoRequest> editGrade(@PathVariable long gradeId,
+    public ResponseEntity<GradeDtoResponse> editGrade(@PathVariable long gradeId,
                                                      @Valid @RequestBody GradeDtoRequest gradeDto) {
-        GradeDtoRequest editedGradeDto = gradeService.editGrade(gradeId, gradeDto);
+        GradeDtoResponse editedGradeDto = gradeService.editGrade(gradeId, gradeDto);
         if (editedGradeDto != null) {
             return ResponseEntity.ok(editedGradeDto);
         } else {

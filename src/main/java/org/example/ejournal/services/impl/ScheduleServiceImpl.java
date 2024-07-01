@@ -32,7 +32,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleDtoRequest createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
+    public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
         // check whether this schedule exists
 
         // create schedule
@@ -50,7 +50,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleRepository.save(schedule);
 
         // return dto
-        return scheduleDto;
+        return mapper.map(schedule, ScheduleDtoResponse.class);
     }
 
     @Override

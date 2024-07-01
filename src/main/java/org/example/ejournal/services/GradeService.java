@@ -4,15 +4,16 @@ import org.example.ejournal.dtos.request.GradeDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.enums.SubjectType;
 
 import java.math.BigDecimal;
 
 public interface GradeService {
 
-    GradeDtoRequest createGrade(GradeDtoRequest grade, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto);
+    GradeDtoResponse createGrade(GradeDtoRequest grade, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto);
 
-    GradeDtoRequest editGrade(long gradeId, GradeDtoRequest gradeDto);
+    GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto);
 
     // средна аритметична оценка за текущия предмет за определени класове (само 12-ти 'A', само 11-ти 'A'...) в дадено училище
     BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber);

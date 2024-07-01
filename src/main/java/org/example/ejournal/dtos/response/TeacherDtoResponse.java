@@ -21,13 +21,4 @@ public class TeacherDtoResponse {
 
     private SchoolDtoResponse school;
 
-    @Override
-    public String toString() {
-        return "TeacherDtoResponse{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", subjects=" + subjects +
-                ", school=" + school +
-                '}';
-    }
 }

@@ -29,10 +29,10 @@ public class HeadmasterController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HeadmasterDtoRequest> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
+    public ResponseEntity<HeadmasterDtoResponse> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
                                                                  @Valid @RequestBody SchoolDtoRequest schoolDto,
                                                                  @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
-        HeadmasterDtoRequest createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto, userRegisterDtoRequest);
+        HeadmasterDtoResponse createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto, userRegisterDtoRequest);
         return new ResponseEntity<>(createdHeadmasterDto, HttpStatus.CREATED);
     }
 
@@ -55,9 +55,9 @@ public class HeadmasterController {
 
     @PutMapping("/edit/{headmasterId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HeadmasterDtoRequest> editHeadmaster(@PathVariable long headmasterId,
+    public ResponseEntity<HeadmasterDtoResponse> editHeadmaster(@PathVariable long headmasterId,
                                                                @Valid @RequestBody HeadmasterDtoRequest headmasterDto) {
-        HeadmasterDtoRequest editedHeadmasterDto = headmasterService.editHeadmaster(headmasterId, headmasterDto);
+        HeadmasterDtoResponse editedHeadmasterDto = headmasterService.editHeadmaster(headmasterId, headmasterDto);
         if (editedHeadmasterDto != null) {
             return ResponseEntity.ok(editedHeadmasterDto);
         } else {

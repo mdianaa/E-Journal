@@ -28,6 +28,6 @@ public class User extends BaseEntity {
     @Column(name = "phone_number", length = 15, nullable = false)
     private String phoneNumber;
 
-    @OneToOne
+    @OneToOne(optional = false)
     private UserAuthentication userAuthentication;
 }

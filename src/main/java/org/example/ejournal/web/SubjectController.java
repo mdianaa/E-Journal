@@ -30,9 +30,9 @@ public class SubjectController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SubjectDtoRequest> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto,
+    public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto,
                                                            @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        SubjectDtoRequest createdSubjectDto = subjectService.createSubject(subjectDto, schoolDto);
+        SubjectDtoResponse createdSubjectDto = subjectService.createSubject(subjectDto, schoolDto);
         return new ResponseEntity<>(createdSubjectDto, HttpStatus.CREATED);
     }
 

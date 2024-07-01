@@ -15,6 +15,7 @@ import org.example.ejournal.repositories.StudentRepository;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.ParentService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -28,19 +29,24 @@ public class ParentServiceImpl implements ParentService {
     private final SchoolRepository schoolRepository;
     private final StudentRepository studentRepository;
     private final UserAuthenticationRepository userAuthenticationRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
-    public ParentServiceImpl(ParentRepository parentRepository, SchoolRepository schoolRepository, StudentRepository studentRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
+    public ParentServiceImpl(ParentRepository parentRepository, SchoolRepository schoolRepository, StudentRepository studentRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
         this.parentRepository = parentRepository;
         this.schoolRepository = schoolRepository;
         this.studentRepository = studentRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
+        this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
 
     @Override
     public ParentDtoResponse createParent(ParentDtoRequest parentDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if parent already exist
+        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists!");
+        }
 
         // register parent
         Parent parent = mapper.map(parentDto, Parent.class);
@@ -49,8 +55,10 @@ public class ParentServiceImpl implements ParentService {
         parent.setSchool(school);
 
         // map the user credentials
-        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
-        parent.setUserAuthentication(userAuthentication);
+        UserAuthentication userAuthentication = new UserAuthentication();
+        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
+        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
+        userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
         // persist to db
         userAuthenticationRepository.save(userAuthentication);

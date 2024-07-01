@@ -19,12 +19,12 @@ public class Grade extends BaseEntity {
     @Column(precision = 3, scale = 2, nullable = false)
     private BigDecimal value;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Subject subject;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Teacher gradedByTeacher;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Student student;
 }

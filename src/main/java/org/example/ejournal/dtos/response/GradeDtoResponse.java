@@ -19,12 +19,4 @@ public class GradeDtoResponse {
 
     private TeacherDtoResponse gradedByTeacher;
 
-    @Override
-    public String toString() {
-        return "GradeDtoResponse{" +
-                "value=" + value +
-                ", subject='" + subjectType + '\'' +
-                ", gradedByTeacher='" + gradedByTeacher + '\'' +
-                '}';
-    }
 }

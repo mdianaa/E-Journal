@@ -28,9 +28,9 @@ public class SchoolController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SchoolDtoRequest> createSchool(@RequestBody SchoolDtoRequest schoolDto) {
+    public ResponseEntity<SchoolDtoResponse> createSchool(@RequestBody SchoolDtoRequest schoolDto) {
         try {
-            SchoolDtoRequest createdSchool = schoolService.createSchool(schoolDto);
+            SchoolDtoResponse createdSchool = schoolService.createSchool(schoolDto);
             return new ResponseEntity<>(createdSchool, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

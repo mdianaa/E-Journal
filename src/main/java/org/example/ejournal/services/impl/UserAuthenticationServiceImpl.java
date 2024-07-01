@@ -10,6 +10,7 @@ import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.repositories.UserRepository;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,12 +18,12 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final UserRepository userRepository;
-    private final ModelMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserAuthenticationServiceImpl(UserAuthenticationRepository userAuthenticationRepository, UserRepository userRepository, ModelMapper mapper) {
+    public UserAuthenticationServiceImpl(UserAuthenticationRepository userAuthenticationRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userAuthenticationRepository = userAuthenticationRepository;
         this.userRepository = userRepository;
-        this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,8 +42,17 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     @Override
     public void register(AdminRegisterDtoRequest userDto) {
         if (userAuthenticationRepository.findByUsername(userDto.getUsername()).isEmpty()) {
-            User user = mapper.map(userDto, User.class);
-            UserAuthentication userAuthentication = mapper.map(userDto, UserAuthentication.class);
+            User user = new User();
+
+            user.setFirstName(userDto.getFirstName());
+            user.setLastName(userDto.getLastName());
+            user.setPhoneNumber(userDto.getPhoneNumber());
+
+            UserAuthentication userAuthentication = new UserAuthentication();
+
+            userAuthentication.setUsername(userDto.getUsername());
+            userAuthentication.setPassword(passwordEncoder.encode(userDto.getPassword())); // encode password
+            userAuthentication.setRole(userDto.getRole());
 
             user.setUserAuthentication(userAuthentication);
 

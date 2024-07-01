@@ -7,11 +7,11 @@ import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 
 public interface HeadmasterService {
 
-    HeadmasterDtoRequest createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest);
+    HeadmasterDtoResponse createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest);
 
     HeadmasterDtoResponse viewHeadmaster(long schoolId);
 
-    HeadmasterDtoRequest editHeadmaster(long headmasterId, HeadmasterDtoRequest headmasterDto);
+    HeadmasterDtoResponse editHeadmaster(long headmasterId, HeadmasterDtoRequest headmasterDto);
 
     void deleteHeadmaster(long headmasterId);
 }

@@ -5,7 +5,7 @@ import org.example.ejournal.dtos.response.SchoolDtoResponse;
 
 public interface SchoolService {
 
-    SchoolDtoRequest createSchool(SchoolDtoRequest schoolDto);
+    SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto);
 
     SchoolDtoResponse viewSchoolInfo(long schoolId);
 

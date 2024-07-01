@@ -10,13 +10,13 @@ import java.util.Set;
 
 public interface TeacherService {
 
-    TeacherDtoRequest createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest);
+    TeacherDtoResponse createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest);
 
-    TeacherDtoRequest editTeacher(long teacherId, TeacherDtoRequest teacherDto);
+    TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto);
 
-    TeacherDtoRequest changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos);
+    TeacherDtoResponse changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos);
 
-    TeacherDtoRequest removeHeadTeacherTitle(long teacherId);
+    TeacherDtoResponse removeHeadTeacherTitle(long teacherId);
 
     TeacherDtoResponse viewTeacher(long teacherId);
 

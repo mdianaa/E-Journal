@@ -33,7 +33,7 @@ public class SchoolServiceImpl implements SchoolService {
     }
 
     @Override
-    public SchoolDtoRequest createSchool(SchoolDtoRequest schoolDto) {
+    public SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto) {
         // check whether this school already exists
 
         // register school
@@ -43,7 +43,7 @@ public class SchoolServiceImpl implements SchoolService {
         schoolRepository.save(school);
 
         // return dto
-        return schoolDto;
+        return mapper.map(school, SchoolDtoResponse.class);
     }
 
     @Transactional

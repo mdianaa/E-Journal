@@ -31,16 +31,4 @@ public class ScheduleDtoResponse {
 
     @Enumerated(EnumType.STRING)
     private SubjectType subject;
-
-    @Override
-    public String toString() {
-        return "ScheduleDtoResponse{" +
-                "day=" + day +
-                ", semester=" + semester +
-                ", shiftType=" + shiftType +
-                ", periodType=" + periodType +
-                ", schoolClass='" + schoolClass + '\'' +
-                ", subject=" + subject +
-                '}';
-    }
 }

@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.request.AbsenceDtoRequest;
 import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.entities.Absence;
 import org.example.ejournal.entities.Student;
 import org.example.ejournal.entities.Subject;
@@ -38,7 +39,7 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Transactional
     @Override
-    public AbsenceDtoRequest createAbsence(AbsenceDtoRequest absenceDto, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto, SubjectDtoRequest subjectDto) {
+    public AbsenceDtoResponse createAbsence(AbsenceDtoRequest absenceDto, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto, SubjectDtoRequest subjectDto) {
         // check whether this absence already exists
 
         // create a new absence
@@ -62,20 +63,16 @@ public class AbsenceServiceImpl implements AbsenceService {
         absenceRepository.save(absence);
 
         // return dto
-        return absenceDto;
+        return mapper.map(absence, AbsenceDtoResponse.class);
     }
 
     @Override
-    public void deleteAbsence(long absenceId) {
+    public void excuseAbsence(long absenceId) {
         // check whether this absence exists
         if (absenceRepository.findById(absenceId).isPresent()) {
             Absence absence = absenceRepository.findById(absenceId).get();
 
-            absence.setTeacher(null);
-            absence.setStudent(null);
-            absence.setSubject(null);
-
-            absenceRepository.delete(absence);
+            absence.setExcused(true);
         }
     }
 }

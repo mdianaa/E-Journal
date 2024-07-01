@@ -9,12 +9,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class SchoolDtoResponse {
+public class BadNoteDtoResponse {
 
-    private String name;
+    private String description;
 
-    private String address;
+    private StudentDtoResponse student;
 
-    private HeadmasterDtoResponse headmaster;
-
+    private TeacherDtoResponse teacher;
 }

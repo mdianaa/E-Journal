@@ -3,12 +3,14 @@ package org.example.ejournal.services.impl;
 import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
+import org.example.ejournal.dtos.response.BadNoteDtoResponse;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,23 +27,30 @@ public class StudentServiceImpl implements StudentService {
     private final SubjectRepository subjectRepository;
     private final ParentRepository parentRepository;
     private final AbsenceRepository absenceRepository;
+    private final BadNoteRepository badNoteRepository;
     private final UserAuthenticationRepository userAuthenticationRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
-    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
+    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, BadNoteRepository badNoteRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
         this.studentRepository = studentRepository;
         this.schoolRepository = schoolRepository;
         this.schoolClassRepository = schoolClassRepository;
         this.subjectRepository = subjectRepository;
         this.parentRepository = parentRepository;
         this.absenceRepository = absenceRepository;
+        this.badNoteRepository = badNoteRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
+        this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
 
     @Override
-    public StudentDtoRequest createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest) {
+    public StudentDtoResponse createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check if student exists already
+        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists!");
+        }
 
         // register student
         Student student = mapper.map(studentDto, Student.class);
@@ -55,25 +64,27 @@ public class StudentServiceImpl implements StudentService {
         student.setParent(parent);
 
         // map the user credentials
-        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
-        student.setUserAuthentication(userAuthentication);
+        UserAuthentication userAuthentication = new UserAuthentication();
+        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
+        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
+        userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         studentRepository.save(student);
 
         // return dto
-        return studentDto;
+        return mapper.map(student, StudentDtoResponse.class);
     }
 
     @Override
-    public StudentDtoRequest editStudent(long studentId, StudentDtoRequest studentDto) {
+    public StudentDtoResponse editStudent(long studentId, StudentDtoRequest studentDto) {
         if (studentRepository.findById(studentId).isPresent()) {
             Student student = studentRepository.findById(studentId).get();
 
             mapper.map(studentDto, student);
 
-            return studentDto;
+            return mapper.map(student, StudentDtoResponse.class);
         }
 
         return null;
@@ -111,6 +122,24 @@ public class StudentServiceImpl implements StudentService {
             }
 
             return absencesDto;
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<BadNoteDtoResponse> showAllBadNotesForStudent(long studentId) {
+        if (studentRepository.findById(studentId).isPresent()) {
+            Student student = studentRepository.findById(studentId).get();
+
+            List<BadNote> badNotes = badNoteRepository.findAllByStudent(student);
+            List<BadNoteDtoResponse> badNotesDto = new ArrayList<>();
+
+            for (BadNote badNote : badNotes) {
+                badNotesDto.add(mapper.map(badNote, BadNoteDtoResponse.class));
+            }
+
+            return badNotesDto;
         }
 
         return null;

@@ -19,12 +19,4 @@ public class ParentDtoResponse {
 
     private String phoneNumber;
 
-    @Override
-    public String toString() {
-        return "ParentDtoResponse{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
-    }
 }

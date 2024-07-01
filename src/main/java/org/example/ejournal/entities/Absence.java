@@ -21,12 +21,15 @@ public class Absence extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private WeekDay day;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Subject subject;
 
-    @ManyToOne
+    @Column(columnDefinition = "boolean default false")
+    private boolean isExcused;
+
+    @ManyToOne(optional = false)
     private Teacher teacher;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Student student;
 }

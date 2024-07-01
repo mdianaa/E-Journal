@@ -12,6 +12,7 @@ import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.HeadmasterService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -21,23 +22,28 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     private final HeadmasterRepository headmasterRepository;
     private final SchoolRepository schoolRepository;
     private final UserAuthenticationRepository userAuthenticationRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
-    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, ModelMapper mapper) {
+    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
         this.headmasterRepository = headmasterRepository;
         this.schoolRepository = schoolRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
+        this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
 
     @Override
-    public HeadmasterDtoRequest createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
+    public HeadmasterDtoResponse createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
         // check whether the headmaster exists already
+        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists!");
+        }
 
         // check whether the school has already a headmaster
         School school = schoolRepository.findByName(schoolDto.getName()).get();
         if (school.getHeadmaster() != null) {
-            // throw exception
+            throw new IllegalArgumentException("School already has a headmaster!");
         }
 
         // register headmaster
@@ -45,15 +51,17 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         headmaster.setSchool(school);
 
         // map the user credentials
-        UserAuthentication userAuthentication = mapper.map(userRegisterDtoRequest, UserAuthentication.class);
-        headmaster.setUserAuthentication(userAuthentication);
+        UserAuthentication userAuthentication = new UserAuthentication();
+        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
+        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
+        userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         headmasterRepository.save(headmaster);
 
         // return dto
-        return mapper.map(headmaster, HeadmasterDtoRequest.class);
+        return mapper.map(headmaster, HeadmasterDtoResponse.class);
     }
 
     @Override
@@ -64,7 +72,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     }
 
     @Override
-    public HeadmasterDtoRequest editHeadmaster(long headmasterId, HeadmasterDtoRequest headmasterDto) {
+    public HeadmasterDtoResponse editHeadmaster(long headmasterId, HeadmasterDtoRequest headmasterDto) {
         if (headmasterRepository.findById(headmasterId).isPresent()) {
             Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
 
@@ -75,7 +83,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
             headmasterRepository.save(headmaster);
 
             // return dto
-            return headmasterDto;
+            return mapper.map(headmaster, HeadmasterDtoResponse.class);
         }
 
         return null;

@@ -13,10 +13,4 @@ public class SubjectDtoResponse {
 
     private String subjectType;
 
-    @Override
-    public String toString() {
-        return "SubjectDtoResponse{" +
-                "subjectType='" + subjectType + '\'' +
-                '}';
-    }
 }

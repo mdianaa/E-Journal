@@ -15,11 +15,4 @@ public class HeadmasterDtoResponse {
 
     private String lastName;
 
-    @Override
-    public String toString() {
-        return "HeadmasterDtoResponse{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
-    }
 }
