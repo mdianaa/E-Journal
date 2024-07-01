@@ -19,4 +19,6 @@ public class ParentDtoResponse {
 
     private String phoneNumber;
 
+    private StudentDtoResponse student;
+
 }

@@ -19,6 +19,8 @@ public class StudentDtoResponse {
 
     private String className;
 
+    private ParentDtoResponse parent;
+
     private Set<GradeDtoResponse> grades;
 
     private Set<AbsenceDtoResponse> absences;
