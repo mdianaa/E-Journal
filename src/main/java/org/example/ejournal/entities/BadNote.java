@@ -18,10 +18,10 @@ public class BadNote {
     @Column
     private String description;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Student student;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Teacher teacher;
 
 }

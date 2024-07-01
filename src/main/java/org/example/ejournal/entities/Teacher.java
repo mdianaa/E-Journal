@@ -22,7 +22,7 @@ public class Teacher extends User {
     @ManyToMany(cascade = CascadeType.PERSIST)
     private Set<Subject> subjects;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private School school;
 
     @ManyToMany

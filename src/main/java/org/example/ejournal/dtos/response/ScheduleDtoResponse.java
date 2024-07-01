@@ -6,11 +6,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.ejournal.enums.*;
 
 @AllArgsConstructor
-@NotNull
+@NoArgsConstructor
 @Getter
 @Setter
 public class ScheduleDtoResponse {

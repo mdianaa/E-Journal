@@ -31,10 +31,10 @@ public class Schedule extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Subject subject;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "school_class_id")
     private SchoolClass schoolClass;
 
