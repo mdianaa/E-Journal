@@ -13,7 +13,7 @@ public class SchoolDtoResponse {
 
     private String name;
 
-    private String address;
+//    private String address;
 
     private HeadmasterDtoResponse headmaster;
 

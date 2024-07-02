@@ -25,4 +25,6 @@ public class StudentDtoResponse {
 
     private Set<AbsenceDtoResponse> absences;
 
+    private Set<ScheduleDtoResponse> schedule;
+
 }

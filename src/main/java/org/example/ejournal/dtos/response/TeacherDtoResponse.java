@@ -21,4 +21,6 @@ public class TeacherDtoResponse {
 
     private SchoolDtoResponse school;
 
+    private Set<ScheduleDtoResponse> schedule;
+
 }
