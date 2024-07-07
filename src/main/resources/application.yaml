@@ -29,6 +29,10 @@ spring:
         show_sql: true
     defer-datasource-initialization: true
 
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+
   # Server configuration
 server:
   port: 8080

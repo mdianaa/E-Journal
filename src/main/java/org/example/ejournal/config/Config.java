@@ -1,5 +1,7 @@
 package org.example.ejournal.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,4 +18,13 @@ public class Config {
     public ModelMapper createModelMapper() {
         return new ModelMapper();
     }
+
+    // jackson configuration
+//    @Bean
+//    public ObjectMapper objectMapper() {
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+//
+//        return mapper;
+//    }
 }

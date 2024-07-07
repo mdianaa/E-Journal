@@ -43,11 +43,6 @@ public class SecurityConfig {
                                 .requestMatchers("/teachers/**").hasRole("ADMIN") // Only admins can manage teachers
                                 .anyRequest().authenticated() // Require authentication for any other request
                 )
-                .formLogin(form -> form
-                        .loginPage("/auth/login") // Define login page URL
-                        .defaultSuccessUrl("/", true) // Redirect to homepage after successful login
-                        .permitAll() // Allow all users to access the login page
-                )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout") // Define logout URL
                         .logoutSuccessUrl("/auth/login") // Redirect to login page after logout
