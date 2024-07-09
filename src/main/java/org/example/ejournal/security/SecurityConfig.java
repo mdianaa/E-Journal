@@ -1,16 +1,34 @@
 package org.example.ejournal.security;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.example.ejournal.security.utils.RSAKeyProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -19,40 +37,40 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private MyUserDetailsService userDetailsService;
+    private final MyUserDetailsService userDetailsService;
+
+    private final RSAKeyProperties rsaKeyProperties;
+	
+	public SecurityConfig(MyUserDetailsService userDetailsService, RSAKeyProperties rsaKeyProperties) {
+		this.userDetailsService = userDetailsService;
+		this.rsaKeyProperties = rsaKeyProperties;
+	}
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/").permitAll() // Allow access to the root URL and home without authentication
-                                .requestMatchers("/auth/login").permitAll() // Allow access to login endpoint for all users
-                                .requestMatchers("/auth/register", "/auth/role/**").hasRole("ADMIN") // Require "ADMIN" role to access registration and role change
-                                .requestMatchers("/absences/**").hasRole("TEACHER") // Only teachers can manage absences
-                                .requestMatchers("/grades/**").hasRole("TEACHER") // Only teachers can manage grades
-                                .requestMatchers("/headmasters/**").hasRole("ADMIN") // Only admins can manage headmasters
-                                .requestMatchers("/parents/**").hasRole("ADMIN") // Only admins can manage parents
-                                .requestMatchers("/schedules/**").hasRole("TEACHER") // Only teachers can manage schedules
-                                .requestMatchers("/school-classes/**").hasRole("ADMIN") // Only admins can manage school classes
-                                .requestMatchers("/schools/**").hasRole("ADMIN") // Only admins can manage schools
-                                .requestMatchers("/students/**").hasRole("ADMIN") // Only admins can manage students
-                                .requestMatchers("/subjects/**").hasRole("ADMIN") // Only admins can manage subjects
-                                .requestMatchers("/teachers/**").hasRole("ADMIN") // Only admins can manage teachers
-                                .anyRequest().authenticated() // Require authentication for any other request
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/register", "/auth/role/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout") // Define logout URL
-                        .logoutSuccessUrl("/auth/login") // Redirect to login page after logout
-                        .permitAll() // Allow all users to access the logout functionality
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login")
+                        .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Ensure sessions are created if required
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .httpBasic(withDefaults());
-
 
         return http.build();
     }
@@ -66,15 +84,43 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return this.userDetailsService;
     }
-
+    
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
-
+    
+    @Bean
+    public AuthenticationManager authManager() {
+        DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+        daoProvider.setUserDetailsService(userDetailsService);
+        daoProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(daoProvider);
+    }
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+        jwtConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        return jwtConverter;
+    }
+    @Bean
+    public JwtDecoder jwtDecoder(){
+        return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.getPublicKey()).build();
+    }
+    @Bean
+    public JwtEncoder jwtEncoder(){
+        JWK jwk = new RSAKey.Builder(rsaKeyProperties.getPublicKey()).privateKey(rsaKeyProperties.getPrivateKey()).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
+    }
+    
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -13,14 +14,12 @@ import java.util.Set;
 @Setter
 public class TeacherDtoResponse {
 
-    private String firstName;
+    private String teacherFirstName;
 
-    private String lastName;
+    private String teacherLastName;
 
-    private Set<SubjectDtoResponse> subjects;
+    private List<SubjectDtoResponse> subjects;
 
-    private SchoolDtoResponse school;
-
-    private Set<ScheduleDtoResponse> schedule;
+    private String schoolName;
 
 }

@@ -14,6 +14,7 @@ import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.StudentRepository;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.ParentService;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,9 +87,13 @@ public class ParentServiceImpl implements ParentService {
         return null;
     }
 
+    @Transactional
     @Override
     public ParentDtoResponse viewParent(long parentId) {
         Parent parent = parentRepository.findById(parentId).get();
+
+        Hibernate.initialize(parent.getChildren());
+
         return mapper.map(parent, ParentDtoResponse.class);
     }
 
@@ -101,6 +106,8 @@ public class ParentServiceImpl implements ParentService {
         Set<ParentDtoResponse> parentsDto = new HashSet<>();
 
         for (Parent parent : parents) {
+            Hibernate.initialize(parent.getChildren());
+
             parentsDto.add(mapper.map(parent, ParentDtoResponse.class));
         }
 
@@ -120,7 +127,6 @@ public class ParentServiceImpl implements ParentService {
 
             parent.setChildren(null);
             parent.setSchool(null);
-            parent.setChildren(null);
 
             parentRepository.delete(parent);
         }

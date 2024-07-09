@@ -2,11 +2,10 @@ package org.example.ejournal.services.impl;
 
 import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.AbsenceDtoResponse;
-import org.example.ejournal.dtos.response.BadNoteDtoResponse;
-import org.example.ejournal.dtos.response.GradeDtoResponse;
-import org.example.ejournal.dtos.response.StudentDtoResponse;
+import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.entities.*;
+import org.example.ejournal.enums.SemesterType;
+import org.example.ejournal.enums.WeekDay;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.modelmapper.ModelMapper;
@@ -28,11 +27,12 @@ public class StudentServiceImpl implements StudentService {
     private final ParentRepository parentRepository;
     private final AbsenceRepository absenceRepository;
     private final BadNoteRepository badNoteRepository;
+    private final ScheduleRepository scheduleRepository;
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
-    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, BadNoteRepository badNoteRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
+    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, BadNoteRepository badNoteRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
         this.studentRepository = studentRepository;
         this.schoolRepository = schoolRepository;
         this.schoolClassRepository = schoolClassRepository;
@@ -40,6 +40,7 @@ public class StudentServiceImpl implements StudentService {
         this.parentRepository = parentRepository;
         this.absenceRepository = absenceRepository;
         this.badNoteRepository = badNoteRepository;
+        this.scheduleRepository = scheduleRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
@@ -91,9 +92,9 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<GradeDtoResponse> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto) {
-        if (studentRepository.findById(studentId).isPresent()) {
-            Student student = studentRepository.findById(studentId).get();
+    public List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto) {
+        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()){
+            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
             Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
 
             List<Grade> grades = student.getGrades().stream().filter(g -> g.getSubject().getSubjectType().equals(subject.getSubjectType())).toList();
@@ -110,9 +111,9 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(long studentId) {
-        if (studentRepository.findById(studentId).isPresent()) {
-            Student student = studentRepository.findById(studentId).get();
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(String username) {
+        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()) {
+            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
 
             Set<Absence> absences = student.getAbsences();
             Set<AbsenceDtoResponse> absencesDto = new HashSet<>();
@@ -128,9 +129,9 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<BadNoteDtoResponse> showAllBadNotesForStudent(long studentId) {
-        if (studentRepository.findById(studentId).isPresent()) {
-            Student student = studentRepository.findById(studentId).get();
+    public List<BadNoteDtoResponse> showAllBadNotesForStudent(String username) {
+        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()) {
+            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
 
             List<BadNote> badNotes = badNoteRepository.findAllByStudent(student);
             List<BadNoteDtoResponse> badNotesDto = new ArrayList<>();
@@ -146,10 +147,19 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDtoResponse viewStudent(long studentId) {
-        Student student = studentRepository.findById(studentId).get();
+    public StudentDtoResponse viewStudent(String username) {
+        Student student = studentRepository.findByUserAuthenticationUsername(username).get();
 
         return mapper.map(student, StudentDtoResponse.class);
+    }
+
+    @Override
+    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
+        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
+        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
+        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
+
+        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
     }
 
     @Transactional

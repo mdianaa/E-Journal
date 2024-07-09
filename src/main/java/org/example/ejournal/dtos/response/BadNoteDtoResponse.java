@@ -13,7 +13,7 @@ public class BadNoteDtoResponse {
 
     private String description;
 
-    private StudentDtoResponse student;
+    private String teacherFirstName;
 
-    private TeacherDtoResponse teacher;
+    private String teacherLastName;
 }

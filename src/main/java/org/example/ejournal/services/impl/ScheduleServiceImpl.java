@@ -54,16 +54,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleDtoResponse viewScheduleForDay(String day, String schoolClass, String semester) {
-        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
-        SchoolClass aClass = schoolClassRepository.findByClassName(schoolClass).get();
-        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
-
-        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, aClass, semesterType).get();
-    }
-
-
-    @Override
     public void deleteSchedule(long scheduleId) {
         if (scheduleRepository.findById(scheduleId).isPresent()) {
             Schedule schedule = scheduleRepository.findById(scheduleId).get();

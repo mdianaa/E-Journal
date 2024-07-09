@@ -36,3 +36,9 @@ spring:
   # Server configuration
 server:
   port: 8080
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.web.access: DEBUG
+    org.springframework.security.web.authentication: DEBUG

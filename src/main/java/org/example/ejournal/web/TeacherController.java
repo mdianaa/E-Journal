@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.services.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -96,6 +98,14 @@ public class TeacherController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
+    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
+                                                                       @PathVariable String semester,
+                                                                       @PathVariable String schoolClass) {
+        List<ScheduleDtoResponse> schedule = teacherService.viewScheduleForDay(day, semester, schoolClass);
+        return ResponseEntity.ok(schedule);
     }
 
     @GetMapping("/viewAll/{schoolId}")

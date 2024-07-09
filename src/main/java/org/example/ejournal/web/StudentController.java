@@ -2,14 +2,14 @@ package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.AbsenceDtoResponse;
-import org.example.ejournal.dtos.response.BadNoteDtoResponse;
-import org.example.ejournal.dtos.response.GradeDtoResponse;
-import org.example.ejournal.dtos.response.StudentDtoResponse;
+import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.services.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -71,37 +71,65 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/{studentId}/grades")
+    @GetMapping("/{username}/grades")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<?> showAllGradesForStudent(@PathVariable("studentId") long studentId,
+    public ResponseEntity<?> showAllGradesForStudent(@PathVariable("username") String username,
                                                      @RequestBody SubjectDtoRequest subjectDto) {
-        try {
-            List<GradeDtoResponse> grades = studentService.showAllGradesForSubject(studentId, subjectDto);
-            return ResponseEntity.ok(grades);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching grades: " + e.getMessage());
+        if (isCurrentUser(username)) {
+            try {
+                List<GradeDtoResponse> grades = studentService.showAllGradesForSubject(username, subjectDto);
+                return ResponseEntity.ok(grades);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching grades: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
-    @GetMapping("/{studentId}/absences")
+    @GetMapping("/{username}/absences")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<Set<AbsenceDtoResponse>> showAllAbsencesForStudent(@PathVariable long studentId) {
-        Set<AbsenceDtoResponse> absences = studentService.showAllAbsencesForStudent(studentId);
-        return ResponseEntity.ok(absences);
+    public ResponseEntity<?> showAllAbsencesForStudent(@PathVariable String username) {
+        if (isCurrentUser(username)) {
+            try {
+                Set<AbsenceDtoResponse> absences = studentService.showAllAbsencesForStudent(username);
+                return ResponseEntity.ok(absences);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching absences: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
     }
 
-    @GetMapping("/{studentId}/bad-notes")
+    @GetMapping("/{username}/bad-notes")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<List<BadNoteDtoResponse>> showAllBadNotesForStudent(@PathVariable long studentId) {
-        List<BadNoteDtoResponse> badNotes = studentService.showAllBadNotesForStudent(studentId);
-        return badNotes != null ? ResponseEntity.ok(badNotes) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> showAllBadNotesForStudent(@PathVariable String username) {
+        if (isCurrentUser(username)) {
+            try {
+                List<BadNoteDtoResponse> badNotes = studentService.showAllBadNotesForStudent(username);
+                return ResponseEntity.ok(badNotes);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching bad notes: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
     }
 
-    @GetMapping("/{studentId}")
+    @GetMapping("/{username}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<StudentDtoResponse> viewStudent(@PathVariable long studentId) {
-        StudentDtoResponse student = studentService.viewStudent(studentId);
+    public ResponseEntity<StudentDtoResponse> viewStudent(@PathVariable String username) {
+        StudentDtoResponse student = studentService.viewStudent(username);
         return student != null ? ResponseEntity.ok(student) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
+    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
+                                                                        @PathVariable String semester,
+                                                                        @PathVariable String schoolClass) {
+        List<ScheduleDtoResponse> schedule = studentService.viewScheduleForDay(day, semester, schoolClass);
+        return ResponseEntity.ok(schedule);
     }
 
     @GetMapping("/school/{schoolId}")
@@ -116,5 +144,13 @@ public class StudentController {
     public ResponseEntity<Void> withdrawStudent(@PathVariable long studentId) {
         studentService.withdrawStudent(studentId);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean isCurrentUser(String username) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            return userDetails.getUsername().equals(username);
+        }
+        return false;
     }
 }

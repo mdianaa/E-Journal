@@ -12,13 +12,15 @@ public interface StudentService {
 
     StudentDtoResponse editStudent(long studentId, StudentDtoRequest studentDto);
 
-    List<GradeDtoResponse> showAllGradesForSubject(long studentId, SubjectDtoRequest subjectDto);
+    List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto);
 
-    Set<AbsenceDtoResponse> showAllAbsencesForStudent(long studentId);
+    Set<AbsenceDtoResponse> showAllAbsencesForStudent(String username);
 
-    List<BadNoteDtoResponse> showAllBadNotesForStudent(long studentId);
+    List<BadNoteDtoResponse> showAllBadNotesForStudent(String username);
 
-    StudentDtoResponse viewStudent(long studentId);
+    StudentDtoResponse viewStudent(String username);
+
+    List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
 
     Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId);
 

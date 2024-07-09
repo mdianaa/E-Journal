@@ -13,8 +13,8 @@ public class SchoolDtoResponse {
 
     private String name;
 
-//    private String address;
+    private String headmasterFirstName;
 
-    private HeadmasterDtoResponse headmaster;
+    private String headmasterLastName;
 
 }

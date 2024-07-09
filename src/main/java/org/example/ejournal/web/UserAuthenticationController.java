@@ -2,7 +2,7 @@ package org.example.ejournal.web;
 
 import org.example.ejournal.dtos.request.UserLoginDtoRequest;
 import org.example.ejournal.dtos.request.AdminRegisterDtoRequest;
-import org.example.ejournal.dtos.response.LoginResponse;
+import org.example.ejournal.dtos.response.LoginResponseDto;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.springframework.http.HttpStatus;
@@ -20,35 +20,18 @@ public class UserAuthenticationController {
         this.userAuthenticationService = userAuthenticationService;
     }
 
-//    @GetMapping("/login")
-//    public ResponseEntity<String> showLoginPage() {
-//        return ResponseEntity.ok("login");
-//    }
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@RequestBody UserLoginDtoRequest request) {
-//        boolean isAuthenticated = userAuthenticationService.login(request.getUsername(), request.getPassword());
-//        if (isAuthenticated) {
-//            return ResponseEntity.ok("Login successful");
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-//        }
-//    }
-
     @GetMapping("/login")
     public ResponseEntity<String> showLoginPage() {
         return ResponseEntity.ok("login");
     }
-
+    
+    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDtoRequest request) {
-        boolean isAuthenticated = userAuthenticationService.login(request.getUsername(), request.getPassword());
-
-        System.out.println("successful");
-        if (isAuthenticated) {
-            LoginResponse response = new LoginResponse("Login successful");
-            return ResponseEntity.ok(response);
-        } else {
+        try {
+            LoginResponseDto loginResponse = userAuthenticationService.login(request.getUsername(), request.getPassword());
+            return ResponseEntity.ok(loginResponse);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }

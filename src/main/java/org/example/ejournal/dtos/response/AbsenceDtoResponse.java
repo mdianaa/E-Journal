@@ -15,6 +15,8 @@ public class AbsenceDtoResponse {
 
     private String subjectType;
 
-    private TeacherDtoResponse teacher;
+    private String teacherFirstName;
+
+    private String teacherLastName;
 
 }

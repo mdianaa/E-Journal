@@ -16,15 +16,12 @@ public class Config {
     // model mapper configuration
     @Bean
     public ModelMapper createModelMapper() {
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+
+        // custom converter for collection to list
+        modelMapper.addConverter(new CollectionToListConverter<>());
+
+        return modelMapper;
     }
 
-    // jackson configuration
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//
-//        return mapper;
-//    }
 }

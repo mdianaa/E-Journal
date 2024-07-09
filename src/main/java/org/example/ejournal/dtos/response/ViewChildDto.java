@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
+@Getter
+@Setter
+public class ViewChildDto {
 
-    private String message;
+    private String firstName;
+
+    private String lastName;
 }

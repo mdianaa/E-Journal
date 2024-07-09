@@ -15,6 +15,5 @@ public class HeadmasterDtoResponse {
 
     private String lastName;
 
-    private SchoolDtoResponse school;
-
+    private String schoolName;
 }

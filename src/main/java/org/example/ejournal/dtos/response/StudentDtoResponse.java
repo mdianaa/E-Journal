@@ -19,12 +19,8 @@ public class StudentDtoResponse {
 
     private String className;
 
-    private ParentDtoResponse parent;
+    private String parentFirstName;
 
-    private Set<GradeDtoResponse> grades;
-
-    private Set<AbsenceDtoResponse> absences;
-
-    private Set<ScheduleDtoResponse> schedule;
+    private String parentLastName;
 
 }

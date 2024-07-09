@@ -41,21 +41,6 @@ public class ScheduleController {
         }
     }
 
-    @GetMapping("/{day}/{schoolClass}/{semester}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<ScheduleDtoResponse> viewScheduleForDay(@PathVariable String day,
-                                                                  @PathVariable String schoolClass,
-                                                                  @PathVariable String semester) {
-        try {
-            ScheduleDtoResponse scheduleResponse = scheduleService.viewScheduleForDay(day, schoolClass, semester);
-            return new ResponseEntity<>(scheduleResponse, HttpStatus.OK);
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @DeleteMapping("/{scheduleId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<Void> deleteSchedule(@PathVariable long scheduleId) {

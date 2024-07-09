@@ -17,6 +17,8 @@ public class GradeDtoResponse {
 
     private String subjectType;
 
-    private TeacherDtoResponse gradedByTeacher;
+    private String teacherFirstName;
+
+    private String teacherLastName;
 
 }

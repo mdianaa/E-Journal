@@ -9,8 +9,6 @@ public interface ScheduleService {
 
     ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest);
 
-    ScheduleDtoResponse viewScheduleForDay(String day, String schoolClass, String semester);
-
     void deleteSchedule(long scheduleId);
 
 }

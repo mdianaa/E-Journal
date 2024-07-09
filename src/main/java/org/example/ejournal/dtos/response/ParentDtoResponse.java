@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -19,6 +20,6 @@ public class ParentDtoResponse {
 
     private String phoneNumber;
 
-    private StudentDtoResponse student;
+    private List<ViewChildDto> children;
 
 }
