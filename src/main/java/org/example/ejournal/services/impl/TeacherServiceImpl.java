@@ -70,6 +70,8 @@ public class TeacherServiceImpl implements TeacherService {
         userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
         userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
+        teacher.setUserAuthentication(userAuthentication);
+
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         teacherRepository.save(teacher);

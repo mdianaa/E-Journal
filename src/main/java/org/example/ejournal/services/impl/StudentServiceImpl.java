@@ -70,6 +70,8 @@ public class StudentServiceImpl implements StudentService {
         userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
         userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
+        student.setUserAuthentication(userAuthentication);
+
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         studentRepository.save(student);

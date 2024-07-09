@@ -61,6 +61,8 @@ public class ParentServiceImpl implements ParentService {
         userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
         userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
+        parent.setUserAuthentication(userAuthentication);
+
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         parentRepository.save(parent);

@@ -56,6 +56,8 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
         userAuthentication.setRole(userRegisterDtoRequest.getRole());
 
+        headmaster.setUserAuthentication(userAuthentication);
+
         // persist to db
         userAuthenticationRepository.save(userAuthentication);
         headmasterRepository.save(headmaster);
