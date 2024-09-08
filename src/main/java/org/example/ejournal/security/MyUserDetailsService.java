@@ -24,14 +24,14 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserAuthentication> userOptional = userRepository.findByUsername(username);
-        if(userOptional.isPresent()){
+        if (userOptional.isPresent()){
             UserAuthentication user = userOptional.get();
             return User.builder()
                     .username(user.getUsername())
                     .password(user.getPassword())
                     .roles(user.getRole().name())
                     .build();
-        }else{
+        }else {
             throw new UsernameNotFoundException("username is not found. - '" + username + "'");
         }
     }

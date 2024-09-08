@@ -35,8 +35,11 @@ public class TokenService {
 		
 		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 	}
-	
-	public String extractEmail(String token) {
+
+
+	//todo
+	// unfinished
+	public String extractUsername(String token) {
 		Jwt jwt = jwtDecoder.decode(token);
 		return jwt.getClaim("sub");
 	}
