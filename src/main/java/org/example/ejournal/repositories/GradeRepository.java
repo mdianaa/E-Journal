@@ -17,8 +17,8 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     int findCountOfGradeBySchoolClass(BigDecimal grade, String schoolClass);
 
     @Query(value = "SELECT count(g) FROM Grade g JOIN g.subject s " +
-            "WHERE s.subjectType = :subjectType AND g.value = :grade")
-    int findCountOfGradeBySubject(BigDecimal grade, SubjectType subjectType);
+            "WHERE s.name = :subjectType AND g.value = :grade")
+    int findCountOfGradeBySubject(BigDecimal grade, String subjectType);
 
     @Query(value = "SELECT count(g) FROM Grade g JOIN g.gradedByTeacher t " +
             "WHERE t.id = :teacherId AND g.value = :grade")
@@ -34,8 +34,8 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
             "JOIN st.schoolClass sc " +
             "JOIN sc.school sch " +
             "WHERE sch.id = :schoolId " +
-            "AND s.subjectType = :subjectType AND sc.className = :classNumber")
-    BigDecimal findAverageGradeForSubject(long schoolId, SubjectType subjectType, String classNumber);
+            "AND s.name = :subjectType AND sc.className = :classNumber")
+    BigDecimal findAverageGradeForSubject(long schoolId, String subjectType, String classNumber);
 
     @Query(value = "SELECT AVG(g.value) FROM Grade g " +
             "WHERE g.gradedByTeacher.id = :teacherId ")

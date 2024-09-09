@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.ejournal.enums.WeekDay;
 
+import java.time.LocalDateTime;
+
 /**
  * The type Absence.
  */
@@ -17,6 +19,8 @@ import org.example.ejournal.enums.WeekDay;
 @Entity
 @Table(name = "absences")
 public class Absence extends BaseEntity {
+    @Column
+    private LocalDateTime dateTime;
 
     @Enumerated(EnumType.STRING)
     private WeekDay day;

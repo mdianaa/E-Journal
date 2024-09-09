@@ -38,7 +38,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         // create schedule
         Schedule schedule = mapper.map(scheduleDto, Schedule.class);
         SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
-        Subject subject = subjectRepository.findBySubjectType(subjectDtoRequest.getSubjectType()).get();
+        Subject subject = subjectRepository.findByName(subjectDtoRequest.getName()).get();
 
         // set subject
         schedule.setSubject(subject);

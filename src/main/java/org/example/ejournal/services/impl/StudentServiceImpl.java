@@ -97,9 +97,9 @@ public class StudentServiceImpl implements StudentService {
     public List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto) {
         if (studentRepository.findByUserAuthenticationUsername(username).isPresent()){
             Student student = studentRepository.findByUserAuthenticationUsername(username).get();
-            Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
+            Subject subject = subjectRepository.findByName(subjectDto.getName()).get();
 
-            List<Grade> grades = student.getGrades().stream().filter(g -> g.getSubject().getSubjectType().equals(subject.getSubjectType())).toList();
+            List<Grade> grades = student.getGrades().stream().filter(g -> g.getSubject().getName().equals(subject.getName())).toList();
             List<GradeDtoResponse> gradesDto = new ArrayList<>();
 
             for (Grade grade : grades) {
@@ -187,7 +187,7 @@ public class StudentServiceImpl implements StudentService {
             student.setSchoolClass(null);
             student.setParent(null);
             student.setSchool(null);
-            student.setTeachers(null);
+            //student.setTeachers(null);
             List<Absence> absences = absenceRepository.findAllByStudent(student);
             absenceRepository.deleteAll(absences);
 

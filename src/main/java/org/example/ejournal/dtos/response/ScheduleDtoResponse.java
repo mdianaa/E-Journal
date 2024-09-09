@@ -15,6 +15,8 @@ public class ScheduleDtoResponse {
     private WeekDay day;
 
     private PeriodType periodType;
-
-    private SubjectType subject;
+    
+    private String subjectName;
+    
+    private String lastNameOfTeacher;
 }

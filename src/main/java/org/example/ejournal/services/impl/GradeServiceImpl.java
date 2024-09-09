@@ -14,7 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 @Service
@@ -25,15 +24,17 @@ public class GradeServiceImpl implements GradeService {
     private final SubjectRepository subjectRepository;
     private final StudentRepository studentRepository;
     private final SchoolClassRepository schoolClassRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
     private final ModelMapper mapper;
 
-    public GradeServiceImpl(GradeRepository gradeRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, SchoolClassRepository schoolClassRepository, ModelMapper mapper) {
+    public GradeServiceImpl(GradeRepository gradeRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, SchoolClassRepository schoolClassRepository, TeacherSubjectRepository teacherSubjectRepository, ModelMapper mapper) {
         this.gradeRepository = gradeRepository;
         this.teacherRepository = teacherRepository;
         this.subjectRepository = subjectRepository;
         this.studentRepository = studentRepository;
         this.schoolClassRepository = schoolClassRepository;
-        this.mapper = mapper;
+	    this.teacherSubjectRepository = teacherSubjectRepository;
+	    this.mapper = mapper;
     }
 
     @Transactional
@@ -42,11 +43,12 @@ public class GradeServiceImpl implements GradeService {
         // create grade
         Grade grade = mapper.map(gradeDto, Grade.class);
         Teacher teacher = teacherRepository.findByFirstNameAndLastName(teacherDto.getFirstName(), teacherDto.getLastName()).get();
-        Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
+        Subject subject = subjectRepository.findByName(subjectDto.getName()).get();
         Student student = studentRepository.findByFirstNameAndLastName(studentDto.getFirstName(), studentDto.getLastName()).get();
 
         // check if the teacher can grade this subject
-        if (canTeacherGradeSubject(teacher.getId(), subject.getSubjectType())) {
+        boolean isTeacherAssignedProperly = teacherSubjectRepository.existsByTeacherAndSubject(teacher,subject);
+        if (isTeacherAssignedProperly) {
             grade.setGradedByTeacher(teacher);
 
             grade.setSubject(subject);
@@ -82,8 +84,8 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
-    public BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber) {
-        return gradeRepository.findAverageGradeForSubject(schoolId, subject, classNumber);
+    public BigDecimal viewAverageGradeForSubject(long schoolId, String subjectName, String classNumber) {
+        return gradeRepository.findAverageGradeForSubject(schoolId, subjectName, classNumber);
     }
 
     @Override
@@ -110,9 +112,9 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public int viewGradeCountForSubject(BigDecimal grade, long subjectId) {
-        SubjectType subjectType = subjectRepository.findById(subjectId).get().getSubjectType();
+        String subjectName = subjectRepository.findById(subjectId).get().getName();
 
-        return gradeRepository.findCountOfGradeBySubject(grade, subjectType);
+        return gradeRepository.findCountOfGradeBySubject(grade, subjectName);
     }
 
     @Override
@@ -125,11 +127,11 @@ public class GradeServiceImpl implements GradeService {
         return gradeRepository.findCountOfGradeBySchool(grade, schoolId);
     }
 
-    private boolean canTeacherGradeSubject(long teacherId, SubjectType subjectType) {
-        Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
-
-        return teacherOptional.map(t -> t.getSubjects().stream()
-                        .anyMatch(s -> s.getSubjectType().equals(subjectType)))
-                .orElse(false);
-    }
+//    private boolean canTeacherGradeSubject(long teacherId, long subjectId) {
+//        Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
+//
+//        return teacherOptional.map(t -> t.getSubjects().stream()
+//                        .anyMatch(s -> s.getSubjectType().equals(subjectType)))
+//                .orElse(false);
+//    }
 }

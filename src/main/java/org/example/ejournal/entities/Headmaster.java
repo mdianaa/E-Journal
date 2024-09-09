@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -21,4 +23,9 @@ public class Headmaster extends User {
 
     @OneToMany
     private Set<Student> students;
+    @Column
+    private LocalDateTime fromDate;
+    
+    @Column
+    private LocalDateTime toDate;
 }

@@ -59,9 +59,9 @@ public class GradeController {
     @GetMapping("/average-for-subject/{schoolId}/{subjectType}/{classNumber}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<BigDecimal> viewAverageGradeForSubject(@PathVariable long schoolId,
-                                                                 @PathVariable SubjectType subjectType,
+                                                                 @PathVariable String subjectName,
                                                                  @PathVariable String classNumber) {
-        BigDecimal averageGradeForSubject = gradeService.viewAverageGradeForSubject(schoolId, subjectType, classNumber);
+        BigDecimal averageGradeForSubject = gradeService.viewAverageGradeForSubject(schoolId, subjectName, classNumber);
         return new ResponseEntity<>(averageGradeForSubject, HttpStatus.OK);
     }
 

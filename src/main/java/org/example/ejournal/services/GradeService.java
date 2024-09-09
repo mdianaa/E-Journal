@@ -16,8 +16,10 @@ public interface GradeService {
     GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto);
 
     // средна аритметична оценка за текущия предмет за определени класове (само 12-ти 'A', само 11-ти 'A'...) в дадено училище
-    BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber);
-
+    //BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber);
+    
+    BigDecimal viewAverageGradeForSubject(long schoolId, String subjectName, String classNumber);
+    
     // средна аритметична оценка за деден учител
     BigDecimal viewAverageGradeForTeacher(long teacherId);
 

@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    @Query("SELECT new org.example.ejournal.dtos.response.ScheduleDtoResponse(s.day, s.periodType, s.subject.subjectType) " +
+    @Query("SELECT new org.example.ejournal.dtos.response.ScheduleDtoResponse(s.day, s.periodType, s.teacherSubject.subject.name,s.teacherSubject.teacher.lastName) " +
             "FROM Schedule s " +
             "WHERE s.day = :day " +
             "AND s.schoolClass = :schoolClass " +

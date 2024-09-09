@@ -30,9 +30,12 @@ public class Schedule extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
-
+    
     @ManyToOne
     private Subject subject;
+    
+    @ManyToOne
+    private TeacherSubject teacherSubject;
 
     @ManyToOne
     @JoinColumn(name = "school_class_id")

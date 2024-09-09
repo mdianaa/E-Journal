@@ -3,17 +3,18 @@ package org.example.ejournal.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @Table(name = "bad_notes")
-public class BadNote {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class BadNote extends BaseEntity{
+    
+    @Column
+    private LocalDateTime dateTime;
 
     @Column
     private String description;

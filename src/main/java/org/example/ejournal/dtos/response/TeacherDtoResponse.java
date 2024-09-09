@@ -17,9 +17,9 @@ public class TeacherDtoResponse {
     private String teacherFirstName;
 
     private String teacherLastName;
-
-    private List<SubjectDtoResponse> subjects;
-
+    
     private String schoolName;
+    
+    private String phoneNumber;
 
 }

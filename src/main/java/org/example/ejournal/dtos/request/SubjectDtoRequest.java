@@ -16,6 +16,5 @@ import org.example.ejournal.enums.SubjectType;
 public class SubjectDtoRequest {
 
     @NotNull(message = "Subject type shouldn't be empty")
-    @Enumerated(EnumType.STRING)
-    private SubjectType subjectType;
+    private String name;
 }

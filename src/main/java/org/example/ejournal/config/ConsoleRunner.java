@@ -1,6 +1,10 @@
 package org.example.ejournal.config;
 
 import org.example.ejournal.dtos.request.*;
+import org.example.ejournal.dtos.response.ParentDtoResponse;
+import org.example.ejournal.dtos.response.StudentDtoResponse;
+import org.example.ejournal.dtos.response.SubjectDtoResponse;
+import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.enums.*;
 import org.example.ejournal.services.*;
 import org.springframework.boot.CommandLineRunner;
@@ -53,8 +57,8 @@ public class ConsoleRunner implements CommandLineRunner {
         SchoolDtoRequest schoolDtoRequest = new SchoolDtoRequest("SELS", "bul. Ivan Vazov");
         schoolService.createSchool(schoolDtoRequest);
 
-        SubjectDtoRequest english = new SubjectDtoRequest(SubjectType.ENGLISH);
-        SubjectDtoRequest math = new SubjectDtoRequest(SubjectType.MATH);
+        SubjectDtoRequest english = new SubjectDtoRequest("ENGLISH");
+        SubjectDtoRequest math = new SubjectDtoRequest("MATH");
 
         subjectService.createSubject(english, schoolDtoRequest);
         subjectService.createSubject(math, schoolDtoRequest);
@@ -67,17 +71,20 @@ public class ConsoleRunner implements CommandLineRunner {
         UserRegisterDtoRequest userRegisterDtoRequest1 = new UserRegisterDtoRequest("martin", "12345", RoleType.HEADMASTER);
         headmasterService.createHeadmaster(headmasterDtoRequest, schoolDtoRequest, userRegisterDtoRequest1);
 
-        TeacherDtoRequest teacherDtoRequest1 = new TeacherDtoRequest("Ivan", "Petrov", "+359 345 678", "Lozenetz");
+        TeacherDtoRequest teacherDtoRequest1 = new TeacherDtoRequest("Georgi","Petrov","088823232","Lozenetz");
         UserRegisterDtoRequest userRegisterDtoRequest2 = new UserRegisterDtoRequest("ivan", "12345", RoleType.TEACHER);
-        TeacherDtoRequest teacherDtoRequest2 = new TeacherDtoRequest("Maria", "Ivanova", "+359 675 353", "Vitosha");
+        TeacherDtoRequest teacherDtoRequest2 = new TeacherDtoRequest("Penka","Shtereva","08880099232","adres?");
         UserRegisterDtoRequest userRegisterDtoRequest3 = new UserRegisterDtoRequest("maria", "12345", RoleType.TEACHER);
-
-        teacherService.createTeacher(teacherDtoRequest1, schoolDtoRequest, subjects, userRegisterDtoRequest2);
-        teacherService.createTeacher(teacherDtoRequest2, schoolDtoRequest, subjects, userRegisterDtoRequest3);
+        
+        AdminRegisterDtoRequest teacherRegisterNew1 =  new AdminRegisterDtoRequest("Georgi","Petrov","088823232",RoleType.TEACHER, "goshko","parola1");
+        AdminRegisterDtoRequest teacherRegisterNew2 =  new AdminRegisterDtoRequest("Penka","Shtereva","08880099232",RoleType.TEACHER, "penka1","parola2");
+        
+        TeacherDtoResponse TteacherRegisterNew2 = teacherService.createTeacher(teacherRegisterNew2, schoolDtoRequest.getName());
 
         SchoolClassDtoRequest schoolClassDtoRequest = new SchoolClassDtoRequest("11A");
-
-        schoolClassService.createClass(schoolClassDtoRequest, teacherDtoRequest2, schoolDtoRequest);
+        
+        
+        schoolClassService.createClass(schoolClassDtoRequest, teacherDtoRequest1, schoolDtoRequest);
 
         ParentDtoRequest parentDtoRequest1 = new ParentDtoRequest("Ivana", "Marinova", "+359 368 354");
         UserRegisterDtoRequest userRegisterDtoRequest4 = new UserRegisterDtoRequest("ivana", "12345", RoleType.PARENT);
@@ -127,7 +134,7 @@ public class ConsoleRunner implements CommandLineRunner {
 //        System.out.println(headmasterService.viewHeadmaster(1L));
 //        Set<ParentDtoResponse> parentsToPrint = parentService.viewAllParentsInSchool(1L);
 //        parentsToPrint.forEach(System.out::println);
-//        System.out.println(scheduleService.viewScheduleForDay("monday", "11A", "first"));
+//        //System.out.println(scheduleService.viewScheduleForDay("monday", "11A", "first"));
 //        System.out.println(studentService.viewStudent(6L));
 //        Set<StudentDtoResponse> studentsToPrint = studentService.showAllStudentsInSchool(1L);
 //        studentsToPrint.forEach(System.out::println);
@@ -135,17 +142,17 @@ public class ConsoleRunner implements CommandLineRunner {
 //        studentService.showAllGradesForSubject(6L, math).forEach(System.out::println);
 //        System.out.println(teacherService.viewTeacher(2L));
 //        teacherService.viewAllTeachersInSchool(1L).forEach(System.out::println);
-
+//
 //        System.out.println(gradeService.viewGradeCountInSchoolClass(BigDecimal.valueOf(5), 1L));
 //        System.out.println(gradeService.viewGradeCountForSubject(BigDecimal.valueOf(5), 2L));
 //        System.out.println(gradeService.viewGradeCountForTeacher(BigDecimal.valueOf(5), 3L));
 //        System.out.println(gradeService.viewGradeCountInSchool(BigDecimal.valueOf(5), 1L));
-
-//        System.out.println(gradeService.viewAverageGradeForSubject(1L, math.getSubjectType(), "11A"));
+//
+//        System.out.println(gradeService.viewAverageGradeForSubject(1L, "MATH", "11A"));
 //        System.out.println(gradeService.viewAverageGradeForTeacher(3L));
 //        System.out.println(gradeService.viewAverageGradeForSchool(1L));
 //        System.out.println(gradeService.viewAverageGradeForStudent(6L));
-
+//
 
         // edit
 

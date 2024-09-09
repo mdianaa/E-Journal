@@ -33,7 +33,7 @@ public class School extends BaseEntity {
 
     @OneToMany(mappedBy = "school", targetEntity = Parent.class)
     private Set<Parent> parents;
-
-    @ManyToMany(fetch = FetchType.EAGER)
+    
+    @OneToMany(mappedBy = "school", fetch = FetchType.EAGER)
     private Set<Subject> subjects;
 }

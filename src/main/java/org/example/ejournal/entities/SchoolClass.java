@@ -26,6 +26,9 @@ public class SchoolClass extends BaseEntity {
     @OneToMany(mappedBy = "schoolClass", targetEntity = Student.class, fetch = FetchType.EAGER)
     private Set<Student> students;
 
+    @OneToMany(mappedBy = "schoolClass")
+    private Set<TeacherPosition> teacherPositionSet;
+    
     @ManyToOne
     private School school;
 

@@ -79,7 +79,7 @@ public class SubjectServiceImpl implements SubjectService {
             }
 
             School school = schoolRepository.findById(schoolId).get();
-            Set<Subject> subjects = school.getSubjects().stream().filter(s -> !s.getSubjectType().equals(subject.getSubjectType())).collect(Collectors.toSet());
+            Set<Subject> subjects = school.getSubjects().stream().filter(s -> !s.getName().equals(subject.getName())).collect(Collectors.toSet());
             school.setSubjects(subjects);
 
             subjectRepository.delete(subject);
