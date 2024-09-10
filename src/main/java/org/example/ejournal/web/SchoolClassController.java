@@ -28,11 +28,15 @@ public class SchoolClassController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SchoolClassDtoRequest> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto,
-                                                              @Valid @RequestBody TeacherDtoRequest headTeacherDto,
-                                                              @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        SchoolClassDtoRequest createdClassDto = schoolClassService.createClass(schoolClassDto, headTeacherDto, schoolDto);
-        return new ResponseEntity<>(createdClassDto, HttpStatus.CREATED);
+    public ResponseEntity<?> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto) {
+        try {
+            SchoolClassDtoRequest createdClassDto = schoolClassService.createClass(schoolClassDto);
+            return new ResponseEntity<>(createdClassDto, HttpStatus.CREATED);
+        }catch(Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            
+        }
     }
 
     @GetMapping("/changeHeadTeacher")
@@ -52,7 +56,9 @@ public class SchoolClassController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    
+    @GetMapping
+    
     @DeleteMapping("/delete/{classId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteClass(@PathVariable long classId) {

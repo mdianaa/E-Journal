@@ -18,7 +18,9 @@ public interface TeacherService {
     TeacherDtoResponse removeHeadTeacherTitle(long teacherId);
 
     TeacherDtoResponse viewTeacher(long teacherId);
-
+    
+    List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
+    
     List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
 
     Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId);

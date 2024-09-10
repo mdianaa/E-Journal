@@ -35,4 +35,13 @@ public class AdminRegisterDtoRequest {
     
     @NotNull
     private String school;
+    
+    public AdminRegisterDtoRequest(String firstName, String lastName, String phoneNumber, RoleType role, String username, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.username = username;
+        this.password = password;
+    }
 }

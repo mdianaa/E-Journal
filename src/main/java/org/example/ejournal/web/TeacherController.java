@@ -2,6 +2,7 @@ package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.apache.coyote.Response;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
@@ -122,9 +123,13 @@ public class TeacherController {
 
     @GetMapping("/viewAll/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<Set<TeacherDtoResponse>> viewAllTeachersInSchool(@PathVariable long schoolId) {
-        Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
-        return ResponseEntity.ok(teachers);
+    public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllTeachersInSchool(@PathVariable long schoolId) {
+        try{
+            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
+            return ResponseEntity.ok(teachers);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/delete/{teacherId}")

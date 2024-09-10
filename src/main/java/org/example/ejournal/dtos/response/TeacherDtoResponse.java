@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 public class TeacherDtoResponse {
 
+    private int id;
     private String teacherFirstName;
 
     private String teacherLastName;

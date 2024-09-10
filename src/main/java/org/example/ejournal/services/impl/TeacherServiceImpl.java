@@ -11,16 +11,11 @@ import org.example.ejournal.enums.WeekDay;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.example.ejournal.services.UserAuthenticationService;
-import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -142,7 +137,16 @@ public class TeacherServiceImpl implements TeacherService {
         
         return mapper.map(teacher, TeacherDtoResponse.class);
     }
-
+    
+    @Override
+    public List<TeacherDtoResponse> viewHeadTeachers(long schoolId){
+         List<Teacher> headTeachers = teacherRepository.findByHeadTeacherTrue();
+         List<TeacherDtoResponse> teacherDtoResponse = new ArrayList<>();
+         for(Teacher headTeacher : headTeachers){
+             teacherDtoResponse.add(mapper.map(headTeacher, TeacherDtoResponse.class));
+         }
+         return teacherDtoResponse;
+    }
     @Override
     public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
         WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());

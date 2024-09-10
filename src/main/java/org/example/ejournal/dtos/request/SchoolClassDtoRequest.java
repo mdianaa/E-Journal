@@ -14,4 +14,8 @@ public class SchoolClassDtoRequest {
 
     @NotNull(message = "Class name shouldn't be empty")
     private String className;
+    
+    private TeacherDtoRequest teacher;
+    private SchoolDtoRequest school;
+
 }

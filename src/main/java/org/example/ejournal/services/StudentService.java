@@ -1,5 +1,6 @@
 package org.example.ejournal.services;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.*;
 
@@ -23,6 +24,9 @@ public interface StudentService {
     List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
 
     Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId);
-
+    
+    @Transactional
+    Set<StudentDtoResponse> showAllStudentsInClass(long schoolClassId);
+    
     void withdrawStudent(long studentId);
 }

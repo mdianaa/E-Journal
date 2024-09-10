@@ -12,10 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -179,6 +176,22 @@ public class StudentServiceImpl implements StudentService {
         return studentsDto;
     }
 
+    @Transactional
+    @Override
+    public Set<StudentDtoResponse> showAllStudentsInClass(long schoolClassId){
+        SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId)
+                .orElseThrow(()-> new NoSuchElementException("No such class was found with id "+schoolClassId));
+        
+        Set<Student> students = schoolClass.getStudents();
+        Set<StudentDtoResponse> studentsDto = new HashSet<>();
+        
+        for(Student student:students){
+            studentsDto.add(mapper.map(student,StudentDtoResponse.class));
+        }
+        return studentsDto;
+    }
+    //todo
+    // boilerplate code above
     @Override
     public void withdrawStudent(long studentId) {
         if (studentRepository.findById(studentId).isPresent()) {

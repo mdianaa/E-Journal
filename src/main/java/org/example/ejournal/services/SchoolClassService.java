@@ -5,10 +5,10 @@ import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
 
 public interface SchoolClassService {
-
-    SchoolClassDtoRequest createClass(SchoolClassDtoRequest schoolClassDto, TeacherDtoRequest headTeacherDto, SchoolDtoRequest schoolDto);
-
-    SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto);
+	
+	SchoolClassDtoRequest createClass(SchoolClassDtoRequest schoolClassDto);
+	
+	SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto);
 
     void deleteClass(long classId);
 }

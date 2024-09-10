@@ -1,6 +1,7 @@
 package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.services.StudentService;
@@ -157,11 +158,26 @@ public class StudentController {
 
     @GetMapping("/school/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Set<StudentDtoResponse>> showAllStudentsInSchool(@PathVariable long schoolId) {
-        Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
-        return ResponseEntity.ok(students);
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchool(@PathVariable long schoolId) {
+        try {
+            Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
+            return ResponseEntity.ok(students);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
 
+    @GetMapping("/school-class/{schoolClassId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> ShowAllStudentsInSchoolClass(@PathVariable long schoolClassId){
+        try{
+            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInClass(schoolClassId);
+            return ResponseEntity.ok(studentDtoResponses);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
     @DeleteMapping("/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> withdrawStudent(@PathVariable long studentId) {
