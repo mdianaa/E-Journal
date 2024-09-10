@@ -30,6 +30,18 @@ public class TeacherDtoRequest {
 
     @NotNull(message = "Address shouldn't be empty")
     private String address;
-
+    
+    @Null
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+    
+    @NotNull(message = "Username cannot be empty")
+    private String username;
+    
+    @NotNull(message = "Password cannot be empty")
+    private String password;
+    
+    @NotNull
+    private String school;
     
 }

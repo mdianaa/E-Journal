@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/schools")
 public class SchoolController {
@@ -28,15 +30,20 @@ public class SchoolController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SchoolDtoResponse> createSchool(@RequestBody SchoolDtoRequest schoolDto) {
+    public ResponseEntity<?> createSchool(@RequestBody SchoolDtoRequest schoolDto) {
         try {
             SchoolDtoResponse createdSchool = schoolService.createSchool(schoolDto);
             return new ResponseEntity<>(createdSchool, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Handle specific cases where the input might be invalid
+            return new ResponseEntity<>("Invalid school data: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            // Log the error for debugging (optional)
+            // logger.error("Error creating school", e);
+            // Return a generic internal server error
+            return new ResponseEntity<>("An error occurred while creating the school.: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @GetMapping("/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<SchoolDtoResponse> viewSchoolInfo(@PathVariable long schoolId) {
@@ -47,7 +54,18 @@ public class SchoolController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> viewSchools(){
+        try{
+            List<SchoolDtoResponse> schoolDtoResponseList = schoolService.viewAllSchoolsInfo();
+            return new ResponseEntity<>(schoolDtoResponseList,HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
     @DeleteMapping("/{schoolId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteSchool(@PathVariable long schoolId) {

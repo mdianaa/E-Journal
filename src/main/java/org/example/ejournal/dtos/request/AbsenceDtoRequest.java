@@ -11,7 +11,7 @@ import org.example.ejournal.enums.WeekDay;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AbsenceDtoRequest {
+public class  AbsenceDtoRequest {
 
     @NotNull(message = "Week day shouldn't be empty")
     private WeekDay weekDay;

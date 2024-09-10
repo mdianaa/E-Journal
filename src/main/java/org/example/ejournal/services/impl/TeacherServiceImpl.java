@@ -53,16 +53,15 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Transactional
     @Override
-    public TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest, String schoolName) {
+    public TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest) {
         // Set the role to TEACHER
-        
         registerDtoRequest.setRole(RoleType.TEACHER);
         
         // Register user credentials via the UserAuthentication service
         UserAuthentication userAuthentication = userAuthenticationService.register(registerDtoRequest);
         
         // Find the school by name
-        School school = schoolRepository.findByName(schoolName)
+        School school = schoolRepository.findByName(registerDtoRequest.getSchool())
                 .orElseThrow(() -> new NoSuchElementException("School was not found."));
         
         // Create Teacher entity and map the inherited User fields

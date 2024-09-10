@@ -32,4 +32,7 @@ public class AdminRegisterDtoRequest {
 
     @NotNull(message = "Password cannot be empty")
     private String password;
+    
+    @NotNull
+    private String school;
 }

@@ -21,8 +21,6 @@ public class Headmaster extends User {
     @OneToOne
     private School school;
 
-    @OneToMany
-    private Set<Student> students;
     @Column
     private LocalDateTime fromDate;
     

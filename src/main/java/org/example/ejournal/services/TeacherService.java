@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface TeacherService {
-    TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest, String schoolName);
+    TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest);
     
     TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto);
 

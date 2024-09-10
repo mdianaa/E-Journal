@@ -35,7 +35,10 @@ public class SchoolServiceImpl implements SchoolService {
     @Override
     public SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto) {
         // check whether this school already exists
-
+        if(schoolRepository.findByName(schoolDto.getName()).isPresent()){
+            throw new IllegalArgumentException("School already exists with name " + schoolDto.getName());
+        }
+        
         // register school
         School school = mapper.map(schoolDto, School.class);
 
@@ -54,6 +57,16 @@ public class SchoolServiceImpl implements SchoolService {
         return mapper.map(school, SchoolDtoResponse.class);
     }
 
+    @Transactional
+    @Override
+    public List<SchoolDtoResponse> viewAllSchoolsInfo(){
+        List<School> schoolSet = schoolRepository.findAll();
+        List<SchoolDtoResponse> schoolDtoResponses = new ArrayList<>();
+        for(School school:schoolSet){
+            schoolDtoResponses.add(mapper.map(school,SchoolDtoResponse.class));
+        }
+        return schoolDtoResponses;
+    }
     @Override
     public void deleteSchool(long schoolId) {
         if (schoolRepository.findById(schoolId).isPresent()) {

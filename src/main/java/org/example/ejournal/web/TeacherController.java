@@ -1,6 +1,7 @@
 package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
@@ -11,9 +12,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @RestController
+@ControllerAdvice
 @RequestMapping("/teachers")
 public class TeacherController {
 
@@ -23,18 +26,32 @@ public class TeacherController {
         this.teacherService = teacherService;
     }
 
-    @GetMapping("/create")
+    @GetMapping("/sample")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> showCreateTeacherPage() {
         return ResponseEntity.ok("create teacher");
     }
-
+    
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TeacherDtoResponse> createTeacher(@Valid @RequestBody String schoolName,
-                                                            @Valid @RequestBody AdminRegisterDtoRequest adminRegisterDtoRequest) {
-        TeacherDtoResponse createdTeacherDto = teacherService.createTeacher(adminRegisterDtoRequest, schoolName);
-        return new ResponseEntity<>(createdTeacherDto, HttpStatus.CREATED);
+    public ResponseEntity<?> createTeacher(@RequestBody @NotNull AdminRegisterDtoRequest adminRegisterDtoRequest) {
+        try {
+            // Call the service to create a teacher
+            TeacherDtoResponse createdTeacherDto = teacherService.createTeacher(adminRegisterDtoRequest);
+            // Return the created teacher with HTTP status 201 (Created)
+            return new ResponseEntity<>(createdTeacherDto, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            // Handle specific exception if the school or other related data is not found
+            return new ResponseEntity<>("School not found.", HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            // Handle specific exception if the username already exists
+            return new ResponseEntity<>("Username already exists.", HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            // Log the error for debugging (optional)
+            // logger.error("Error creating teacher", e);
+            // Return a generic internal server error
+            return new ResponseEntity<>("An error occurred while creating the teacher.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/edit")
