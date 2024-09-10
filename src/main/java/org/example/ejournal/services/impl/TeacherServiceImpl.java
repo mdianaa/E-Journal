@@ -140,7 +140,7 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Override
     public List<TeacherDtoResponse> viewHeadTeachers(long schoolId){
-         List<Teacher> headTeachers = teacherRepository.findByHeadTeacherTrue();
+         List<Teacher> headTeachers = teacherRepository.findByIsHeadTeacherTrue();
          List<TeacherDtoResponse> teacherDtoResponse = new ArrayList<>();
          for(Teacher headTeacher : headTeachers){
              teacherDtoResponse.add(mapper.map(headTeacher, TeacherDtoResponse.class));

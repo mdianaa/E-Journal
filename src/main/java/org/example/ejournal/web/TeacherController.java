@@ -120,7 +120,7 @@ public class TeacherController {
         List<ScheduleDtoResponse> schedule = teacherService.viewScheduleForDay(day, semester, schoolClass);
         return ResponseEntity.ok(schedule);
     }
-
+    
     @GetMapping("/viewAll/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
     public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllTeachersInSchool(@PathVariable long schoolId) {
@@ -131,7 +131,17 @@ public class TeacherController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @GetMapping("/viewAllHeadTeacher/{schoolId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllHeadTeachersInSchool(@PathVariable long schoolId) {
+        try{
+            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
+            return ResponseEntity.ok(teachers);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @DeleteMapping("/delete/{teacherId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteTeacher(@PathVariable long teacherId) {

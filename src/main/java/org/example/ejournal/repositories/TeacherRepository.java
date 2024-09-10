@@ -15,7 +15,7 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     Optional<Teacher> findByFirstNameAndLastNameAndSchool(String firstName, String lastName,School school);
     List<Teacher> findBySchool(School school);
     
-    List<Teacher> findByHeadTeacherTrue();
+    List<Teacher> findByIsHeadTeacherTrue();
 
 //    @Query(value = "SELECT new org.example.ejournal.dtos.response.TeacherDtoResponse(t.firstName, t.lastName, t.school.name) " +
 //            "FROM Teacher t " +
