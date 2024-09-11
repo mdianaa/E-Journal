@@ -25,6 +25,6 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher")
     private List<TeacherSubject> teacherSubjectList;
     
-    @OneToOne
+    @OneToOne(mappedBy = "headTeacher",targetEntity = SchoolClass.class)
     private SchoolClass schoolClass;
 }
