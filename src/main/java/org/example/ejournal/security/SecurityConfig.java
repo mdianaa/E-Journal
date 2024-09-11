@@ -33,6 +33,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -121,7 +124,7 @@ public class SecurityConfig {
         return new NimbusJwtEncoder(jwks);
     }
     
-    @Bean
+    /*@Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
@@ -131,5 +134,20 @@ public class SecurityConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE"); // for these requests
             }
         };
+    }*/
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**") // Allows CORS for all endpoints
+                        .allowedOrigins("http://localhost:5173") // Allowed origin (frontend address)
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow these HTTP methods
+                        .allowedHeaders("*") // Allow any headers (can be specific if needed)
+                        .allowCredentials(true) // Allow credentials (cookies, authorization headers)
+                        .maxAge(3600); // Cache the pre-flight request for 1 hour
+            }
+        };
     }
+
 }
