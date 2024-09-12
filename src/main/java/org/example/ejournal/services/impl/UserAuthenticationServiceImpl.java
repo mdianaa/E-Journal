@@ -1,9 +1,8 @@
 package org.example.ejournal.services.impl;
 
-import org.example.ejournal.dtos.request.AdminRegisterDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.LoginResponseDto;
 import org.example.ejournal.dtos.response.UserDtoResponse;
-import org.example.ejournal.entities.User;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.entities.UserAuthentication;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
@@ -50,7 +49,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 	
 	@Transactional
 	@Override
-	public UserAuthentication register(AdminRegisterDtoRequest userDto) {
+	public UserAuthentication register(UserRegisterDtoRequest userDto) {
 		// Check if the username is already taken
 		if (userAuthenticationRepository.findByUsername(userDto.getUsername()).isEmpty()) {
 			// Create new UserAuthentication object

@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class HeadmasterDtoResponse {
 
+    private int headmasterId;
+    
     private String firstName;
 
     private String lastName;

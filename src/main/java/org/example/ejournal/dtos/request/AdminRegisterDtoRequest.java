@@ -13,35 +13,18 @@ import org.example.ejournal.enums.RoleType;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AdminRegisterDtoRequest {
-
-    @NotNull(message = "First name shouldn't be empty")
-    private String firstName;
-
-    @NotNull(message = "Last name shouldn't be empty")
-    private String lastName;
-
-    @NotNull(message = "Phone number name shouldn't be empty")
-    private String phoneNumber;
-
+public class AdminRegisterDtoRequest extends BaseUserDtoRequest {
+    
     @Enumerated(EnumType.STRING)
     private RoleType role;
-
+    
     @NotNull(message = "Username cannot be empty")
     private String username;
-
+    
     @NotNull(message = "Password cannot be empty")
     private String password;
     
     @NotNull
     private String school;
     
-    public AdminRegisterDtoRequest(String firstName, String lastName, String phoneNumber, RoleType role, String username, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-        this.username = username;
-        this.password = password;
-    }
 }

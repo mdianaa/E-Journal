@@ -2,14 +2,15 @@ package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.services.HeadmasterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/headmasters")
@@ -29,11 +30,14 @@ public class HeadmasterController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HeadmasterDtoResponse> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDto,
-                                                                  @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                                  @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
-        HeadmasterDtoResponse createdHeadmasterDto = headmasterService.createHeadmaster(headmasterDto, schoolDto, userRegisterDtoRequest);
+    public ResponseEntity<?> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest headmasterDtoRequest) {
+        try{HeadmasterDtoResponse createdHeadmasterDto = headmasterService
+                .createHeadmaster
+                        (headmasterDtoRequest);
         return new ResponseEntity<>(createdHeadmasterDto, HttpStatus.CREATED);
+        }catch (Exception e) {
+	        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/view/{headmasterId}")
@@ -42,7 +46,39 @@ public class HeadmasterController {
         HeadmasterDtoResponse headmaster = headmasterService.viewHeadmaster(headmasterId);
         return headmaster != null ? ResponseEntity.ok(headmaster) : ResponseEntity.notFound().build();
     }
-
+    
+    @GetMapping("/viewAll")
+    @PreAuthorize("hasAnyRole('HEADMASTER','ADMIN')")
+    public ResponseEntity<?> viewAllHeadmasters(){
+        try{
+            Set<HeadmasterDtoResponse> headmasterDtoResponseList = headmasterService.viewAllHeadmasters();
+            return ResponseEntity.ok(headmasterDtoResponseList);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @GetMapping("/view-by-schoolId/{schoolId}")
+    @PreAuthorize("hasAnyRole('HEADMASTER','ADMIN')")
+    public ResponseEntity<?> viewAllHeadmasters(@PathVariable @Valid long schoolId){
+        try{
+            Set<HeadmasterDtoResponse> headmasterDtoResponseList = headmasterService.viewAllHeadmasters();
+            return ResponseEntity.ok(headmasterDtoResponseList);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyRole('HEADMASTER','ADMIN')")
+    public ResponseEntity<?> viewAllHeadmastersBySchoolId(@PathVariable int schoolId){
+        try{
+            Set<HeadmasterDtoResponse> headmasterDtoResponseList = headmasterService.viewAllHeadmastersInSchool(schoolId);
+            return ResponseEntity.ok(headmasterDtoResponseList);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
     @GetMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> showEditHeadmasterPage() {

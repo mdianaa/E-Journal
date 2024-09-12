@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "headmasters")
 public class Headmaster extends User {
 
-    @OneToOne
+    @ManyToOne
     private School school;
 
     @Column

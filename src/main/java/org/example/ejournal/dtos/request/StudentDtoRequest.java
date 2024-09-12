@@ -14,17 +14,8 @@ import org.example.ejournal.enums.RoleType;
 @NoArgsConstructor
 @Getter
 @Setter
-public class StudentDtoRequest {
-
-    @NotNull(message = "First name shouldn't be empty")
-    private String firstName;
-
-    @NotNull(message = "Last name shouldn't be empty")
-    private String lastName;
-
+public class StudentDtoRequest extends BaseUserDtoRequest{
+    
     @NotNull(message = "Address shouldn't be empty")
     private String address;
-
-    @NotNull(message = "Phone number shouldn't be empty")
-    private String phoneNumber;
 }

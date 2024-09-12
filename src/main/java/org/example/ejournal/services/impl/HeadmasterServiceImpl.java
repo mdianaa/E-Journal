@@ -1,8 +1,6 @@
 package org.example.ejournal.services.impl;
 
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.entities.Headmaster;
 import org.example.ejournal.entities.School;
@@ -11,9 +9,12 @@ import org.example.ejournal.repositories.HeadmasterRepository;
 import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.HeadmasterService;
+import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 
 @Service
@@ -24,44 +25,34 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
-
-    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
+    private final UserAuthenticationService userAuthenticationService;
+    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, UserAuthenticationService userAuthenticationService) {
         this.headmasterRepository = headmasterRepository;
         this.schoolRepository = schoolRepository;
         this.userAuthenticationRepository = userAuthenticationRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
+	    this.userAuthenticationService = userAuthenticationService;
     }
 
     @Override
-    public HeadmasterDtoResponse createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
-        // check whether the headmaster exists already
-        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("User already exists!");
-        }
-
-        // check whether the school has already a headmaster
-        School school = schoolRepository.findByName(schoolDto.getName()).get();
-        if (school.getHeadmaster() != null) {
-            throw new IllegalArgumentException("School already has a headmaster!");
-        }
+    public HeadmasterDtoResponse  createHeadmaster(HeadmasterDtoRequest headmasterDto) {
+        //find the school
+        School school = schoolRepository.findById(headmasterDto.getSchoolId())
+                .orElseThrow(()-> new NoSuchElementException("No such school was found with id" + headmasterDto.getSchoolId()));
 
         // register headmaster
         Headmaster headmaster = mapper.map(headmasterDto, Headmaster.class);
         headmaster.setSchool(school);
 
         // map the user credentials
-        UserAuthentication userAuthentication = new UserAuthentication();
-        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
-        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
-        userAuthentication.setRole(userRegisterDtoRequest.getRole());
-
+        UserAuthentication userAuthentication = userAuthenticationService.register(headmasterDto.getUserRegister());
+        
         headmaster.setUserAuthentication(userAuthentication);
 
         // persist to db
-        userAuthenticationRepository.save(userAuthentication);
         headmasterRepository.save(headmaster);
-
+ 
         // return dto
         return mapper.map(headmaster, HeadmasterDtoResponse.class);
     }
@@ -71,6 +62,31 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
 
         return mapper.map(headmaster, HeadmasterDtoResponse.class);
+    }
+    
+    @Override
+    public Set<HeadmasterDtoResponse> viewAllHeadmastersInSchool(long schoolId){
+            School school = schoolRepository.findById(schoolId).get();
+            
+            Set<Headmaster> headmasters = school.getHeadmaster();
+            Set<HeadmasterDtoResponse> headmastersDto = new HashSet<>();
+            
+            for (Headmaster headmaster : headmasters) {
+                
+                headmastersDto.add(mapper.map(headmaster, HeadmasterDtoResponse.class));
+            }
+            
+            return headmastersDto;
+    }
+    
+    @Override
+    public Set<HeadmasterDtoResponse> viewAllHeadmasters(){
+        List<Headmaster> headmasters = headmasterRepository.findAll();
+        Set<HeadmasterDtoResponse> headmastersDto = new HashSet<>();
+        for(Headmaster headmaster : headmasters){
+            headmastersDto.add(mapper.map(headmaster, HeadmasterDtoResponse.class));
+        }
+        return headmastersDto;
     }
 
     @Override

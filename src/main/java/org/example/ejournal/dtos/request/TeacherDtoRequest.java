@@ -17,29 +17,13 @@ import org.modelmapper.internal.bytebuddy.implementation.bind.annotation.Empty;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TeacherDtoRequest {
-
-    @NotNull(message = "First name shouldn't be empty")
-    private String firstName;
-
-    @NotNull(message = "Last name shouldn't be empty")
-    private String lastName;
-
-    @NotNull(message = "Phone number shouldn't be empty")
-    private String phoneNumber;
-
+public class TeacherDtoRequest extends BaseUserDtoRequest{
+    
     @NotNull(message = "Address shouldn't be empty")
     private String address;
     
-    @Null
-    @Enumerated(EnumType.STRING)
-    private RoleType role;
-    
-    @NotNull(message = "Username cannot be empty")
-    private String username;
-    
-    @NotNull(message = "Password cannot be empty")
-    private String password;
+    @NotNull
+    private UserRegisterDtoRequest userRegisterDtoRequest;
     
     @NotNull
     private String school;

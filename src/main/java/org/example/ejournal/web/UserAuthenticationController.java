@@ -2,6 +2,7 @@ package org.example.ejournal.web;
 
 import org.example.ejournal.dtos.request.UserLoginDtoRequest;
 import org.example.ejournal.dtos.request.AdminRegisterDtoRequest;
+import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.LoginResponseDto;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.services.UserAuthenticationService;
@@ -44,7 +45,7 @@ public class UserAuthenticationController {
 
     @PostMapping("/register")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> register(@RequestBody AdminRegisterDtoRequest request) {
+    public ResponseEntity<String> register(@RequestBody UserRegisterDtoRequest request) {
         userAuthenticationService.register(request);
         return ResponseEntity.ok("Registration successful");
     }

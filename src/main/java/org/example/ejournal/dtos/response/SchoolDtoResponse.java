@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SchoolDtoResponse {
-
+    private int schoolId;
     private String name;
 
     private String headmasterFirstName;

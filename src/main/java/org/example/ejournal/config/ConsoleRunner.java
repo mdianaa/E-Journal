@@ -49,7 +49,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
         // create ADMIN
 
-        AdminRegisterDtoRequest adminRegisterDtoRequest = new AdminRegisterDtoRequest("ADMIN", "ADMIN", "+0000000000", RoleType.ADMIN, "admin", "admin");
+     /*   UserRegisterDtoRequest adminRegisterDtoRequest = new UserRegisterDtoRequest("admin","admin",RoleType.ADMIN);
         userAuthenticationService.register(adminRegisterDtoRequest);
 
         // create other users
@@ -65,66 +65,65 @@ public class ConsoleRunner implements CommandLineRunner {
 
         Set<SubjectDtoRequest> subjects = new HashSet<>();
         subjects.add(english);
-        subjects.add(math);
+        subjects.add(math);*/
 
-        HeadmasterDtoRequest headmasterDtoRequest = new HeadmasterDtoRequest("Martin", "Stoyanov", "+359 876 256");
-        UserRegisterDtoRequest userRegisterDtoRequest1 = new UserRegisterDtoRequest("martin", "12345", RoleType.HEADMASTER);
-        headmasterService.createHeadmaster(headmasterDtoRequest, schoolDtoRequest, userRegisterDtoRequest1);
+//        HeadmasterDtoRequest headmasterDtoRequest = new HeadmasterDtoRequest("Martin", "Stoyanov", "+359 876 256");
+//        UserRegisterDtoRequest userRegisterDtoRequest1 = new UserRegisterDtoRequest("martin", "12345", RoleType.HEADMASTER);
+//        headmasterService.createHeadmaster(headmasterDtoRequest, schoolDtoRequest, userRegisterDtoRequest1);
+////        TeacherDtoRequest teacherDtoRequest1 = new TeacherDtoRequest("Georgi","Petrov","088823232","Lozenetz");
+//        UserRegisterDtoRequest userRegisterDtoRequest2 = new UserRegisterDtoRequest("ivan", "12345", RoleType.TEACHER);
+//        TeacherDtoRequest teacherDtoRequest2 = new TeacherDtoRequest("Penka","Shtereva","08880099232","adres?");
+//        UserRegisterDtoRequest userRegisterDtoRequest3 = new UserRegisterDtoRequest("maria", "12345", RoleType.TEACHER);
 
-        TeacherDtoRequest teacherDtoRequest1 = new TeacherDtoRequest("Georgi","Petrov","088823232","Lozenetz");
-        UserRegisterDtoRequest userRegisterDtoRequest2 = new UserRegisterDtoRequest("ivan", "12345", RoleType.TEACHER);
-        TeacherDtoRequest teacherDtoRequest2 = new TeacherDtoRequest("Penka","Shtereva","08880099232","adres?");
-        UserRegisterDtoRequest userRegisterDtoRequest3 = new UserRegisterDtoRequest("maria", "12345", RoleType.TEACHER);
-        
-        AdminRegisterDtoRequest teacherRegisterNew1 =  new AdminRegisterDtoRequest("Georgi","Petrov","088823232",RoleType.TEACHER, "goshko","parola1");
-        AdminRegisterDtoRequest teacherRegisterNew2 =  new AdminRegisterDtoRequest("Penka","Shtereva","08880099232",RoleType.TEACHER, "penka1","parola2");
-        
-        TeacherDtoResponse TteacherRegisterNew2 = teacherService.createTeacher(teacherRegisterNew2, schoolDtoRequest.getName());
-
-        SchoolClassDtoRequest schoolClassDtoRequest = new SchoolClassDtoRequest("11A");
-        
-        
-        schoolClassService.createClass(schoolClassDtoRequest, teacherDtoRequest1, schoolDtoRequest);
-
-        ParentDtoRequest parentDtoRequest1 = new ParentDtoRequest("Ivana", "Marinova", "+359 368 354");
-        UserRegisterDtoRequest userRegisterDtoRequest4 = new UserRegisterDtoRequest("ivana", "12345", RoleType.PARENT);
-        ParentDtoRequest parentDtoRequest2 = new ParentDtoRequest("Mihail", "Dimitrov", "+359 463 152");
-        UserRegisterDtoRequest userRegisterDtoRequest5 = new UserRegisterDtoRequest("mihail", "12345", RoleType.PARENT);
-
-        parentService.createParent(parentDtoRequest1, schoolDtoRequest, userRegisterDtoRequest4);
-        parentService.createParent(parentDtoRequest2, schoolDtoRequest, userRegisterDtoRequest5);
-
-        StudentDtoRequest studentDtoRequest1 = new StudentDtoRequest("Ivaylo", "Marinov", "Serdika", "+359 243 578");
-        UserRegisterDtoRequest userRegisterDtoRequest6 = new UserRegisterDtoRequest("ivaylo", "12345", RoleType.STUDENT);
-        StudentDtoRequest studentDtoRequest2 = new StudentDtoRequest("Iva", "Dimitrov", "Studentski grad", "+359 536 183");
-        UserRegisterDtoRequest userRegisterDtoRequest7 = new UserRegisterDtoRequest("iva", "12345", RoleType.STUDENT);
-        StudentDtoRequest studentDtoRequest3 = new StudentDtoRequest("Marin", "Dimitrov", "Studentski grad", "+359 354 263");
-        UserRegisterDtoRequest userRegisterDtoRequest8 = new UserRegisterDtoRequest("marin", "12345", RoleType.STUDENT);
-
-        studentService.createStudent(studentDtoRequest1, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest1, userRegisterDtoRequest6);
-        studentService.createStudent(studentDtoRequest2, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2, userRegisterDtoRequest7);
-        studentService.createStudent(studentDtoRequest3, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2, userRegisterDtoRequest8);
-
-        ScheduleDtoRequest monday = new ScheduleDtoRequest(WeekDay.MONDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
-        ScheduleDtoRequest tuesday = new ScheduleDtoRequest(WeekDay.TUESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SECOND);
-        ScheduleDtoRequest wednesday = new ScheduleDtoRequest(WeekDay.WEDNESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIFTH);
-        ScheduleDtoRequest thursday = new ScheduleDtoRequest(WeekDay.THURSDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
-        ScheduleDtoRequest friday = new ScheduleDtoRequest(WeekDay.FRIDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SIXTH);
-
-        scheduleService.createSchedule(monday, schoolClassDtoRequest, math);
-        scheduleService.createSchedule(tuesday, schoolClassDtoRequest, math);
-        scheduleService.createSchedule(wednesday, schoolClassDtoRequest, english);
-        scheduleService.createSchedule(thursday, schoolClassDtoRequest, english);
-        scheduleService.createSchedule(friday, schoolClassDtoRequest, english);
-
-        AbsenceDtoRequest absenceDtoRequest = new AbsenceDtoRequest(WeekDay.MONDAY);
-        absenceService.createAbsence(absenceDtoRequest, teacherDtoRequest1, studentDtoRequest1, english);
-
-        GradeDtoRequest gradeDtoRequest1 = new GradeDtoRequest(BigDecimal.valueOf(5));
-        GradeDtoRequest gradeDtoRequest2 = new GradeDtoRequest(BigDecimal.valueOf(5));
-
-        gradeService.createGrade(gradeDtoRequest1, teacherDtoRequest2, math, studentDtoRequest1);
-        gradeService.createGrade(gradeDtoRequest2, teacherDtoRequest2, math, studentDtoRequest2);
+//        AdminRegisterDtoRequest teacherRegisterNew1 =  new AdminRegisterDtoRequest("Georgi","Petrov","088823232",RoleType.TEACHER, "goshko","parola1");
+//        AdminRegisterDtoRequest teacherRegisterNew2 =  new AdminRegisterDtoRequest("Penka","Shtereva","08880099232",RoleType.TEACHER, "penka1","parola2");
+//
+//        TeacherDtoResponse TteacherRegisterNew2 = teacherService.createTeacher(teacherRegisterNew2, schoolDtoRequest.getName());
+//
+//        SchoolClassDtoRequest schoolClassDtoRequest = new SchoolClassDtoRequest("11A");
+//
+//
+//        schoolClassService.createClass(schoolClassDtoRequest, teacherDtoRequest1, schoolDtoRequest);
+//
+//        ParentDtoRequest parentDtoRequest1 = new ParentDtoRequest("Ivana", "Marinova", "+359 368 354");
+//        UserRegisterDtoRequest userRegisterDtoRequest4 = new UserRegisterDtoRequest("ivana", "12345", RoleType.PARENT);
+//        ParentDtoRequest parentDtoRequest2 = new ParentDtoRequest("Mihail", "Dimitrov", "+359 463 152");
+//        UserRegisterDtoRequest userRegisterDtoRequest5 = new UserRegisterDtoRequest("mihail", "12345", RoleType.PARENT);
+//
+//        parentService.createParent(parentDtoRequest1, schoolDtoRequest, userRegisterDtoRequest4);
+//        parentService.createParent(parentDtoRequest2, schoolDtoRequest, userRegisterDtoRequest5);
+//
+//        StudentDtoRequest studentDtoRequest1 = new StudentDtoRequest("Ivaylo", "Marinov", "Serdika", "+359 243 578");
+//        UserRegisterDtoRequest userRegisterDtoRequest6 = new UserRegisterDtoRequest("ivaylo", "12345", RoleType.STUDENT);
+//        StudentDtoRequest studentDtoRequest2 = new StudentDtoRequest("Iva", "Dimitrov", "Studentski grad", "+359 536 183");
+//        UserRegisterDtoRequest userRegisterDtoRequest7 = new UserRegisterDtoRequest("iva", "12345", RoleType.STUDENT);
+//        StudentDtoRequest studentDtoRequest3 = new StudentDtoRequest("Marin", "Dimitrov", "Studentski grad", "+359 354 263");
+//        UserRegisterDtoRequest userRegisterDtoRequest8 = new UserRegisterDtoRequest("marin", "12345", RoleType.STUDENT);
+//
+//        studentService.createStudent(studentDtoRequest1, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest1, userRegisterDtoRequest6);
+//        studentService.createStudent(studentDtoRequest2, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2, userRegisterDtoRequest7);
+//        studentService.createStudent(studentDtoRequest3, schoolDtoRequest, schoolClassDtoRequest, parentDtoRequest2, userRegisterDtoRequest8);
+//
+//        ScheduleDtoRequest monday = new ScheduleDtoRequest(WeekDay.MONDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
+//        ScheduleDtoRequest tuesday = new ScheduleDtoRequest(WeekDay.TUESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SECOND);
+//        ScheduleDtoRequest wednesday = new ScheduleDtoRequest(WeekDay.WEDNESDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIFTH);
+//        ScheduleDtoRequest thursday = new ScheduleDtoRequest(WeekDay.THURSDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.FIRST);
+//        ScheduleDtoRequest friday = new ScheduleDtoRequest(WeekDay.FRIDAY, SemesterType.FIRST, ShiftType.FIRST, PeriodType.SIXTH);
+//
+//        scheduleService.createSchedule(monday, schoolClassDtoRequest, math);
+//        scheduleService.createSchedule(tuesday, schoolClassDtoRequest, math);
+//        scheduleService.createSchedule(wednesday, schoolClassDtoRequest, english);
+//        scheduleService.createSchedule(thursday, schoolClassDtoRequest, english);
+//        scheduleService.createSchedule(friday, schoolClassDtoRequest, english);
+//
+//        AbsenceDtoRequest absenceDtoRequest = new AbsenceDtoRequest(WeekDay.MONDAY);
+//        absenceService.createAbsence(absenceDtoRequest, teacherDtoRequest1, studentDtoRequest1, english);
+//
+//        GradeDtoRequest gradeDtoRequest1 = new GradeDtoRequest(BigDecimal.valueOf(5));
+//        GradeDtoRequest gradeDtoRequest2 = new GradeDtoRequest(BigDecimal.valueOf(5));
+//
+//        gradeService.createGrade(gradeDtoRequest1, teacherDtoRequest2, math, studentDtoRequest1);
+//        gradeService.createGrade(gradeDtoRequest2, teacherDtoRequest2, math, studentDtoRequest2);
 
         // visualize
 

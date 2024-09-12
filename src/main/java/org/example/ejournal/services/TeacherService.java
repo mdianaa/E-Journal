@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Set;
 
 public interface TeacherService {
-    TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest);
-    
-    TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto);
+	
+	@Transactional
+	TeacherDtoResponse createTeacher(TeacherDtoRequest teacherDtoRequest);
+	
+	TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto);
 
 //    TeacherDtoResponse changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos);
 

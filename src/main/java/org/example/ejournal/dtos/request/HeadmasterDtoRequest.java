@@ -15,14 +15,11 @@ import org.example.ejournal.enums.RoleType;
 @NoArgsConstructor
 @Getter
 @Setter
-public class HeadmasterDtoRequest {
-
-    @NotNull(message = "First name shouldn't be empty")
-    private String firstName;
-
-    @NotNull(message = "Last name shouldn't be empty")
-    private String lastName;
-
-    @NotNull(message = "Phone number shouldn't be empty")
-    private String phoneNumber;
+public class HeadmasterDtoRequest extends BaseUserDtoRequest{
+    
+    @NotNull
+    private Long schoolId;
+    
+    @NotNull
+    private UserRegisterDtoRequest userRegister;
 }

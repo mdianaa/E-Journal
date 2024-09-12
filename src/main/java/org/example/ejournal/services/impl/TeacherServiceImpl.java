@@ -48,22 +48,22 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Transactional
     @Override
-    public TeacherDtoResponse createTeacher(AdminRegisterDtoRequest registerDtoRequest) {
+    public TeacherDtoResponse createTeacher(TeacherDtoRequest teacherDtoRequest) {
         // Set the role to TEACHER
-        registerDtoRequest.setRole(RoleType.TEACHER);
+        teacherDtoRequest.getUserRegisterDtoRequest().setRole(RoleType.TEACHER);
         
         // Register user credentials via the UserAuthentication service
-        UserAuthentication userAuthentication = userAuthenticationService.register(registerDtoRequest);
+        UserAuthentication userAuthentication = userAuthenticationService.register(teacherDtoRequest.getUserRegisterDtoRequest());
         
         // Find the school by name
-        School school = schoolRepository.findByName(registerDtoRequest.getSchool())
+        School school = schoolRepository.findByName(teacherDtoRequest.getSchool())
                 .orElseThrow(() -> new NoSuchElementException("School was not found."));
         
         // Create Teacher entity and map the inherited User fields
         Teacher teacher = new Teacher();
-        teacher.setFirstName(registerDtoRequest.getFirstName()); // inherited from User
-        teacher.setLastName(registerDtoRequest.getLastName()); // inherited from User
-        teacher.setPhoneNumber(registerDtoRequest.getPhoneNumber()); // inherited from User
+        teacher.setFirstName(teacherDtoRequest.getFirstName()); // inherited from User
+        teacher.setLastName(teacherDtoRequest.getLastName()); // inherited from User
+        teacher.setPhoneNumber(teacherDtoRequest .getPhoneNumber()); // inherited from User
         
         // Set school and link UserAuthentication to the teacher
         teacher.setSchool(school);
