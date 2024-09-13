@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -26,7 +27,7 @@ public class School extends BaseEntity {
     private Set<Teacher> teachers;
 
     @OneToMany(mappedBy = "school", targetEntity = Headmaster.class, fetch = FetchType.EAGER)
-    private Set<Headmaster> headmaster;
+    private List<Headmaster> headmaster;
 
     @OneToMany(mappedBy = "school", targetEntity = Student.class)
     private Set<Student> students;

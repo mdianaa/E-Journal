@@ -42,14 +42,18 @@ public class HeadmasterServiceImpl implements HeadmasterService {
                 .orElseThrow(()-> new NoSuchElementException("No such school was found with id" + headmasterDto.getSchoolId()));
 
         // register headmaster
-        Headmaster headmaster = mapper.map(headmasterDto, Headmaster.class);
+        Headmaster headmaster = new Headmaster();
         headmaster.setSchool(school);
-
+        
+        headmaster.setFirstName(headmasterDto.getFirstName());
+        headmaster.setLastName(headmasterDto.getLastName());
+        headmaster.setPhoneNumber(headmasterDto.getPhoneNumber());
+        
         // map the user credentials
         UserAuthentication userAuthentication = userAuthenticationService.register(headmasterDto.getUserRegister());
         
         headmaster.setUserAuthentication(userAuthentication);
-
+        
         // persist to db
         headmasterRepository.save(headmaster);
  
@@ -68,7 +72,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     public Set<HeadmasterDtoResponse> viewAllHeadmastersInSchool(long schoolId){
             School school = schoolRepository.findById(schoolId).get();
             
-            Set<Headmaster> headmasters = school.getHeadmaster();
+            List<Headmaster> headmasters = school.getHeadmaster();
             Set<HeadmasterDtoResponse> headmastersDto = new HashSet<>();
             
             for (Headmaster headmaster : headmasters) {

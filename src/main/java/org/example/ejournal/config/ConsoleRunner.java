@@ -49,7 +49,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
         // create ADMIN
 
-     /*   UserRegisterDtoRequest adminRegisterDtoRequest = new UserRegisterDtoRequest("admin","admin",RoleType.ADMIN);
+      /* UserRegisterDtoRequest adminRegisterDtoRequest = new UserRegisterDtoRequest("admin","admin",RoleType.ADMIN);
         userAuthenticationService.register(adminRegisterDtoRequest);
 
         // create other users

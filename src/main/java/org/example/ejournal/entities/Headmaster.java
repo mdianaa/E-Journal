@@ -19,6 +19,7 @@ import java.util.Set;
 public class Headmaster extends User {
 
     @ManyToOne
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
     @Column
