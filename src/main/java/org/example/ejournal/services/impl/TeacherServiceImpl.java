@@ -12,6 +12,8 @@ import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +34,9 @@ public class TeacherServiceImpl implements TeacherService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
 
+    private final HeadmasterRepository headmasterRepository;
     private final UserAuthenticationService userAuthenticationService;
-    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, SchoolClassRepository schoolClassRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, UserAuthenticationService userAuthenticationService) {
+    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, SchoolClassRepository schoolClassRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, HeadmasterRepository headmasterRepository, UserAuthenticationService userAuthenticationService) {
         this.teacherRepository = teacherRepository;
         this.schoolRepository = schoolRepository;
         this.subjectRepository = subjectRepository;
@@ -43,6 +46,7 @@ public class TeacherServiceImpl implements TeacherService {
         this.userAuthenticationRepository = userAuthenticationRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
+	    this.headmasterRepository = headmasterRepository;
 	    this.userAuthenticationService = userAuthenticationService;
     }
     
@@ -55,9 +59,14 @@ public class TeacherServiceImpl implements TeacherService {
         // Register user credentials via the UserAuthentication service
         UserAuthentication userAuthentication = userAuthenticationService.register(teacherDtoRequest.getUserRegisterDtoRequest());
         
-        // Find the school by name
-        School school = schoolRepository.findByName(teacherDtoRequest.getSchool())
-                .orElseThrow(() -> new NoSuchElementException("School was not found."));
+        // Retrieve the currently authenticated headmaster
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String headmasterUsername = authentication.getName();
+        
+        // Find the headmaster by username and get their school
+        Headmaster headmaster = headmasterRepository.findByUserAuthentication_Username(headmasterUsername)
+                .orElseThrow(() -> new NoSuchElementException("Headmaster not found."));
+        School school = headmaster.getSchool();
         
         // Create Teacher entity and map the inherited User fields
         Teacher teacher = new Teacher();
