@@ -5,6 +5,7 @@ import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.entities.Headmaster;
 import org.example.ejournal.entities.School;
 import org.example.ejournal.entities.UserAuthentication;
+import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.repositories.HeadmasterRepository;
 import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
@@ -41,7 +42,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         School school = schoolRepository.findById(headmasterDto.getSchoolId())
                 .orElseThrow(()-> new NoSuchElementException("No such school was found with id" + headmasterDto.getSchoolId()));
 
-        // register headmaster
+        // assign info headmaster
         Headmaster headmaster = new Headmaster();
         headmaster.setSchool(school);
         
@@ -49,7 +50,9 @@ public class HeadmasterServiceImpl implements HeadmasterService {
         headmaster.setLastName(headmasterDto.getLastName());
         headmaster.setPhoneNumber(headmasterDto.getPhoneNumber());
         
-        // map the user credentials
+        //set role
+        headmasterDto.getUserRegister().setRole(RoleType.HEADMASTER);
+        // register the user credentials
         UserAuthentication userAuthentication = userAuthenticationService.register(headmasterDto.getUserRegister());
         
         headmaster.setUserAuthentication(userAuthentication);

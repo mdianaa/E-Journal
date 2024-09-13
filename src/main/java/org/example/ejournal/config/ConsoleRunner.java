@@ -5,7 +5,9 @@ import org.example.ejournal.dtos.response.ParentDtoResponse;
 import org.example.ejournal.dtos.response.StudentDtoResponse;
 import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
+import org.example.ejournal.entities.UserAuthentication;
 import org.example.ejournal.enums.*;
+import org.example.ejournal.repositories.UserAuthenticationRepository;
 import org.example.ejournal.services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -27,8 +29,9 @@ public class ConsoleRunner implements CommandLineRunner {
     private final SubjectService subjectService;
     private final TeacherService teacherService;
     private final UserAuthenticationService userAuthenticationService;
+    private final UserAuthenticationRepository userAuthenticationRepository;
 
-    public ConsoleRunner(AbsenceService absenceService, GradeService gradeService, HeadmasterService headmasterService, ParentService parentService, ScheduleService scheduleService, SchoolClassService schoolClassService, SchoolService schoolService, StudentService studentService, SubjectService subjectService, TeacherService teacherService, UserAuthenticationService userAuthenticationService) {
+    public ConsoleRunner(AbsenceService absenceService, GradeService gradeService, HeadmasterService headmasterService, ParentService parentService, ScheduleService scheduleService, SchoolClassService schoolClassService, SchoolService schoolService, StudentService studentService, SubjectService subjectService, TeacherService teacherService, UserAuthenticationService userAuthenticationService, UserAuthenticationRepository userAuthenticationRepository) {
         this.absenceService = absenceService;
         this.gradeService = gradeService;
         this.headmasterService = headmasterService;
@@ -40,33 +43,37 @@ public class ConsoleRunner implements CommandLineRunner {
         this.subjectService = subjectService;
         this.teacherService = teacherService;
         this.userAuthenticationService = userAuthenticationService;
+	    this.userAuthenticationRepository = userAuthenticationRepository;
     }
 
     @Override
     public void run(String... args) {
 
-        // creation
-
-        // create ADMIN
-
-      /* UserRegisterDtoRequest adminRegisterDtoRequest = new UserRegisterDtoRequest("admin","admin",RoleType.ADMIN);
-        userAuthenticationService.register(adminRegisterDtoRequest);
-
-        // create other users
-
-        SchoolDtoRequest schoolDtoRequest = new SchoolDtoRequest("SELS", "bul. Ivan Vazov");
-        schoolService.createSchool(schoolDtoRequest);
-
-        SubjectDtoRequest english = new SubjectDtoRequest("ENGLISH");
-        SubjectDtoRequest math = new SubjectDtoRequest("MATH");
-
-        subjectService.createSubject(english, schoolDtoRequest);
-        subjectService.createSubject(math, schoolDtoRequest);
-
-        Set<SubjectDtoRequest> subjects = new HashSet<>();
-        subjects.add(english);
-        subjects.add(math);*/
-
+        //create admin
+        Optional<UserAuthentication> userAuthentication = userAuthenticationRepository.findByUsername("admin");
+        if(userAuthentication.isEmpty()) {
+            // create ADMIN
+            
+            UserRegisterDtoRequest adminRegisterDtoRequest = new UserRegisterDtoRequest("admin", "admin", RoleType.ADMIN);
+            userAuthenticationService.register(adminRegisterDtoRequest);
+            
+            // create other users
+            
+            SchoolDtoRequest schoolDtoRequest = new SchoolDtoRequest("SELS", "bul. Ivan Vazov");
+            schoolService.createSchool(schoolDtoRequest);
+            
+            SubjectDtoRequest english = new SubjectDtoRequest("ENGLISH");
+            SubjectDtoRequest math = new SubjectDtoRequest("MATH");
+            
+            subjectService.createSubject(english, schoolDtoRequest);
+            subjectService.createSubject(math, schoolDtoRequest);
+            
+            Set<SubjectDtoRequest> subjects = new HashSet<>();
+            subjects.add(english);
+            subjects.add(math);
+        }
+        
+        
 //        HeadmasterDtoRequest headmasterDtoRequest = new HeadmasterDtoRequest("Martin", "Stoyanov", "+359 876 256");
 //        UserRegisterDtoRequest userRegisterDtoRequest1 = new UserRegisterDtoRequest("martin", "12345", RoleType.HEADMASTER);
 //        headmasterService.createHeadmaster(headmasterDtoRequest, schoolDtoRequest, userRegisterDtoRequest1);
