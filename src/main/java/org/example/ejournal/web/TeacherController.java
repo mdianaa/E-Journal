@@ -91,6 +91,7 @@ public class TeacherController {
             Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersAsHeadmaster();
             return ResponseEntity.ok(teachers);
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

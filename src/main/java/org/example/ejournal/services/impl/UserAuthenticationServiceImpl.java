@@ -107,11 +107,8 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 		}
 		
 		// Check if authentication is JWT-based
-		if (authentication instanceof JwtAuthenticationToken) {
-			// Extract username from the name field of the JwtAuthenticationToken
-			String username = authentication.getName();
-			
-			// Fetch the user based on the username
+		if (authentication instanceof UsernamePasswordAuthenticationToken) {
+			String username = ((UserDetails) authentication.getPrincipal()).getUsername();
 			return userRepository.findByUserAuthentication_Username(username)
 					.orElseThrow(() -> new NoSuchElementException("No user found with username: " + username));
 		}
