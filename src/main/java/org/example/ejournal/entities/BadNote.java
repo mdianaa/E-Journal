@@ -24,5 +24,7 @@ public class BadNote extends BaseEntity{
 
     @ManyToOne
     private Teacher teacher;
-
+    
+    @Column(name = "academic_year", nullable = false)
+    private String academicYear;  // Record the year when the grade was given
 }

@@ -21,7 +21,7 @@ public interface StudentService {
 
     StudentDtoResponse viewStudent(String username);
 
-    List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
+    //List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
 
     Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId);
     

@@ -53,12 +53,14 @@ public class StudentServiceImpl implements StudentService {
         // register student
         Student student = mapper.map(studentDto, Student.class);
         School school = schoolRepository.findByName(schoolDto.getName()).get();
-        SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
+        //todo
+        // dto update?
+        //SchoolClass schoolClass = schoolClassRepository.findById(schoolClassDto.getClassId()).get();
 
         Parent parent = parentRepository.findByFirstNameAndLastName(parentDto.getFirstName(), parentDto.getLastName()).get();
 
         student.setSchool(school);
-        student.setSchoolClass(schoolClass);
+        //student.setCurrentSchoolClass(schoolClass);
         student.setParent(parent);
 
         // map the user credentials
@@ -151,15 +153,15 @@ public class StudentServiceImpl implements StudentService {
 
         return mapper.map(student, StudentDtoResponse.class);
     }
-
-    @Override
-    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
-        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
-        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
-        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
-
-        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
-    }
+//todo
+//    @Override
+//    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
+//        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
+//        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
+//        SchoolClass schoolClassEntity = schoolClassRepository.findByGradeLevelAndClassSection(schoolClass).get();
+//
+//        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
+//    }
 
     @Transactional
     @Override
@@ -197,7 +199,7 @@ public class StudentServiceImpl implements StudentService {
         if (studentRepository.findById(studentId).isPresent()) {
             Student student = studentRepository.findById(studentId).get();
 
-            student.setSchoolClass(null);
+            student.setCurrentSchoolClass(null);
             student.setParent(null);
             student.setSchool(null);
             //student.setTeachers(null);

@@ -2,12 +2,9 @@ package org.example.ejournal.services.impl;
 
 import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.entities.*;
 import org.example.ejournal.enums.RoleType;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.WeekDay;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.example.ejournal.services.UserAuthenticationService;
@@ -18,13 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
 
     private final TeacherRepository teacherRepository;
     
-
     private final SchoolRepository schoolRepository;
     private final SubjectRepository subjectRepository;
     private final AbsenceRepository absenceRepository;
@@ -156,31 +153,53 @@ public class TeacherServiceImpl implements TeacherService {
          }
          return teacherDtoResponse;
     }
-    @Override
-    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
-        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
-        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
-        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
-
-        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
-    }
-
+//    @Override
+//    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
+//        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
+//        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
+//        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
+//
+//        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
+//    }
+//
     @Transactional
     @Override
     public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
-        School school = schoolRepository.findById(schoolId).get();
-
+        // Fetch the school using the schoolId and handle case when school is not found
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new NoSuchElementException("School not found with id: " + schoolId));
+        
+        // Get the set of teachers from the school entity
         Set<Teacher> teachers = school.getTeachers();
-        Set<TeacherDtoResponse> teachersDto = new HashSet<>();
-
-        for (Teacher teacher : teachers) {
-
-            teachersDto.add(mapper.map(teacher, TeacherDtoResponse.class));
-        }
-
-        return teachersDto;
+        
+        // Convert the set of teachers into a set of TeacherDtoResponse using the mapper
+        return teachers.stream()
+                .map(teacher -> mapper.map(teacher, TeacherDtoResponse.class))
+                .collect(Collectors.toSet());
     }
-
+    
+    @Transactional
+    @Override
+    public Set<TeacherDtoResponse> viewAllTeachersInHeadmasterSchool() {
+        // Fetch the authenticated user (headmaster)
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        
+        // Ensure the headmaster has a school associated with them
+        if (headmaster.getSchool() == null) {
+            throw new NoSuchElementException("No school found for the authenticated headmaster");
+        }
+        
+        // Get the set of teachers from the headmaster's school
+        School school = headmaster.getSchool();
+        Set<Teacher> teachers = school.getTeachers();
+        
+        // Convert the set of teachers into a set of TeacherDtoResponse using the mapper
+        return teachers.stream()
+                .map(teacher -> mapper.map(teacher, TeacherDtoResponse.class))
+                .collect(Collectors.toSet());
+    }
+    
+    
     @Override
     public void deleteTeacher(long teacherId) {
         if (teacherRepository.findById(teacherId).isPresent()) {

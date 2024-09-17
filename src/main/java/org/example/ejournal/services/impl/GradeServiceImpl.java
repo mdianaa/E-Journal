@@ -107,7 +107,7 @@ public class GradeServiceImpl implements GradeService {
     public int viewGradeCountInSchoolClass(BigDecimal grade, long schoolClassId) {
         SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId).get();
 
-        return gradeRepository.findCountOfGradeBySchoolClass(grade, schoolClass.getClassName());
+        return gradeRepository.findCountOfGradeBySchoolClass(grade, schoolClass.getId());
     }
 
     @Override

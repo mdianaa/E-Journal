@@ -4,6 +4,7 @@ import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.entities.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -11,11 +12,11 @@ import java.util.List;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long> {
-
+    
     @Query(value = "SELECT count(g) FROM Grade g JOIN g.student s " +
-            "WHERE s.schoolClass.className = :schoolClass AND g.value = :grade")
-    int findCountOfGradeBySchoolClass(BigDecimal grade, String schoolClass);
-
+            "WHERE s.currentSchoolClass.id = :schoolClassId AND g.value = :grade")
+    int findCountOfGradeBySchoolClass(@Param("grade") BigDecimal grade, @Param("schoolClassId") long schoolClassId);
+    
     @Query(value = "SELECT count(g) FROM Grade g JOIN g.subject s " +
             "WHERE s.name = :subjectType AND g.value = :grade")
     int findCountOfGradeBySubject(BigDecimal grade, String subjectType);
@@ -31,10 +32,10 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     @Query(value = "SELECT AVG(g.value) FROM Grade g " +
             "JOIN g.subject s " +
             "JOIN g.student st " +
-            "JOIN st.schoolClass sc " +
+            "JOIN st.currentSchoolClass sc " +
             "JOIN sc.school sch " +
             "WHERE sch.id = :schoolId " +
-            "AND s.name = :subjectType AND sc.className = :classNumber")
+            "AND s.name = :subjectType AND sc.gradeLevel = :classNumber")
     BigDecimal findAverageGradeForSubject(long schoolId, String subjectType, String classNumber);
 
     @Query(value = "SELECT AVG(g.value) FROM Grade g " +

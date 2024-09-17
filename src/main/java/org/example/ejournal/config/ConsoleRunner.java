@@ -18,30 +18,16 @@ import java.util.*;
 @Component
 public class ConsoleRunner implements CommandLineRunner {
 
-    private final AbsenceService absenceService;
-    private final GradeService gradeService;
-    private final HeadmasterService headmasterService;
-    private final ParentService parentService;
-    private final ScheduleService scheduleService;
-    private final SchoolClassService schoolClassService;
     private final SchoolService schoolService;
-    private final StudentService studentService;
     private final SubjectService subjectService;
-    private final TeacherService teacherService;
+    
     private final UserAuthenticationService userAuthenticationService;
     private final UserAuthenticationRepository userAuthenticationRepository;
 
     public ConsoleRunner(AbsenceService absenceService, GradeService gradeService, HeadmasterService headmasterService, ParentService parentService, ScheduleService scheduleService, SchoolClassService schoolClassService, SchoolService schoolService, StudentService studentService, SubjectService subjectService, TeacherService teacherService, UserAuthenticationService userAuthenticationService, UserAuthenticationRepository userAuthenticationRepository) {
-        this.absenceService = absenceService;
-        this.gradeService = gradeService;
-        this.headmasterService = headmasterService;
-        this.parentService = parentService;
-        this.scheduleService = scheduleService;
-        this.schoolClassService = schoolClassService;
+        
         this.schoolService = schoolService;
-        this.studentService = studentService;
         this.subjectService = subjectService;
-        this.teacherService = teacherService;
         this.userAuthenticationService = userAuthenticationService;
 	    this.userAuthenticationRepository = userAuthenticationRepository;
     }

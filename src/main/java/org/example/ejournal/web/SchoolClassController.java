@@ -27,7 +27,7 @@ public class SchoolClassController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<?> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto) {
         try {
             SchoolClassDtoRequest createdClassDto = schoolClassService.createClass(schoolClassDto);

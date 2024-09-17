@@ -18,7 +18,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     List<Student> findAllByParent(Parent parent);
 
-    List<Student> findAllBySchoolClass(SchoolClass schoolClass);
+    List<Student> findAllByCurrentSchoolClass(SchoolClass schoolClass);
 
     List<Student> findBySchool(School school);
 }

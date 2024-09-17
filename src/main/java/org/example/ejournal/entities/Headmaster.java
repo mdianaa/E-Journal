@@ -17,11 +17,11 @@ import java.util.Set;
 @Entity
 @Table(name = "headmasters")
 public class Headmaster extends User {
-
+    
     @ManyToOne
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
-
+    
     @Column
     private LocalDateTime fromDate;
     

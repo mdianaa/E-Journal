@@ -24,16 +24,22 @@ public class Absence extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private WeekDay day;
-
+    
     @ManyToOne
+    @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
-
+    
     @Column(columnDefinition = "boolean default false")
     private boolean isExcused;
-
+    
     @ManyToOne
+    @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
-
+    
     @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
+    
+    @Column(name = "academic_year", nullable = false)
+    private String academicYear;  // Record the year when the grade was given
 }

@@ -34,7 +34,7 @@ public class TeacherController {
     }
     
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
     public ResponseEntity<?> createTeacher(@RequestBody @NotNull TeacherDtoRequest teacherDtoRequest) {
         try {
             TeacherDtoResponse createdTeacherDto = teacherService.createTeacher(teacherDtoRequest);
@@ -45,7 +45,7 @@ public class TeacherController {
         } catch (IllegalStateException e) {
             return new ResponseEntity<>("Username already exists.", HttpStatus.CONFLICT);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred while creating the teacher.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -107,16 +107,26 @@ public class TeacherController {
         }
     }
 
-    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
-    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
-                                                                       @PathVariable String semester,
-                                                                       @PathVariable String schoolClass) {
-        List<ScheduleDtoResponse> schedule = teacherService.viewScheduleForDay(day, semester, schoolClass);
-        return ResponseEntity.ok(schedule);
-    }
+//    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
+//    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
+//                                                                       @PathVariable String semester,
+//                                                                       @PathVariable String schoolClass) {
+//        List<ScheduleDtoResponse> schedule = teacherService.viewScheduleForDay(day, semester, schoolClass);
+//        return ResponseEntity.ok(schedule);
+//    }
     
+    @GetMapping("/viewAll")
+    @PreAuthorize("hasAnyRole('HEADMASTER')")
+    public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllTeachersInSchoolAsHeadmaster() {
+        try{
+            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInHeadmasterSchool();
+            return ResponseEntity.ok(teachers);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @GetMapping("/viewAll/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllTeachersInSchool(@PathVariable long schoolId) {
         try{
             Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);

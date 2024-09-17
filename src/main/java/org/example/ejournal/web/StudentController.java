@@ -46,7 +46,7 @@ public class StudentController {
             schoolDto.setName(schoolName);
 
             SchoolClassDtoRequest schoolClassDto = new SchoolClassDtoRequest();
-            schoolClassDto.setClassName(className);
+           // schoolClassDto.setClassName(className);
 
             StudentDtoResponse createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
 
@@ -148,13 +148,13 @@ public class StudentController {
         }
     }
 
-    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
-    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
-                                                                        @PathVariable String semester,
-                                                                        @PathVariable String schoolClass) {
-        List<ScheduleDtoResponse> schedule = studentService.viewScheduleForDay(day, semester, schoolClass);
-        return ResponseEntity.ok(schedule);
-    }
+//    @GetMapping("schedule/{day}/{semester}/{schoolClass}")
+//    public ResponseEntity<List<ScheduleDtoResponse>> viewScheduleForDay(@PathVariable String day,
+//                                                                        @PathVariable String semester,
+//                                                                        @PathVariable String schoolClass) {
+//        List<ScheduleDtoResponse> schedule = studentService.viewScheduleForDay(day, semester, schoolClass);
+//        return ResponseEntity.ok(schedule);
+//    }
 
     @GetMapping("/school/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")

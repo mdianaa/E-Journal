@@ -21,11 +21,18 @@ public interface TeacherService {
 
     TeacherDtoResponse viewTeacher(long teacherId);
     
-    List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
+   // List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
     
-    List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
-
-    Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId);
-
-    void deleteTeacher(long teacherId);
+    //List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
+	
+	//List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
+	
+	List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
+	
+	Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId);
+	
+	@Transactional
+	Set<TeacherDtoResponse> viewAllTeachersInHeadmasterSchool();
+	
+	void deleteTeacher(long teacherId);
 }

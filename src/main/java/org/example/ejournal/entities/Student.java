@@ -15,27 +15,31 @@ import java.util.Set;
 @Entity
 @Table(name = "students")
 public class Student extends User {
-
+    
+    
     @Column(length = 50)
     private String address;
-
+    
     @ManyToOne
-    @JoinColumn(name = "school_class_id")
-    private SchoolClass schoolClass;
-
+    @JoinColumn(name = "current_school_class_id")  // Track the current class
+    private SchoolClass currentSchoolClass;
+    
     @ManyToOne
     private School school;
-
-
-    @OneToMany(mappedBy = "student", targetEntity = Grade.class)
+    
+    @OneToMany(mappedBy = "student", targetEntity = Grade.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Grade> grades;
-
-    @OneToMany(mappedBy = "student", targetEntity = Absence.class)
+    
+    @OneToMany(mappedBy = "student", targetEntity = Absence.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Absence> absences;
-
-    @OneToMany(mappedBy = "student", targetEntity = BadNote.class)
+    
+    @OneToMany(mappedBy = "student", targetEntity = BadNote.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<BadNote> badNotes;
-
+    
     @ManyToOne
     private Parent parent;
+    
+    // Track historical class data
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<StudentClassHistory> classHistory;
 }

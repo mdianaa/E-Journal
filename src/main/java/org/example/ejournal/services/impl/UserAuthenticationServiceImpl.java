@@ -3,6 +3,7 @@ package org.example.ejournal.services.impl;
 import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
 import org.example.ejournal.dtos.response.LoginResponseDto;
 import org.example.ejournal.dtos.response.UserDtoResponse;
+import org.example.ejournal.entities.User;
 import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.entities.UserAuthentication;
 import org.example.ejournal.repositories.UserAuthenticationRepository;
@@ -13,9 +14,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class UserAuthenticationServiceImpl implements UserAuthenticationService {
@@ -91,4 +97,26 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 			throw new IllegalArgumentException("Invalid username or password");
 		}
 	}
+	
+	@Override
+	public User getAuthenticatedUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new NoSuchElementException("No authenticated user found in the security context");
+		}
+		
+		// Check if authentication is JWT-based
+		if (authentication instanceof JwtAuthenticationToken) {
+			// Extract username from the name field of the JwtAuthenticationToken
+			String username = authentication.getName();
+			
+			// Fetch the user based on the username
+			return userRepository.findByUserAuthentication_Username(username)
+					.orElseThrow(() -> new NoSuchElementException("No user found with username: " + username));
+		}
+		
+		throw new NoSuchElementException("Unsupported authentication type: " + authentication.getClass().getSimpleName());
+	}
+	
 }

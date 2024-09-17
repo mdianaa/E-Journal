@@ -1,15 +1,11 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.entities.School;
-import org.example.ejournal.entities.SchoolClass;
-import org.example.ejournal.entities.Student;
-import org.example.ejournal.entities.Teacher;
-import org.example.ejournal.repositories.SchoolClassRepository;
-import org.example.ejournal.repositories.SchoolRepository;
-import org.example.ejournal.repositories.StudentRepository;
-import org.example.ejournal.repositories.TeacherRepository;
+import org.example.ejournal.dtos.response.SchoolClassDtoResponse;
+import org.example.ejournal.entities.*;
+import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.SchoolClassService;
 import org.example.ejournal.services.TeacherService;
 import org.modelmapper.ModelMapper;
@@ -17,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class SchoolClassServiceImpl implements SchoolClassService {
@@ -27,48 +24,90 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     private final SchoolRepository schoolRepository;
     private final StudentRepository studentRepository;
     private final ModelMapper mapper;
-
-    public SchoolClassServiceImpl(SchoolClassRepository schoolClassRepository, TeacherRepository teacherRepository, TeacherService teacherService, SchoolRepository schoolRepository, StudentRepository studentRepository, ModelMapper mapper) {
+    private final UserAuthenticationServiceImpl userAuthenticationService;
+    private final AcademicYearRepository academicYearRepository;
+    public SchoolClassServiceImpl(SchoolClassRepository schoolClassRepository, TeacherRepository teacherRepository, TeacherService teacherService, SchoolRepository schoolRepository, StudentRepository studentRepository, ModelMapper mapper, UserAuthenticationServiceImpl userAuthenticationService, AcademicYearRepository academicYearRepository) {
         this.schoolClassRepository = schoolClassRepository;
         this.teacherRepository = teacherRepository;
 	    this.teacherService = teacherService;
 	    this.schoolRepository = schoolRepository;
         this.studentRepository = studentRepository;
         this.mapper = mapper;
+        this.userAuthenticationService = userAuthenticationService;
+	    this.academicYearRepository = academicYearRepository;
     }
-
+    
+    @Transactional
     @Override
     public SchoolClassDtoRequest createClass(SchoolClassDtoRequest schoolClassDto) {
-        // check whether this class already exists
+        // Get the authenticated headmaster
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
         
-        // register class
+        // Extract the headmaster's school
+        School school = headmaster.getSchool();
+        if (school == null) {
+            throw new NoSuchElementException("No school found for the authenticated headmaster.");
+        }
+        
+        // Create the SchoolClass entity from the DTO
         SchoolClass schoolClass = mapper.map(schoolClassDto, SchoolClass.class);
         
-        School school = schoolRepository.findByName(schoolClassDto.getSchool().getName())
-                .orElseThrow(()-> new NoSuchElementException("No school was found with name '"+schoolClassDto.getSchool().getName()));
+        // Set the school of the class to the headmaster's school
+        schoolClass.setSchool(school);
         
-        Teacher headTeacher = teacherRepository.findByFirstNameAndLastNameAndSchool(schoolClassDto.getTeacher().getFirstName(), schoolClassDto.getTeacher().getLastName(), school)
-                .orElseThrow(()-> new NoSuchElementException("No teacher was found with the names '"+schoolClassDto.getTeacher().getFirstName()+' '+schoolClassDto.getTeacher().getLastName()+"' teaching in this school."));
+        //set accademic year
+        AcademicYear academicYear = academicYearRepository.findById(schoolClassDto.getAcademicYearId())
+                .orElseThrow(()-> new NoSuchElementException("No such academic year with that id."));
+        schoolClass.setAcademicYear(academicYear);
         
-        //check if the teacher is already headteacher
+        // Find the head teacher within the school
+        Teacher headTeacher = teacherRepository.findById(schoolClassDto.getTeacherId())
+                .orElseThrow(()-> new NoSuchElementException("No teacher with id '"+schoolClassDto.getTeacherId()+"'"));
+        
+        // Check if the teacher is already the head teacher
         if (!headTeacher.isHeadTeacher()) {
             schoolClass.setHeadTeacher(headTeacher);
-            headTeacher.setHeadTeacher(true);
+            headTeacher.setHeadTeacher(true);  // Set teacher as head teacher
         } else {
-            // throw exception
-            throw new IllegalArgumentException("This teacher is not set as 'headteacher'");
+            // Throw an exception if the teacher is already a head teacher
+            throw new IllegalArgumentException("This teacher is already set as 'headteacher'.");
         }
-
+        
+        // Save the head teacher changes
         teacherRepository.save(headTeacher);
-        schoolClass.setSchool(school);
-
-        // persist to db
+        
+        // Persist the new school class to the database
         schoolClassRepository.save(schoolClass);
-
-        // return dto
-        return schoolClassDto;
+        
+        // Return the school class DTO (you can use a mapper to map the response if needed)
+        return mapper.map(schoolClass, SchoolClassDtoRequest.class);
     }
-
+    
+    @Transactional
+    @Override
+    public List<SchoolClassDtoResponse> viewAllClassesHeadMaster(long academicYearId) {
+        // Get the authenticated headmaster
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        
+        // Get the headmaster's school
+        School school = headmaster.getSchool();
+        if (school == null) {
+            throw new NoSuchElementException("No school found for the authenticated headmaster.");
+        }
+        
+        // Get the current academic year
+        
+        AcademicYear currentAcademicYear = academicYearRepository.findById(academicYearId)
+                .orElseThrow(()->new NoSuchElementException("No academic year was found for " + academicYearId +"/"+academicYearId+1));
+        
+        // Fetch all classes for the current academic year for the headmaster's school
+        List<SchoolClass> currentYearClasses = schoolClassRepository.findAllBySchoolAndAcademicYear(school, currentAcademicYear);
+        
+        // Map the list of school classes to a list of DTO responses
+        return currentYearClasses.stream()
+                .map(schoolClass -> mapper.map(schoolClass, SchoolClassDtoResponse.class))
+                .collect(Collectors.toList());
+    }
     @Override
     public SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto) {
         if (schoolClassRepository.findById(classId).isPresent()) {
@@ -87,7 +126,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                 headTeacher.setHeadTeacher(true);
             } else {
                 // throw exception
-                throw new IllegalArgumentException("This teacher is not set as 'headteacher' because he already is asigned to "+ headTeacher.getSchoolClass().getClassName());
+                throw new IllegalArgumentException("This teacher is not set as 'headteacher' because he already is asigned to "+ headTeacher.getSchoolClass().getGradeLevel()+ ' '+ headTeacher.getSchoolClass().getClassSection());
             }
             schoolClass.setHeadTeacher(headTeacher);
             
@@ -110,9 +149,9 @@ public class SchoolClassServiceImpl implements SchoolClassService {
         if (schoolClassRepository.findById(classId).isPresent()) {
             SchoolClass schoolClass = schoolClassRepository.findById(classId).get();
 
-            List<Student> students = studentRepository.findAllBySchoolClass(schoolClass);
+            List<Student> students = studentRepository.findAllByCurrentSchoolClass(schoolClass);
             for (Student student : students) {
-                student.setSchoolClass(null);
+               // student.setSchoolClass(null);
                 studentRepository.save(student);
             }
 

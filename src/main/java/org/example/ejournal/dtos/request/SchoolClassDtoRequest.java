@@ -5,17 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.enums.ClassSection;
+import org.example.ejournal.enums.GradeLevel;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class SchoolClassDtoRequest {
-
-    @NotNull(message = "Class name shouldn't be empty")
-    private String className;
+    @NotNull(message = "Class grade shouldn't be empty")
+    private GradeLevel gradeLevel;
     
-    private TeacherDtoRequest teacher;
-    private SchoolDtoRequest school;
-
+    @NotNull(message = "Class section shouldn't be empty")
+    private ClassSection classSection;
+    
+    @NotNull(message = "Academic year should not be empty.")
+    private long academicYearId;
+    
+    @NotNull(message = "Teacher should not be empty.")
+    private long teacherId;
 }

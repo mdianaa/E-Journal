@@ -31,27 +31,27 @@ public class ScheduleServiceImpl implements ScheduleService {
         this.mapper = mapper;
     }
 
-    @Override
-    public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
-        // check whether this schedule exists
-
-        // create schedule
-        Schedule schedule = mapper.map(scheduleDto, Schedule.class);
-        SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
-        Subject subject = subjectRepository.findByName(subjectDtoRequest.getName()).get();
-
-        // set subject
-        schedule.setSubject(subject);
-
-        // set the current school class for the schedule
-        schedule.setSchoolClass(schoolClass);
-
-        // persist to db
-        scheduleRepository.save(schedule);
-
-        // return dto
-        return mapper.map(schedule, ScheduleDtoResponse.class);
-    }
+//    @Override
+//    public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
+//        // check whether this schedule exists
+//
+//        // create schedule
+//        Schedule schedule = mapper.map(scheduleDto, Schedule.class);
+//        SchoolClass schoolClass = schoolClassRepository.findByClassName(schoolClassDto.getClassName()).get();
+//        Subject subject = subjectRepository.findByName(subjectDtoRequest.getName()).get();
+//
+//        // set subject
+//        schedule.setSubject(subject);
+//
+//        // set the current school class for the schedule
+//        schedule.setSchoolClass(schoolClass);
+//
+//        // persist to db
+//        scheduleRepository.save(schedule);
+//
+//        // return dto
+//        return mapper.map(schedule, ScheduleDtoResponse.class);
+//    }
 
     @Override
     public void deleteSchedule(long scheduleId) {

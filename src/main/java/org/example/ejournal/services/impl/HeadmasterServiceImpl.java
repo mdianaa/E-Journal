@@ -1,5 +1,6 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.entities.Headmaster;
@@ -36,6 +37,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
 	    this.userAuthenticationService = userAuthenticationService;
     }
 
+    @Transactional
     @Override
     public HeadmasterDtoResponse  createHeadmaster(HeadmasterDtoRequest headmasterDto) {
         //find the school
