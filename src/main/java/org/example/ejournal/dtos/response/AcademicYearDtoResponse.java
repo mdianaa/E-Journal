@@ -10,5 +10,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AcademicYearDtoResponse {
+	private Integer academicYearId;
 	private String name;
 }

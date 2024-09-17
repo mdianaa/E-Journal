@@ -29,7 +29,12 @@ public class AcademicYearServiceImpl implements AcademicYearService {
 	@Transactional
 	public AcademicYearDtoResponse createAcademicYear(AcademicYearDtoRequest academicYearDto) {
 		// Map DTO to entity
-		AcademicYear academicYear = mapper.map(academicYearDto, AcademicYear.class);
+		AcademicYear academicYear = new AcademicYear();
+		academicYear.setAcademicYearId(academicYearDto.getAcademicYearId());
+		
+		// Convert the Integer academicYearId to String for yearName (e.g., "2015/2016")
+		String yearName = String.valueOf(academicYearDto.getAcademicYearId()) + "/" + String.valueOf(academicYearDto.getAcademicYearId() + 1);
+		academicYear.setYearName(yearName);
 		
 		// Save the entity to the repository
 		AcademicYear savedAcademicYear = academicYearRepository.save(academicYear);
@@ -70,7 +75,7 @@ public class AcademicYearServiceImpl implements AcademicYearService {
 				.orElseThrow(() -> new NoSuchElementException("Academic year not found with id: " + id));
 		
 		// Update the existing entity with new data
-		existingYear.setAcademicYearId(academicYearDto.getId());
+		existingYear.setAcademicYearId(academicYearDto.getAcademicYearId());
 		existingYear.setYearName(academicYearDto.getYearName());
 		
 		// Save the updated entity

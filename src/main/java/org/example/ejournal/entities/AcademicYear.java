@@ -19,6 +19,7 @@ public class AcademicYear {
 
 	// Store the first year of the academic period as the ID (e.g., 2015 for 2015/2016)
 	@Id
+	@Column(name = "academic_year_id", nullable = false, unique = true)
 	private Integer academicYearId;  // Example: 2015 for 2015/2016
 	
 	@Column(name = "year_name", nullable = false)

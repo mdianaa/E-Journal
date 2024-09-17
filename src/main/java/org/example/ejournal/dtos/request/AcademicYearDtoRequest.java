@@ -14,9 +14,8 @@ import lombok.Setter;
 public class AcademicYearDtoRequest {
 	@NotNull(message = "academic year id should not be null")
 	@NotBlank(message = "academic year id should not be blank")
-	private int id;
-	@NotNull(message = "Academic year name should not be null")
-	@NotBlank(message = "Academic year name should not be blank")
+	private int academicYearId;
+	
 	private String yearName;
 
 }

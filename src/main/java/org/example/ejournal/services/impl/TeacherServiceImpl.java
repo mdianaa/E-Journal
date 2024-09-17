@@ -144,24 +144,8 @@ public class TeacherServiceImpl implements TeacherService {
         return mapper.map(teacher, TeacherDtoResponse.class);
     }
     
-    @Override
-    public List<TeacherDtoResponse> viewHeadTeachers(long schoolId){
-         List<Teacher> headTeachers = teacherRepository.findByIsHeadTeacherTrue();
-         List<TeacherDtoResponse> teacherDtoResponse = new ArrayList<>();
-         for(Teacher headTeacher : headTeachers){
-             teacherDtoResponse.add(mapper.map(headTeacher, TeacherDtoResponse.class));
-         }
-         return teacherDtoResponse;
-    }
-//    @Override
-//    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
-//        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
-//        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
-//        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
-//
-//        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
-//    }
-//
+
+
     @Transactional
     @Override
     public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
@@ -180,8 +164,22 @@ public class TeacherServiceImpl implements TeacherService {
     
     @Transactional
     @Override
-    public Set<TeacherDtoResponse> viewAllTeachersInHeadmasterSchool() {
-        // Fetch the authenticated user (headmaster)
+    public Set<TeacherDtoResponse> viewAllHeadTeachersInSchool(long schoolId) {
+        // Fetch the set of head teachers for the specific school
+        Set<Teacher> headTeachers = teacherRepository.findByIsHeadTeacherTrueAndSchoolId(schoolId);
+        
+        // Convert the set of head teachers into a set of TeacherDtoResponse using the mapper
+        return headTeachers.stream()
+                .map(teacher -> mapper.map(teacher, TeacherDtoResponse.class))
+                .collect(Collectors.toSet());
+    }
+    /**
+     * HEADMASTER
+     */
+    @Transactional
+    @Override
+    public Set<TeacherDtoResponse> viewAllTeachersAsHeadmaster() {
+        // Get the authenticated headmaster
         Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
         
         // Ensure the headmaster has a school associated with them
@@ -189,16 +187,18 @@ public class TeacherServiceImpl implements TeacherService {
             throw new NoSuchElementException("No school found for the authenticated headmaster");
         }
         
-        // Get the set of teachers from the headmaster's school
-        School school = headmaster.getSchool();
-        Set<Teacher> teachers = school.getTeachers();
-        
-        // Convert the set of teachers into a set of TeacherDtoResponse using the mapper
-        return teachers.stream()
-                .map(teacher -> mapper.map(teacher, TeacherDtoResponse.class))
-                .collect(Collectors.toSet());
+        // Reuse the viewAllTeachersInSchool method to get all teachers in the headmaster's school
+        return viewAllTeachersInSchool(headmaster.getSchool().getId());
     }
+
     
+    @Transactional
+    @Override
+    public Set<TeacherDtoResponse> viewHeadTeachersAsHeadmaster() {
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        return viewAllHeadTeachersInSchool(headmaster.getSchool().getId());
+    }
+
     
     @Override
     public void deleteTeacher(long teacherId) {
@@ -216,4 +216,23 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.delete(teacher);
         }
     }
+    
+    //    @Override
+//    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
+//        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
+//        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
+//        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
+//
+//        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
+//    }
+//
+        /*@Override
+    public List<TeacherDtoResponse> viewHeadTeachers(){
+         List<Teacher> headTeachers = teacherRepository.findByIsHeadTeacherTrue();
+         List<TeacherDtoResponse> teacherDtoResponse = new ArrayList<>();
+         for(Teacher headTeacher : headTeachers){
+             teacherDtoResponse.add(mapper.map(headTeacher, TeacherDtoResponse.class));
+         }
+         return teacherDtoResponse;
+    }*/
 }

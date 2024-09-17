@@ -2,9 +2,7 @@ package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.apache.coyote.Response;
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.services.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -12,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -25,12 +22,6 @@ public class TeacherController {
 
     public TeacherController(TeacherService teacherService) {
         this.teacherService = teacherService;
-    }
-
-    @GetMapping("/sample")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateTeacherPage() {
-        return ResponseEntity.ok("create teacher");
     }
     
     @PostMapping("/create")
@@ -48,13 +39,7 @@ public class TeacherController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/edit")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showEditTeacherPage() {
-        return ResponseEntity.ok("edit teacher");
-    }
-
+    
     @PutMapping("/edit/{teacherId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TeacherDtoResponse> editTeacher(@PathVariable long teacherId,
@@ -66,24 +51,8 @@ public class TeacherController {
             return ResponseEntity.notFound().build();
         }
     }
+    
 
-    @GetMapping("/changeSubjects")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showChangeSubjectsPage() {
-        return ResponseEntity.ok("change subjects");
-    }
-
-//    @PutMapping("/changeSubjects/{teacherId}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<TeacherDtoResponse> changeSubjects(@PathVariable long teacherId,
-//                                                             @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos) {
-//        TeacherDtoResponse updatedTeacherDto = teacherService.changeSubjects(teacherId, subjectDtos);
-//        if (updatedTeacherDto != null) {
-//            return Respon seEntity.ok(updatedTeacherDto);
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
 
     @PutMapping("/removeHeadTeacherTitle/{teacherId}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -119,7 +88,17 @@ public class TeacherController {
     @PreAuthorize("hasAnyRole('HEADMASTER')")
     public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllTeachersInSchoolAsHeadmaster() {
         try{
-            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInHeadmasterSchool();
+            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersAsHeadmaster();
+            return ResponseEntity.ok(teachers);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/viewAllHeadTeacher")
+    @PreAuthorize("hasAnyRole('HEADMASTER')")
+    public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllHeadTeachersInSchoolAsHeadmaster() {
+        try{
+            Set<TeacherDtoResponse> teachers = teacherService.viewHeadTeachersAsHeadmaster();
             return ResponseEntity.ok(teachers);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
@@ -136,10 +115,10 @@ public class TeacherController {
         }
     }
     @GetMapping("/viewAllHeadTeacher/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?/*Set<TeacherDtoResponse>*/> viewAllHeadTeachersInSchool(@PathVariable long schoolId) {
         try{
-            Set<TeacherDtoResponse> teachers = teacherService.viewAllTeachersInSchool(schoolId);
+            Set<TeacherDtoResponse> teachers = teacherService.viewAllHeadTeachersInSchool(schoolId);
             return ResponseEntity.ok(teachers);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
@@ -152,4 +131,19 @@ public class TeacherController {
         teacherService.deleteTeacher(teacherId);
         return ResponseEntity.noContent().build();
     }
+    
+    
+    
+    //    @PutMapping("/changeSubjects/{teacherId}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ResponseEntity<TeacherDtoResponse> changeSubjects(@PathVariable long teacherId,
+//                                                             @Valid @RequestBody Set<SubjectDtoRequest> subjectDtos) {
+//        TeacherDtoResponse updatedTeacherDto = teacherService.changeSubjects(teacherId, subjectDtos);
+//        if (updatedTeacherDto != null) {
+//            return Respon seEntity.ok(updatedTeacherDto);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 }
+

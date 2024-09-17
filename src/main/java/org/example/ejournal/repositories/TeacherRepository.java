@@ -7,16 +7,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     Optional<Teacher> findByFirstNameAndLastName(String firstName, String lastName);
     
-    Optional<Teacher> findByFirstNameAndLastNameAndSchool(String firstName, String lastName,School school);
+    Optional<Teacher> findByFirstNameAndLastNameAndSchoolId(String firstName, String lastName, long school);
     List<Teacher> findBySchool(School school);
     
+    List<Teacher> findByIsHeadTeacherTrueAndSchool(School school);
     List<Teacher> findByIsHeadTeacherTrue();
-
+    
+    Set<Teacher> findByIsHeadTeacherTrueAndSchoolId(long schoolId);
 //    @Query(value = "SELECT new org.example.ejournal.dtos.response.TeacherDtoResponse(t.firstName, t.lastName, t.school.name) " +
 //            "FROM Teacher t " +
 //            "WHERE t.id =: teacherId")

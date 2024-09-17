@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -60,7 +59,7 @@ public class HeadmasterController {
     
     @GetMapping("/view-by-schoolId/{schoolId}")
     @PreAuthorize("hasAnyRole('HEADMASTER','ADMIN')")
-    public ResponseEntity<?> viewAllHeadmasters(@PathVariable @Valid long schoolId){
+    public ResponseEntity<?> viewAllHeadmasters(@PathVariable String schoolId){
         try{
             Set<HeadmasterDtoResponse> headmasterDtoResponseList = headmasterService.viewAllHeadmasters();
             return ResponseEntity.ok(headmasterDtoResponseList);

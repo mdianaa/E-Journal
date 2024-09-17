@@ -2,7 +2,6 @@ package org.example.ejournal.services;
 
 import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
-import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 
 import java.util.List;
@@ -27,12 +26,15 @@ public interface TeacherService {
 	
 	//List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
 	
-	List<TeacherDtoResponse> viewHeadTeachers(long schoolId);
-	
 	Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId);
 	
+	Set<TeacherDtoResponse> viewHeadTeachersAsHeadmaster();
+	
 	@Transactional
-	Set<TeacherDtoResponse> viewAllTeachersInHeadmasterSchool();
+	Set<TeacherDtoResponse> viewAllHeadTeachersInSchool(long schoolId);
+	
+	@Transactional
+	Set<TeacherDtoResponse> viewAllTeachersAsHeadmaster();
 	
 	void deleteTeacher(long teacherId);
 }

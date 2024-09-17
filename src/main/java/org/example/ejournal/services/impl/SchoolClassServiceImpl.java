@@ -119,7 +119,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
             teacherService.removeHeadTeacherTitle(schoolClass.getHeadTeacher().getId());
             
             //find the new headteacher
-            Teacher headTeacher = teacherRepository.findByFirstNameAndLastNameAndSchool(headTeacherDto.getFirstName(), headTeacherDto.getLastName(),schoolClass.getSchool())
+            Teacher headTeacher = teacherRepository.findByFirstNameAndLastNameAndSchoolId(headTeacherDto.getFirstName(), headTeacherDto.getLastName(),schoolClass.getSchool().getId())
                     .orElseThrow(() -> new NoSuchElementException("The teacher is not found in this school."));
             
             if (!headTeacher.isHeadTeacher()) {
