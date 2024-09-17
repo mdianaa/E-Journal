@@ -8,7 +8,7 @@ import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 
 public interface AbsenceService {
 
-    AbsenceDtoResponse createAbsence(AbsenceDtoRequest absence, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto, SubjectDtoRequest subjectDto);
+    AbsenceDtoResponse createAbsence(AbsenceDtoRequest absence, long studentId, long subjectId);
 
     void excuseAbsence(long absenceId);
 }

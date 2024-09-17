@@ -4,7 +4,8 @@ import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.BadNoteDtoResponse;
 
 public interface BadNoteService {
-    BadNoteDtoResponse createBadNote(BadNoteDtoRequest badNoteDtoRequest, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto);
+
+    BadNoteDtoResponse createBadNote(BadNoteDtoRequest badNoteDtoRequest, long studentId);
 
     void deleteBadNote(long badNoteId);
 }

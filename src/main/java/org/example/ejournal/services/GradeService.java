@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 public interface GradeService {
 
-    GradeDtoResponse createGrade(GradeDtoRequest grade, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto);
+    GradeDtoResponse createGrade(GradeDtoRequest grade, long subjectId, long studentId);
 
     GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto);
 

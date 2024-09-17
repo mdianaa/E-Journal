@@ -27,14 +27,12 @@ public class SubjectServiceImpl implements SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final SchoolRepository schoolRepository;
-    private final AbsenceRepository absenceRepository;
     private final UserAuthenticationService userAuthenticationService;
     private final ModelMapper mapper;
 
-    public SubjectServiceImpl(SubjectRepository subjectRepository, SchoolRepository schoolRepository, AbsenceRepository absenceRepository, UserAuthenticationService userAuthenticationService, ModelMapper mapper) {
+    public SubjectServiceImpl(SubjectRepository subjectRepository, SchoolRepository schoolRepository, UserAuthenticationService userAuthenticationService, ModelMapper mapper) {
         this.subjectRepository = subjectRepository;
         this.schoolRepository = schoolRepository;
-        this.absenceRepository = absenceRepository;
         this.userAuthenticationService = userAuthenticationService;
         this.mapper = mapper;
     }
@@ -48,6 +46,11 @@ public class SubjectServiceImpl implements SubjectService {
         // ensure the headmaster has a school associated with them
         if (headmaster.getSchool() == null) {
             throw new NoSuchElementException("No school found for the authenticated headmaster");
+        }
+
+        //  check whether the subject already exists
+        if (subjectRepository.findByName(subjectDto.getName()).isPresent()) {
+            throw new IllegalArgumentException("Subject with this name already exists");
         }
 
         // register subject
@@ -83,22 +86,22 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectsDto;
     }
 
-    @Override
-    public void deleteSubject(long schoolId, long subjectId) {
-        if (subjectRepository.findById(subjectId).isPresent()) {
-            Subject subject = subjectRepository.findById(subjectId).get();
-
-            List<Absence> absences = absenceRepository.findBySubject(subject);
-            for (Absence absence : absences) {
-                absence.setSubject(null);
-                absenceRepository.save(absence);
-            }
-
-            School school = schoolRepository.findById(schoolId).get();
-            Set<Subject> subjects = school.getSubjects().stream().filter(s -> !s.getName().equals(subject.getName())).collect(Collectors.toSet());
-            school.setSubjects(subjects);
-
-            subjectRepository.delete(subject);
-        }
-    }
+//    @Override
+//    public void deleteSubject(long schoolId, long subjectId) {
+//        if (subjectRepository.findById(subjectId).isPresent()) {
+//            Subject subject = subjectRepository.findById(subjectId).get();
+//
+//            List<Absence> absences = absenceRepository.findBySubject(subject);
+//            for (Absence absence : absences) {
+//                absence.setSubject(null);
+//                absenceRepository.save(absence);
+//            }
+//
+//            School school = schoolRepository.findById(schoolId).get();
+//            Set<Subject> subjects = school.getSubjects().stream().filter(s -> !s.getName().equals(subject.getName())).collect(Collectors.toSet());
+//            school.setSubjects(subjects);
+//
+//            subjectRepository.delete(subject);
+//        }
+//    }
 }

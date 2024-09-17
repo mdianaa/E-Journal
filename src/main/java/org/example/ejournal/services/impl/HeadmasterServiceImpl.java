@@ -39,7 +39,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
 
     @Transactional
     @Override
-    public HeadmasterDtoResponse  createHeadmaster(HeadmasterDtoRequest headmasterDto) {
+    public HeadmasterDtoResponse createHeadmaster(HeadmasterDtoRequest headmasterDto) {
         //find the school
         School school = schoolRepository.findById(headmasterDto.getSchoolId())
                 .orElseThrow(()-> new NoSuchElementException("No such school was found with id " + headmasterDto.getSchoolId()));

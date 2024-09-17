@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 @RestController
 @RequestMapping("/absences")
 public class AbsenceController {
@@ -28,20 +30,33 @@ public class AbsenceController {
         return ResponseEntity.ok("create absence");
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
-    public ResponseEntity<AbsenceDtoResponse> createAbsence(@Valid @RequestBody AbsenceDtoRequest absence,
-                                                            @Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                            @Valid @RequestBody StudentDtoRequest studentDto,
-                                                            @Valid @RequestBody SubjectDtoRequest subjectDto) {
-        AbsenceDtoResponse createdAbsence = absenceService.createAbsence(absence, teacherDto, studentDto, subjectDto);
-        return new ResponseEntity<>(createdAbsence, HttpStatus.CREATED);
+    @PostMapping("/create/student/{studentId}/subject/{subjectId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<AbsenceDtoResponse> createAbsence(@Valid @RequestBody AbsenceDtoRequest absenceDto,
+                                                            @PathVariable long studentId,
+                                                            @PathVariable long subjectId) {
+        try {
+            AbsenceDtoResponse absenceResponse = absenceService.createAbsence(absenceDto, studentId, subjectId);
+            return new ResponseEntity<>(absenceResponse, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PatchMapping("/{absenceId}/excuse")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> excuseAbsence(@PathVariable long absenceId) {
-        absenceService.excuseAbsence(absenceId);
-        return ResponseEntity.noContent().build();
+        try {
+            absenceService.excuseAbsence(absenceId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

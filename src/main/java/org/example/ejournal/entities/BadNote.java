@@ -25,10 +25,6 @@ public class BadNote extends BaseEntity{
     @ManyToOne
     private Teacher teacher;
 
-    // record the year when the grade was given
-    @Column(name = "academic_year", nullable = false)
-    private String academicYear;
-
     // bad notes for a particular grade (10th, 11th)
     @ManyToOne
     private SchoolClass schoolClass;

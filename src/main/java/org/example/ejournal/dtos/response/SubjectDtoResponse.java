@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class SubjectDtoResponse {
 
+    private long id;
+
     private String name;
 
 }

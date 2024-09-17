@@ -12,8 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/grades")
@@ -31,22 +33,37 @@ public class GradeController {
         return ResponseEntity.ok("create grade");
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create/subject/{subjectId}/student/{studentId}")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<GradeDtoResponse> createGrade(@Valid @RequestBody GradeDtoRequest gradeDto,
-                                                        @Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                        @Valid @RequestBody SubjectDtoRequest subjectDto,
-                                                        @Valid @RequestBody StudentDtoRequest studentDto) {
-        GradeDtoResponse createdGradeDto = gradeService.createGrade(gradeDto, teacherDto, subjectDto, studentDto);
-        return new ResponseEntity<>(createdGradeDto, HttpStatus.CREATED);
+    public ResponseEntity<GradeDtoResponse> createGrade(@PathVariable long subjectId,
+                                                        @PathVariable long studentId,
+                                                        @Valid @RequestBody GradeDtoRequest gradeDto) {
+        try {
+            GradeDtoResponse gradeResponse = gradeService.createGrade(gradeDto, subjectId, studentId);
+            return new ResponseEntity<>(gradeResponse, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/edit/{gradeId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<GradeDtoResponse> editGrade(@PathVariable long gradeId,
                                                       @Valid @RequestBody GradeDtoRequest gradeDto) {
-        GradeDtoResponse editedGradeDto = gradeService.editGrade(gradeId, gradeDto);
-        return editedGradeDto != null ? ResponseEntity.ok(editedGradeDto) : ResponseEntity.notFound().build();
+        try {
+            GradeDtoResponse updatedGrade = gradeService.editGrade(gradeId, gradeDto);
+            return new ResponseEntity<>(updatedGrade, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/average-for-school/{schoolId}")

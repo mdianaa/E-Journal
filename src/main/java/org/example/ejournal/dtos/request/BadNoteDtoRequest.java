@@ -14,4 +14,7 @@ public class BadNoteDtoRequest {
 
     @NotNull(message = "Description shouldn't be empty")
     private String description;
+
+    @NotNull
+    private SchoolClassDtoRequest schoolClass;
 }

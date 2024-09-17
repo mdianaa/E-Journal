@@ -20,4 +20,7 @@ public class GradeDtoRequest {
     @Positive(message = "Grade value should be a positive number")
     @Size(max = 3)
     private BigDecimal value;
+
+    @NotNull
+    private SchoolClassDtoRequest schoolClass;
 }

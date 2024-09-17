@@ -12,5 +12,5 @@ public interface SubjectService {
 
     Set<SubjectDtoResponse> viewAllSubjectsInSchool(long schoolId);
 
-    void deleteSubject(long schoolId, long subjectId);
+//    void deleteSubject(long schoolId, long subjectId);
 }

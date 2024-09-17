@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 @RestController
 @RequestMapping("/bad-notes")
 public class BadNoteController {
@@ -22,22 +24,27 @@ public class BadNoteController {
     }
 
     @GetMapping("/create")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<String> showCreateBadNotePage() {
         return ResponseEntity.ok("create bad note");
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PostMapping("/create/student/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<BadNoteDtoResponse> createBadNote(@Valid @RequestBody BadNoteDtoRequest badNoteDto,
-                                                            @Valid @RequestBody TeacherDtoRequest teacherDto,
-                                                            @Valid @RequestBody StudentDtoRequest studentDto) {
-        BadNoteDtoResponse createdBadNote = badNoteService.createBadNote(badNoteDto, teacherDto, studentDto);
-        return new ResponseEntity<>(createdBadNote, HttpStatus.CREATED);
+                                                            @PathVariable long studentId) {
+        try {
+            BadNoteDtoResponse badNoteResponse = badNoteService.createBadNote(badNoteDto, studentId);
+            return new ResponseEntity<>(badNoteResponse, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/{badNoteId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> deleteBadNote(@PathVariable long badNoteId) {
         badNoteService.deleteBadNote(badNoteId);
         return ResponseEntity.noContent().build();

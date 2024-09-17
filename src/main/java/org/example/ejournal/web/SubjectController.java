@@ -37,6 +37,8 @@ public class SubjectController {
             return new ResponseEntity<>(createdSubject, HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -53,12 +55,5 @@ public class SubjectController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-    
-    @DeleteMapping("/delete/{schoolId}/{subjectId}")
-    @PreAuthorize("hasRole('HEADMASTER')")
-    public ResponseEntity<Void> deleteSubject(@PathVariable long schoolId, @PathVariable long subjectId) {
-        subjectService.deleteSubject(schoolId, subjectId);
-        return ResponseEntity.noContent().build();
     }
 }
