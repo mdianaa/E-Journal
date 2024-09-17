@@ -57,12 +57,12 @@ public class SchoolClassServiceImpl implements SchoolClassService {
         
         //set accademic year
         AcademicYear academicYear = academicYearRepository.findById(schoolClassDto.getAcademicYearId())
-                .orElseThrow(()-> new NoSuchElementException("No such academic year with that id."));
+                .orElseThrow(() -> new NoSuchElementException("No such academic year with that id."));
         schoolClass.setAcademicYear(academicYear);
         
         // Find the head teacher within the school
         Teacher headTeacher = teacherRepository.findById(schoolClassDto.getTeacherId())
-                .orElseThrow(()-> new NoSuchElementException("No teacher with id '"+schoolClassDto.getTeacherId()+"'"));
+                .orElseThrow(() -> new NoSuchElementException("No teacher with id '" + schoolClassDto.getTeacherId() + "'"));
         
         // Check if the teacher is already the head teacher
         if (!headTeacher.isHeadTeacher()) {
@@ -98,7 +98,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
         // Get the current academic year
         
         AcademicYear currentAcademicYear = academicYearRepository.findById(academicYearId)
-                .orElseThrow(()->new NoSuchElementException("No academic year was found for " + academicYearId +"/"+academicYearId+1));
+                .orElseThrow(() -> new NoSuchElementException("No academic year was found for " + academicYearId + "/" + academicYearId + 1));
         
         // Fetch all classes for the current academic year for the headmaster's school
         List<SchoolClass> currentYearClasses = schoolClassRepository.findAllBySchoolAndAcademicYear(school, currentAcademicYear);
@@ -108,25 +108,26 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                 .map(schoolClass -> mapper.map(schoolClass, SchoolClassDtoResponse.class))
                 .collect(Collectors.toList());
     }
+
     @Override
     public SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto) {
         if (schoolClassRepository.findById(classId).isPresent()) {
             //find the class by id
             SchoolClass schoolClass = schoolClassRepository.findById(classId).get();
             
-            //remove the head teacher title from previus one
+            //remove the head teacher title from previous one
             teacherService.removeHeadTeacherTitle(schoolClass.getHeadTeacher().getId());
             
             //find the new headteacher
             Teacher headTeacher = teacherRepository.findByFirstNameAndLastNameAndSchool(headTeacherDto.getFirstName(), headTeacherDto.getLastName(),schoolClass.getSchool())
-                    .orElseThrow(()->new NoSuchElementException("The teacher is not found in this school."));
+                    .orElseThrow(() -> new NoSuchElementException("The teacher is not found in this school."));
             
             if (!headTeacher.isHeadTeacher()) {
                 schoolClass.setHeadTeacher(headTeacher);
                 headTeacher.setHeadTeacher(true);
             } else {
                 // throw exception
-                throw new IllegalArgumentException("This teacher is not set as 'headteacher' because he already is asigned to "+ headTeacher.getSchoolClass().getGradeLevel()+ ' '+ headTeacher.getSchoolClass().getClassSection());
+                throw new IllegalArgumentException("This teacher is not set as 'headteacher' because he already is assigned to " + headTeacher.getSchoolClass().getGradeLevel() + ' ' + headTeacher.getSchoolClass().getClassSection());
             }
             schoolClass.setHeadTeacher(headTeacher);
             
@@ -139,21 +140,21 @@ public class SchoolClassServiceImpl implements SchoolClassService {
 
         return null;
     }
+
     //todo
     // remove boilerplate code
     private void isHeadTeacherAssigned(Teacher headTeacher){
     
     }
+
     @Override
     public void deleteClass(long classId) {
         if (schoolClassRepository.findById(classId).isPresent()) {
             SchoolClass schoolClass = schoolClassRepository.findById(classId).get();
 
             List<Student> students = studentRepository.findAllByCurrentSchoolClass(schoolClass);
-            for (Student student : students) {
-               // student.setSchoolClass(null);
-                studentRepository.save(student);
-            }
+            // student.setSchoolClass(null);
+            studentRepository.saveAll(students);
 
             schoolClass.setHeadTeacher(null);
             schoolClass.setSchool(null);

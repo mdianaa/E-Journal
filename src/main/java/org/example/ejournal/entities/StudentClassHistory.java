@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 @Getter
 @Entity
 @Table(name = "student_class_history")
-public class StudentClassHistory extends BaseEntity{
+public class StudentClassHistory extends BaseEntity {
+
 	@ManyToOne
 	@JoinColumn(name = "student_id", nullable = false)
 	private Student student;
@@ -22,11 +23,6 @@ public class StudentClassHistory extends BaseEntity{
 	@ManyToOne
 	@JoinColumn(name = "school_class_id", nullable = false)
 	private SchoolClass schoolClass;
-	
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "academic_year_id")
-	private AcademicYear academicYear;
-
 	
 	@Column(name = "final_grade")
 	private BigDecimal finalGrade;  // Optional: track final grades for each class

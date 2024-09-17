@@ -183,11 +183,11 @@ public class StudentServiceImpl implements StudentService {
     public Set<StudentDtoResponse> showAllStudentsInClass(long schoolClassId){
         SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId)
                 .orElseThrow(()-> new NoSuchElementException("No such class was found with id "+schoolClassId));
-        
+
         Set<Student> students = schoolClass.getStudents();
         Set<StudentDtoResponse> studentsDto = new HashSet<>();
-        
-        for(Student student:students){
+
+        for (Student student : students){
             studentsDto.add(mapper.map(student,StudentDtoResponse.class));
         }
         return studentsDto;

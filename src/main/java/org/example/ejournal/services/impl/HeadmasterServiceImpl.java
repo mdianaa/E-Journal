@@ -42,7 +42,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     public HeadmasterDtoResponse  createHeadmaster(HeadmasterDtoRequest headmasterDto) {
         //find the school
         School school = schoolRepository.findById(headmasterDto.getSchoolId())
-                .orElseThrow(()-> new NoSuchElementException("No such school was found with id" + headmasterDto.getSchoolId()));
+                .orElseThrow(()-> new NoSuchElementException("No such school was found with id " + headmasterDto.getSchoolId()));
 
         // assign info headmaster
         Headmaster headmaster = new Headmaster();

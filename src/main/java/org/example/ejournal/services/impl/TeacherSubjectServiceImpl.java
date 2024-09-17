@@ -45,9 +45,9 @@ public class TeacherSubjectServiceImpl implements TeacherSubjectService {
 	@Override
 	public TeacherSubject assignTeacherToSubjectClass(Long teacherId, Long subjectId) {
 		Teacher teacher = teacherRepository.findById(teacherId)
-				.orElseThrow(() -> new NoSuchElementException("No teacher with id '"+ teacherId +"' was found."));
+				.orElseThrow(() -> new NoSuchElementException("No teacher with id '" + teacherId + "' was found."));
 		Subject subject = subjectRepository.findById(subjectId)
-				.orElseThrow(()->new NoSuchElementException("No subject with id '"+ subjectId + "' was found."));
+				.orElseThrow(() -> new NoSuchElementException("No subject with id '" + subjectId + "' was found."));
 		
 		TeacherSubject teacherSubject = new TeacherSubject();
 		teacherSubject.setTeacher(teacher);

@@ -2,6 +2,7 @@ package org.example.ejournal.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +15,10 @@ import lombok.Setter;
 @Getter
 @Entity
 @Table(name = "academic_year")
-public class AcademicYear extends BaseEntity{
+public class AcademicYear {
+
 	// Store the first year of the academic period as the ID (e.g., 2015 for 2015/2016)
-	@Column(name = "academic_year_id", nullable = false, unique = true)
+	@Id
 	private Integer academicYearId;  // Example: 2015 for 2015/2016
 	
 	@Column(name = "year_name", nullable = false)
