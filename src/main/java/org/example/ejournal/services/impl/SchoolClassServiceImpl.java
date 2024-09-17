@@ -11,6 +11,7 @@ import org.example.ejournal.services.TeacherService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -85,7 +86,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     
     @Transactional
     @Override
-    public List<SchoolClassDtoResponse> viewAllClasses(long academicYearId, long schoolId) {
+    public List<SchoolClassDtoResponse> viewAllClassesByAcademicYearAndSchoolId(long academicYearId, long schoolId) {
         // Fetch the school using the schoolId, and throw an exception if not found
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new NoSuchElementException("No school found with id: " + schoolId));
@@ -102,15 +103,45 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                 .map(schoolClass -> mapper.map(schoolClass, SchoolClassDtoResponse.class))
                 .collect(Collectors.toList());
     }
+    
+    @Transactional
+    @Override
+    public List<SchoolClassDtoResponse> viewAllCurrentClassesBySchoolId(long schoolId){
+        return viewAllClassesByAcademicYearAndSchoolId(getCurrentAcademicYear(),schoolId);
+    }
+    
     @Transactional
     @Override
     public List<SchoolClassDtoResponse> viewAllClassesAsHeadMaster(long academicYearId) {
         // Get the authenticated headmaster
         Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
         
-        return viewAllClasses(academicYearId,headmaster.getSchool().getId());
+        return viewAllClassesByAcademicYearAndSchoolId(academicYearId,headmaster.getSchool().getId());
     }
-
+    
+    @Transactional
+    @Override
+    public List<SchoolClassDtoResponse> viewAllCurrentClassesAsHeadMaster() {
+        // Get the authenticated headmaster
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        
+        return viewAllClassesByAcademicYearAndSchoolId(getCurrentAcademicYear(),headmaster.getSchool().getId());
+    }
+    
+    public Integer getCurrentAcademicYear() {
+        LocalDate today = LocalDate.now();
+        int year = today.getYear();
+        
+        // If today is between September 1st and December 31st, return the current year
+        if (today.getMonthValue() >= 9) {
+            return year;
+        } else {
+            // Else return the previous year for the academic year
+            return year - 1;
+        }
+    }
+    
+    @Transactional
     @Override
     public SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto) {
         if (schoolClassRepository.findById(classId).isPresent()) {

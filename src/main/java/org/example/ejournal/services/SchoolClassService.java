@@ -11,11 +11,20 @@ public interface SchoolClassService {
 	
 	SchoolClassDtoRequest createClass(SchoolClassDtoRequest schoolClassDto);
 	
+	
+	
 	@Transactional
-	List<SchoolClassDtoResponse> viewAllClasses(long academicYearId, long schoolId);
+	List<SchoolClassDtoResponse> viewAllClassesByAcademicYearAndSchoolId(long academicYearId, long schoolId);
+	
+	@Transactional
+	List<SchoolClassDtoResponse> viewAllCurrentClassesBySchoolId(long schoolId);
 	
 	@Transactional
 	List<SchoolClassDtoResponse> viewAllClassesAsHeadMaster(long academicYear);
+	
+	
+	@Transactional
+	List<SchoolClassDtoResponse> viewAllCurrentClassesAsHeadMaster();
 	
 	SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto);
 
