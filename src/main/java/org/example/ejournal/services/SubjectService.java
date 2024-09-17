@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface SubjectService {
 
-    SubjectDtoResponse createSubject(SubjectDtoRequest subjectDto, SchoolDtoRequest schoolDto);
+    SubjectDtoResponse createSubject(SubjectDtoRequest subjectDto);
 
     Set<SubjectDtoResponse> viewAllSubjectsInSchool(long schoolId);
 

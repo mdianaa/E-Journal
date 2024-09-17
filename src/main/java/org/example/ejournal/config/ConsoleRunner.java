@@ -51,8 +51,8 @@ public class ConsoleRunner implements CommandLineRunner {
             SubjectDtoRequest english = new SubjectDtoRequest("ENGLISH");
             SubjectDtoRequest math = new SubjectDtoRequest("MATH");
             
-            subjectService.createSubject(english, schoolDtoRequest);
-            subjectService.createSubject(math, schoolDtoRequest);
+//            subjectService.createSubject(english, schoolDtoRequest);
+//            subjectService.createSubject(math, schoolDtoRequest);
             
             Set<SubjectDtoRequest> subjects = new HashSet<>();
             subjects.add(english);

@@ -19,7 +19,6 @@ public class Subject extends BaseEntity {
     
     @Column(length = 20, nullable = false)
     private String name;
-    
  
     @ManyToOne
     private School school;

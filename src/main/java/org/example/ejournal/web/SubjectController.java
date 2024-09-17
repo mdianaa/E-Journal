@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @RestController
@@ -23,29 +24,39 @@ public class SubjectController {
     }
 
     @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<String> showCreateSubjectPage() {
         return ResponseEntity.ok("create subject");
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto,
-                                                            @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        SubjectDtoResponse createdSubjectDto = subjectService.createSubject(subjectDto, schoolDto);
-        return new ResponseEntity<>(createdSubjectDto, HttpStatus.CREATED);
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto) {
+        try {
+            SubjectDtoResponse createdSubject = subjectService.createSubject(subjectDto);
+            return new ResponseEntity<>(createdSubject, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/viewAll/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
+    @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<Set<SubjectDtoResponse>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
-        Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
-        return ResponseEntity.ok(subjects);
+        try {
+            Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
+            return new ResponseEntity<>(subjects, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
-    
     @DeleteMapping("/delete/{schoolId}/{subjectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<Void> deleteSubject(@PathVariable long schoolId, @PathVariable long subjectId) {
         subjectService.deleteSubject(schoolId, subjectId);
         return ResponseEntity.noContent().build();
