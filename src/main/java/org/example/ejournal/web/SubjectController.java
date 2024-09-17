@@ -42,7 +42,8 @@ public class SubjectController {
         Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
         return ResponseEntity.ok(subjects);
     }
-
+    
+    
     @DeleteMapping("/delete/{schoolId}/{subjectId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteSubject(@PathVariable long schoolId, @PathVariable long subjectId) {

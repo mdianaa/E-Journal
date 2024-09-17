@@ -85,28 +85,30 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     
     @Transactional
     @Override
-    public List<SchoolClassDtoResponse> viewAllClassesHeadMaster(long academicYearId) {
+    public List<SchoolClassDtoResponse> viewAllClasses(long academicYearId, long schoolId) {
+        // Fetch the school using the schoolId, and throw an exception if not found
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new NoSuchElementException("No school found with id: " + schoolId));
+        
+        // Fetch the academic year using the academicYearId
+        AcademicYear academicYear = academicYearRepository.findById(academicYearId)
+                .orElseThrow(() -> new NoSuchElementException("No academic year found with id: " + academicYearId));
+        
+        // Fetch all classes for the specified academic year and school
+        List<SchoolClass> schoolClasses = schoolClassRepository.findAllBySchoolAndAcademicYear(school, academicYear);
+        
+        // Map the list of school classes to a list of DTO responses
+        return schoolClasses.stream()
+                .map(schoolClass -> mapper.map(schoolClass, SchoolClassDtoResponse.class))
+                .collect(Collectors.toList());
+    }
+    @Transactional
+    @Override
+    public List<SchoolClassDtoResponse> viewAllClassesAsHeadMaster(long academicYearId) {
         // Get the authenticated headmaster
         Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
         
-        // Get the headmaster's school
-        School school = headmaster.getSchool();
-        if (school == null) {
-            throw new NoSuchElementException("No school found for the authenticated headmaster.");
-        }
-        
-        // Get the current academic year
-        
-        AcademicYear currentAcademicYear = academicYearRepository.findById(academicYearId)
-                .orElseThrow(() -> new NoSuchElementException("No academic year was found for " + academicYearId + "/" + academicYearId + 1));
-        
-        // Fetch all classes for the current academic year for the headmaster's school
-        List<SchoolClass> currentYearClasses = schoolClassRepository.findAllBySchoolAndAcademicYear(school, currentAcademicYear);
-        
-        // Map the list of school classes to a list of DTO responses
-        return currentYearClasses.stream()
-                .map(schoolClass -> mapper.map(schoolClass, SchoolClassDtoResponse.class))
-                .collect(Collectors.toList());
+        return viewAllClasses(academicYearId,headmaster.getSchool().getId());
     }
 
     @Override
