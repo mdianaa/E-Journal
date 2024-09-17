@@ -27,41 +27,53 @@ public class StudentController {
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
-
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateStudentPage() {
-        return ResponseEntity.ok("create student");
-    }
-
+    
+    
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto,
-                                           @RequestParam("schoolName") String schoolName,
-                                           @RequestParam("className") String className,
-                                           @RequestBody ParentDtoRequest parentDto,
-                                           @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto) {
         try {
-            SchoolDtoRequest schoolDto = new SchoolDtoRequest();
-            schoolDto.setName(schoolName);
-
-            SchoolClassDtoRequest schoolClassDto = new SchoolClassDtoRequest();
-           // schoolClassDto.setClassName(className);
-
-            StudentDtoResponse createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
-
+            StudentDtoResponse createdStudent = studentService.createStudent(studentDto);
             return ResponseEntity.ok(createdStudent);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating student: " + e.getMessage());
         }
     }
-
-    @GetMapping("/edit")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showEditStudentPage() {
-        return ResponseEntity.ok("edit student");
+    
+    
+    @GetMapping("/school-class/{schoolClassId}")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchoolClass(@PathVariable long schoolClassId){
+        try{
+            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInClass(schoolClassId);
+            return ResponseEntity.ok(studentDtoResponses);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
-
+    @GetMapping("/school")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> showAllStudentsInSchool() {
+        try {
+            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInSchoolAsHeadmaster();
+            return ResponseEntity.ok(studentDtoResponses);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchool(@PathVariable long schoolId) {
+        try {
+            Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
+            return ResponseEntity.ok(students);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    
     @PutMapping("/edit/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> editStudent(@PathVariable("studentId") long studentId,
@@ -156,27 +168,8 @@ public class StudentController {
 //        return ResponseEntity.ok(schedule);
 //    }
 
-    @GetMapping("/school/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchool(@PathVariable long schoolId) {
-        try {
-            Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
-            return ResponseEntity.ok(students);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
-    }
 
-    @GetMapping("/school-class/{schoolClassId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?/*Set<StudentDtoResponse>*/> ShowAllStudentsInSchoolClass(@PathVariable long schoolClassId){
-        try{
-            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInClass(schoolClassId);
-            return ResponseEntity.ok(studentDtoResponses);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
-    }
+    
     
     @DeleteMapping("/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
