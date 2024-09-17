@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 public class ParentDtoResponse {
 
+    private long id;
     private String firstName;
 
     private String lastName;

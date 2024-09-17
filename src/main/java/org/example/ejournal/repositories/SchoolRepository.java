@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface SchoolRepository extends JpaRepository<School, Long> {
 
     Optional<School> findByName(String name);
+	
 
 //    @Query(value = "SELECT new org.example.ejournal.dtos.response.SchoolDtoResponse(sch.name, sch.address, sch.headmaster.lastName) " +
 //            "FROM School sch " +

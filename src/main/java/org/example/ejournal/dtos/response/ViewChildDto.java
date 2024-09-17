@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ViewChildDto {
+    private long id;
+    
     private String username;
     
     private String firstName;
