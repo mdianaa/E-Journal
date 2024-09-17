@@ -18,4 +18,9 @@ public class StudentDtoRequest extends BaseUserDtoRequest{
     
     @NotNull(message = "Address shouldn't be empty")
     private String address;
+    
+    @NotNull(message = "School class id should not be empty.")
+    private long schoolClassId;
+    
+    private UserRegisterDtoRequest userRegisterDtoRequest;
 }

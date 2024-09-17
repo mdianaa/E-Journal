@@ -4,11 +4,13 @@ import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.*;
 import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.entities.*;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.WeekDay;
+import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
+import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +30,9 @@ public class StudentServiceImpl implements StudentService {
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper mapper;
-
-    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, BadNoteRepository badNoteRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
+    private final UserAuthenticationService userAuthenticationService;
+    
+    public StudentServiceImpl(StudentRepository studentRepository, SchoolRepository schoolRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ParentRepository parentRepository, AbsenceRepository absenceRepository, BadNoteRepository badNoteRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, UserAuthenticationService userAuthenticationService) {
         this.studentRepository = studentRepository;
         this.schoolRepository = schoolRepository;
         this.schoolClassRepository = schoolClassRepository;
@@ -41,44 +44,51 @@ public class StudentServiceImpl implements StudentService {
         this.userAuthenticationRepository = userAuthenticationRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
+	    this.userAuthenticationService = userAuthenticationService;
     }
-
+    
+    @Transactional
     @Override
-    public StudentDtoResponse createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest) {
-        // check if student exists already
-        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("User already exists!");
+    public StudentDtoResponse createStudent(StudentDtoRequest studentDtoRequest) {
+        // Fetch the school class by its ID (provided in the request)
+        SchoolClass schoolClass = schoolClassRepository.findById(studentDtoRequest.getSchoolClassId())
+                .orElseThrow(() -> new NoSuchElementException("School class not found with id: " + studentDtoRequest.getSchoolClassId()));
+        
+        // Retrieve the currently authenticated headmaster
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        School headmasterSchool = headmaster.getSchool();
+        
+        // Check if the class belongs to the same school as the headmaster
+        if (schoolClass.getSchool().getId() != (headmasterSchool.getId())) {
+            throw new IllegalArgumentException("The headmaster does not have permission to create students for this class.");
         }
-
-        // register student
-        Student student = mapper.map(studentDto, Student.class);
-        School school = schoolRepository.findByName(schoolDto.getName()).get();
-        //todo
-        // dto update?
-        //SchoolClass schoolClass = schoolClassRepository.findById(schoolClassDto.getClassId()).get();
-
-        Parent parent = parentRepository.findByFirstNameAndLastName(parentDto.getFirstName(), parentDto.getLastName()).get();
-
-        student.setSchool(school);
-        //student.setCurrentSchoolClass(schoolClass);
-        student.setParent(parent);
-
-        // map the user credentials
-        UserAuthentication userAuthentication = new UserAuthentication();
-        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
-        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
-        userAuthentication.setRole(userRegisterDtoRequest.getRole());
-
+        
+        // Set the role to STUDENT
+        studentDtoRequest.getUserRegisterDtoRequest().setRole(RoleType.STUDENT);
+        
+        // Register user credentials via the UserAuthentication service
+        UserAuthentication userAuthentication = userAuthenticationService.register(studentDtoRequest.getUserRegisterDtoRequest());
+        
+        // Create Student entity and map the inherited User fields
+        Student student = new Student();
+        student.setFirstName(studentDtoRequest.getFirstName()); // inherited from User
+        student.setLastName(studentDtoRequest.getLastName()); // inherited from User
+        student.setPhoneNumber(studentDtoRequest.getPhoneNumber()); // inherited from User
+        student.setAddress(studentDtoRequest.getAddress()); // specific to Student
+        
+        // Set school and school class, and link UserAuthentication to the student
+        student.setSchool(headmasterSchool);
+        student.setCurrentSchoolClass(schoolClass);
         student.setUserAuthentication(userAuthentication);
-
-        // persist to db
-        userAuthenticationRepository.save(userAuthentication);
-        studentRepository.save(student);
-
-        // return dto
-        return mapper.map(student, StudentDtoResponse.class);
+        
+        // Persist Student entity to the database
+        Student resultStudent = studentRepository.save(student);
+        
+        // Return a StudentDtoResponse object using the mapper
+        return mapper.map(resultStudent, StudentDtoResponse.class);
     }
-
+    
+    
     @Override
     public StudentDtoResponse editStudent(long studentId, StudentDtoRequest studentDto) {
         if (studentRepository.findById(studentId).isPresent()) {

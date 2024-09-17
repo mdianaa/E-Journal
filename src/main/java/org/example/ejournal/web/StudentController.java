@@ -27,41 +27,20 @@ public class StudentController {
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
     }
-
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateStudentPage() {
-        return ResponseEntity.ok("create student");
-    }
-
+    
+    //schoolClassId
+    //
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto,
-                                           @RequestParam("schoolName") String schoolName,
-                                           @RequestParam("className") String className,
-                                           @RequestBody ParentDtoRequest parentDto,
-                                           @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto) {
         try {
-            SchoolDtoRequest schoolDto = new SchoolDtoRequest();
-            schoolDto.setName(schoolName);
-
-            SchoolClassDtoRequest schoolClassDto = new SchoolClassDtoRequest();
-           // schoolClassDto.setClassName(className);
-
-            StudentDtoResponse createdStudent = studentService.createStudent(studentDto, schoolDto, schoolClassDto, parentDto, userRegisterDtoRequest);
-
+            StudentDtoResponse createdStudent = studentService.createStudent(studentDto);
             return ResponseEntity.ok(createdStudent);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating student: " + e.getMessage());
         }
     }
-
-    @GetMapping("/edit")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showEditStudentPage() {
-        return ResponseEntity.ok("edit student");
-    }
-
+    
     @PutMapping("/edit/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> editStudent(@PathVariable("studentId") long studentId,

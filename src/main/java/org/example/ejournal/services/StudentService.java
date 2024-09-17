@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 public interface StudentService {
-
-    StudentDtoResponse createStudent(StudentDtoRequest studentDto, SchoolDtoRequest schoolDto, SchoolClassDtoRequest schoolClassDto, ParentDtoRequest parentDto, UserRegisterDtoRequest userRegisterDtoRequest);
-
+    @Transactional
+    StudentDtoResponse createStudent(StudentDtoRequest studentDtoRequest);
+    
     StudentDtoResponse editStudent(long studentId, StudentDtoRequest studentDto);
 
     List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto);
