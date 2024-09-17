@@ -9,12 +9,11 @@ import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -172,36 +171,68 @@ public class StudentServiceImpl implements StudentService {
 //
 //        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
 //    }
-
+    
+    @Transactional
+    @Override
+    public Set<StudentDtoResponse> showAllStudentsInSchoolAsHeadmaster() {
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+        
+        if (headmaster.getSchool() == null) {
+            throw new NoSuchElementException("Headmaster does not have an assigned school.");
+        }
+        
+        // Handle potential null if getStudents() returns null
+        Set<Student> students = headmaster.getSchool().getStudents();
+        if (students == null) {
+            return Collections.emptySet();
+        }
+        
+        // Reuse the private method for mapping students to DTOs
+        return getStudentDtoResponses(students);
+    }
+    
     @Transactional
     @Override
     public Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId) {
-        School school = schoolRepository.findById(schoolId).get();
-
+        // Fetch the school by its ID
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new NoSuchElementException("No school found with id: " + schoolId));
+        
+        // Handle potential null if getStudents() returns null
         Set<Student> students = school.getStudents();
-        Set<StudentDtoResponse> studentsDto = new HashSet<>();
-
-        for (Student student : students) {
-            studentsDto.add(mapper.map(student, StudentDtoResponse.class));
+        if (students == null) {
+            return Collections.emptySet();
         }
-
-        return studentsDto;
+        
+        // Reuse the private method for mapping students to DTOs
+        return getStudentDtoResponses(students);
     }
-
+    
     @Transactional
     @Override
-    public Set<StudentDtoResponse> showAllStudentsInClass(long schoolClassId){
+    public Set<StudentDtoResponse> showAllStudentsInClass(long schoolClassId) {
+        // Fetch the school class by its ID
         SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId)
-                .orElseThrow(()-> new NoSuchElementException("No such class was found with id "+schoolClassId));
-
+                .orElseThrow(() -> new NoSuchElementException("No class found with id: " + schoolClassId));
+        
+        // Handle potential null if getStudents() returns null
         Set<Student> students = schoolClass.getStudents();
-        Set<StudentDtoResponse> studentsDto = new HashSet<>();
-
-        for (Student student : students){
-            studentsDto.add(mapper.map(student,StudentDtoResponse.class));
+        if (students == null) {
+            return Collections.emptySet();
         }
-        return studentsDto;
+        
+        // Reuse the private method for mapping students to DTOs
+        return getStudentDtoResponses(students);
     }
+    
+    private Set<StudentDtoResponse> getStudentDtoResponses(Set<Student> students) {
+        // Use stream to map students to DTO responses
+        return students.stream()
+                .map(student -> mapper.map(student, StudentDtoResponse.class))
+                .collect(Collectors.toSet());
+    }
+    
+    
     //todo
     // boilerplate code above
     @Override

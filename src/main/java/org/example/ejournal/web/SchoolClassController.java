@@ -19,13 +19,7 @@ public class SchoolClassController {
     public SchoolClassController(SchoolClassService schoolClassService) {
         this.schoolClassService = schoolClassService;
     }
-
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateSchoolClassPage() {
-        return ResponseEntity.ok("create school class");
-    }
-
+    
     @PostMapping("/create")
     @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<?> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto) {

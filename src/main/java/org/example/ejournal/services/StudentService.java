@@ -22,7 +22,10 @@ public interface StudentService {
     StudentDtoResponse viewStudent(String username);
 
     //List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);
-
+    
+    @Transactional
+    Set<StudentDtoResponse> showAllStudentsInSchoolAsHeadmaster();
+    
     Set<StudentDtoResponse> showAllStudentsInSchool(long schoolId);
     
     @Transactional

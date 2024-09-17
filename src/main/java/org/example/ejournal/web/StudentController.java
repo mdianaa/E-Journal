@@ -28,8 +28,7 @@ public class StudentController {
         this.studentService = studentService;
     }
     
-    //schoolClassId
-    //
+    
     @PostMapping("/create")
     @PreAuthorize("hasRole('HEADMASTER')")
     public ResponseEntity<?> createStudent(@RequestBody StudentDtoRequest studentDto) {
@@ -40,6 +39,40 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating student: " + e.getMessage());
         }
     }
+    
+    
+    @GetMapping("/school-class/{schoolClassId}")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchoolClass(@PathVariable long schoolClassId){
+        try{
+            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInClass(schoolClassId);
+            return ResponseEntity.ok(studentDtoResponses);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/school")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> showAllStudentsInSchool() {
+        try {
+            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInSchoolAsHeadmaster();
+            return ResponseEntity.ok(studentDtoResponses);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchool(@PathVariable long schoolId) {
+        try {
+            Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
+            return ResponseEntity.ok(students);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+    }
+    
     
     @PutMapping("/edit/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -135,27 +168,8 @@ public class StudentController {
 //        return ResponseEntity.ok(schedule);
 //    }
 
-    @GetMapping("/school/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<?/*Set<StudentDtoResponse>*/> showAllStudentsInSchool(@PathVariable long schoolId) {
-        try {
-            Set<StudentDtoResponse> students = studentService.showAllStudentsInSchool(schoolId);
-            return ResponseEntity.ok(students);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
-    }
 
-    @GetMapping("/school-class/{schoolClassId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?/*Set<StudentDtoResponse>*/> ShowAllStudentsInSchoolClass(@PathVariable long schoolClassId){
-        try{
-            Set<StudentDtoResponse> studentDtoResponses = studentService.showAllStudentsInClass(schoolClassId);
-            return ResponseEntity.ok(studentDtoResponses);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
-    }
+    
     
     @DeleteMapping("/{studentId}")
     @PreAuthorize("hasRole('ADMIN')")

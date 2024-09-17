@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class StudentDtoResponse {
+    private long id;
 
     private String firstName;
 
