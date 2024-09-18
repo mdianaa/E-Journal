@@ -22,38 +22,43 @@ public class SubjectController {
     public SubjectController(SubjectService subjectService) {
         this.subjectService = subjectService;
     }
-
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('HEADMASTER')")
-    public ResponseEntity<String> showCreateSubjectPage() {
-        return ResponseEntity.ok("create subject");
-    }
-
+    
     @PostMapping("/create")
     @PreAuthorize("hasRole('HEADMASTER')")
-    public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto) {
+    public ResponseEntity<?> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto) {
         try {
             SubjectDtoResponse createdSubject = subjectService.createSubject(subjectDto);
             return new ResponseEntity<>(createdSubject, HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/viewAll/{schoolId}")
-    @PreAuthorize("hasRole('HEADMASTER')")
-    public ResponseEntity<Set<SubjectDtoResponse>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> viewAllSubjectsInSchool(@PathVariable long schoolId) {
         try {
             Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
             return new ResponseEntity<>(subjects, HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/viewAll")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> viewAllSubjectsInSchoolAsHeadmaster() {
+        try {
+            Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool();
+            return new ResponseEntity<>(subjects, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
