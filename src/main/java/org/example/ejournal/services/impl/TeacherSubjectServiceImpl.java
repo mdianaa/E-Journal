@@ -1,7 +1,13 @@
 package org.example.ejournal.services.impl;
 
 import jakarta.transaction.Transactional;
+import org.example.ejournal.dtos.response.SubjectDtoResponse;
+import org.example.ejournal.dtos.response.SubjectWithTeachersDtoResponse;
+import org.example.ejournal.dtos.response.TeacherDtoResponse;
+import org.example.ejournal.dtos.response.TeacherSubjectDtoResponse;
 import org.example.ejournal.entities.*;
+import org.example.ejournal.entities.TeacherSubject;
+import org.example.ejournal.enums.RoleType;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
 import org.example.ejournal.services.TeacherSubjectService;
@@ -9,70 +15,164 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherSubjectServiceImpl implements TeacherSubjectService {
-	private final TeacherService teacherService;
 	private final TeacherRepository teacherRepository;
-	private final SchoolRepository schoolRepository;
 	private final SubjectRepository subjectRepository;
-	private final AbsenceRepository absenceRepository;
-	private final SchoolClassRepository schoolClassRepository;
-	private final ScheduleRepository scheduleRepository;
-	private final UserAuthenticationRepository userAuthenticationRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final ModelMapper mapper;
 	private final TeacherSubjectRepository teacherSubjectRepository;
+	private final UserAuthenticationServiceImpl userAuthenticationService;
+	private final ModelMapper mapper;
+	private final SchoolRepository schoolRepository;
 	
-	public TeacherSubjectServiceImpl(TeacherService teacherService, TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, SchoolClassRepository schoolClassRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, TeacherSubjectRepository teacherSubjectRepository) {
-		this.teacherService = teacherService;
+	public TeacherSubjectServiceImpl(TeacherService teacherService, TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, SchoolClassRepository schoolClassRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper, TeacherSubjectRepository teacherSubjectRepository, UserAuthenticationServiceImpl userAuthenticationService, ModelMapper modelMapper, AcademicYearRepository schoolRepository1, SchoolRepository schoolRepository2) {
 		this.teacherRepository = teacherRepository;
-		this.schoolRepository = schoolRepository;
 		this.subjectRepository = subjectRepository;
-		this.absenceRepository = absenceRepository;
-		this.schoolClassRepository = schoolClassRepository;
-		this.scheduleRepository = scheduleRepository;
-		this.userAuthenticationRepository = userAuthenticationRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.mapper = mapper;
 		this.teacherSubjectRepository = teacherSubjectRepository;
+		this.userAuthenticationService = userAuthenticationService;
+		this.mapper = modelMapper;
+		this.schoolRepository = schoolRepository2;
 	}
 	
 	@Transactional
+	@Override
+	public TeacherSubjectDtoResponse assignTeacherToSubject(long teacherId, long subjectId) {
+		// Retrieve the authenticated user
+		User authenticatedUser = userAuthenticationService.getAuthenticatedUser();
+		
+		// Fetch the teacher by ID
+		Teacher teacher = teacherRepository.findById(teacherId)
+				.orElseThrow(() -> new NoSuchElementException("Teacher not found with id: " + teacherId));
+		
+		// Fetch the subject by ID
+		Subject subject = subjectRepository.findById(subjectId)
+				.orElseThrow(() -> new NoSuchElementException("Subject not found with id: " + subjectId));
+		
+		// Check if the user is either an ADMIN or HEADMASTER and if the pair is from the same school
+		RoleType userRole = authenticatedUser.getUserAuthentication().getRole();
+		if (userRole.equals(RoleType.HEADMASTER)) {
+			// Ensure that the headmaster, teacher, and subject are from the same school
+			Headmaster headmaster = (Headmaster) authenticatedUser;
+			School headmasterSchool = headmaster.getSchool();
+			
+			if (headmasterSchool == null) {
+				throw new IllegalArgumentException("Headmaster does not have an associated school.");
+			}
+			
+			// Check if the teacher and subject are from the same school as the headmaster
+			if (teacher.getSchool().getId() != (headmasterSchool.getId())) {
+				throw new IllegalArgumentException("The teacher does not belong to the headmaster's school.");
+			}
+			
+			if (subject.getSchool().getId() != (headmasterSchool.getId())) {
+				throw new IllegalArgumentException("The subject does not belong to the headmaster's school.");
+			}
+		} else if (!userRole.equals(RoleType.ADMIN)) {
+			throw new SecurityException("Only Admins or Headmasters can assign teachers to subjects.");
+		} else if (subject.getSchool().getId() != teacher.getSchool().getId()) {
+			throw new IllegalArgumentException("The subject and teacher are not from the same school");
+		}
+		
+		// Check if the Teacher is already assigned to the Subject
+		Optional<TeacherSubject> existingTeacherSubject = teacherSubjectRepository.findByTeacherAndSubject(teacher, subject);
+		if (existingTeacherSubject.isPresent()) {
+			throw new IllegalArgumentException("This teacher is already assigned to the subject.");
+		}
+		
+		// Create a new TeacherSubject entity and map the teacher and subject
+		TeacherSubject teacherSubject = new TeacherSubject();
+		teacherSubject.setTeacher(teacher);
+		teacherSubject.setSubject(subject);
+		
+		// Save the TeacherSubject entity
+		TeacherSubject savedTeacherSubject = teacherSubjectRepository.save(teacherSubject);
+		
+		// Return the saved TeacherSubject entity as a DTO
+		return mapper.map(savedTeacherSubject, TeacherSubjectDtoResponse.class);
+	}
+	
+	@Transactional
+	@Override
+	public void assignMultipleTeachersToMultipleSubjects(Set<Long> teacherIds, Set<Long> subjectIds) {
+		for (Long teacherId : teacherIds) {
+			for (Long subjectId : subjectIds) {
+				try {
+					// If any assignment fails, throw an exception to trigger rollback
+					assignTeacherToSubject(teacherId, subjectId);
+				} catch (Exception e) {
+					// Log the specific failure and rethrow the exception
+					throw new RuntimeException("Failed to assign teacherId: " + teacherId + " to subjectId: " + subjectId, e);
+				}
+			}
+		}
+	}
+	
+	// Method for Admin: Fetch subjects and teachers by schoolId
+	@Transactional
+	@Override
+	public List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId) {
+		// Fetch the school by ID
+		School school = schoolRepository.findById(schoolId)
+				.orElseThrow(() -> new NoSuchElementException("School not found with id: " + schoolId));
+		
+		// Fetch all subjects for the school
+		Set<Subject> subjects = school.getSubjects();
+		
+		// Fetch all TeacherSubject relations for subjects in the school (batch fetch to avoid N+1 problem)
+		List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findAllBySubjectIn(subjects);
+		
+		// Group teachers by subject for faster access
+		Map<Long, List<Teacher>> teachersBySubject = teacherSubjects.stream()
+				.collect(Collectors.groupingBy(ts -> ts.getSubject().getId(),
+						Collectors.mapping(TeacherSubject::getTeacher, Collectors.toList())));
+		
+		// Map each subject and its associated teachers to DTOs
+		return subjects.stream()
+				.map(subject -> {
+					List<Teacher> teachers = teachersBySubject.getOrDefault(subject.getId(), Collections.emptyList());
+					return new SubjectWithTeachersDtoResponse(
+							mapper.map(subject, SubjectDtoResponse.class),
+							teachers.stream().map(teacher -> mapper.map(teacher, TeacherDtoResponse.class)).collect(Collectors.toList())
+					);
+				})
+				.collect(Collectors.toList());
+	}
+	
+	
+	// Method for Headmaster: Fetch subjects and teachers for the headmaster's school
+	@Transactional
+	@Override
+	public List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersForHeadmaster() {
+		// Get the authenticated headmaster
+		Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+		
+		// Get the headmaster's school and call the admin method
+		return getAllSubjectsAndTeachersBySchool(headmaster.getSchool().getId());
+	}
+}
+	/*@Transactional
 	@Override
 	public TeacherSubject assignTeacherToSubjectClass(Long teacherId, Long subjectId) {
 		Teacher teacher = teacherRepository.findById(teacherId)
 				.orElseThrow(() -> new NoSuchElementException("No teacher with id '" + teacherId + "' was found."));
 		Subject subject = subjectRepository.findById(subjectId)
 				.orElseThrow(() -> new NoSuchElementException("No subject with id '" + subjectId + "' was found."));
-		
+
 		TeacherSubject teacherSubject = new TeacherSubject();
 		teacherSubject.setTeacher(teacher);
 		teacherSubject.setSubject(subject);
-		
+
 		return teacherSubjectRepository.save(teacherSubject);
 	}
-	@Transactional
-	@Override
-	public Set<TeacherSubject> assignMultipleTeacherToSubjectClass(Set<Long> teacherIds, Long subjectId) {
-		Set<TeacherSubject> teacherSubjectSet = new HashSet<>();
-		
-		for (Long teacherId : teacherIds) {
-			// Assign each teacher to the subject and collect the results
-			TeacherSubject teacherSubject = assignTeacherToSubjectClass(teacherId, subjectId);
-			teacherSubjectSet.add(teacherSubject);
-		}
-		
-		return teacherSubjectSet; // Return the set of assigned teacher-subject mappings
-	}
+*/
+
 	
 	//todo
 	// finish this service class
-	
-	
+
+
 //
 //	@Override
 //	public TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto) {
@@ -180,4 +280,4 @@ public class TeacherSubjectServiceImpl implements TeacherSubjectService {
 //			teacherRepository.delete(teacher);
 //		}
 //	}
-}
+
