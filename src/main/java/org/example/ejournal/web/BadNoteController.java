@@ -8,9 +8,11 @@ import org.example.ejournal.dtos.response.BadNoteDtoResponse;
 import org.example.ejournal.services.BadNoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -40,6 +42,77 @@ public class BadNoteController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/admin/student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> showAllBadNotesForStudentAsAdmin(@PathVariable long studentId) {
+        try {
+            List<BadNoteDtoResponse> badNotes = badNoteService.getBadNotesForStudent(studentId);
+            return new ResponseEntity<>(badNotes, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/student/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> showAllBadNotesForStudentAsStudent() {
+        try {
+            List<BadNoteDtoResponse> badNotes = badNoteService.showAllBadNotesForStudentAsStudent();
+            return new ResponseEntity<>(badNotes, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/parent/{studentId}")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseEntity<?> showAllBadNotesForStudentAsParent(@PathVariable long studentId) {
+        try {
+            List<BadNoteDtoResponse> badNotes = badNoteService.showAllBadNotesForStudentAsParent(studentId);
+            return new ResponseEntity<>(badNotes, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/teacher/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<?> showAllBadNotesForStudentAsTeacher(@PathVariable long studentId) {
+        try {
+            List<BadNoteDtoResponse> badNotes = badNoteService.showAllBadNotesForStudentAsTeacher(studentId);
+            return new ResponseEntity<>(badNotes, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/headmaster/{studentId}")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> showAllBadNotesForStudentAsHeadmaster(@PathVariable long studentId) {
+        try {
+            List<BadNoteDtoResponse> badNotes = badNoteService.showAllBadNotesForStudentAsHeadmaster(studentId);
+            return new ResponseEntity<>(badNotes, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

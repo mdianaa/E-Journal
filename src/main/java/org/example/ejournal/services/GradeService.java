@@ -8,6 +8,7 @@ import org.example.ejournal.dtos.response.GradeDtoResponse;
 import org.example.ejournal.enums.SubjectType;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface GradeService {
 
@@ -15,8 +16,15 @@ public interface GradeService {
 
     GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto);
 
-    // средна аритметична оценка за текущия предмет за определени класове (само 12-ти 'A', само 11-ти 'A'...) в дадено училище
-    //BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber);
+    public List<GradeDtoResponse> getGradesForStudent(long studentId);
+
+    List<GradeDtoResponse> showAllGradesAsStudent();
+
+    List<GradeDtoResponse> showAllGradesAsParent(long studentI);
+
+    List<GradeDtoResponse> showAllGradesAsTeacher(long studentId);
+
+    List<GradeDtoResponse> showAllGradesAsHeadmaster(long studentId);
     
     BigDecimal viewAverageGradeForSubject(long schoolId, String subjectName, String classNumber);
     
@@ -40,7 +48,4 @@ public interface GradeService {
 
     // броя на оценките в дадено училище
     int viewGradeCountInSchool(BigDecimal grade, long schoolId);
-
-    // средна оценка на определен ученик за определен срок
-//    BigDecimal viewAverageGradeForSubjectPerSemester(long subjectId, String semester, long studentId);
 }

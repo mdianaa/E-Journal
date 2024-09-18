@@ -12,10 +12,12 @@ import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.GradeService;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GradeServiceImpl implements GradeService {
@@ -99,6 +101,106 @@ public class GradeServiceImpl implements GradeService {
         // return dto
         return mapper.map(grade, GradeDtoResponse.class);
     }
+
+    // Base method to fetch grades for a student and subject by their IDs
+    @Transactional
+    @Override
+    public List<GradeDtoResponse> getGradesForStudent(long studentId) {
+        // Fetch student by ID
+        Student student = getStudentById(studentId);
+
+        // Filter grades by subject
+        List<Grade> grades = student.getGrades().stream().toList();
+
+        // Map to GradeDtoResponse
+        return grades.stream()
+                .map(grade -> mapper.map(grade, GradeDtoResponse.class))
+                .collect(Collectors.toList());
+    }
+
+    // Helper method to get subject by ID
+    private Subject getSubjectById(long subjectId) {
+        return subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new NoSuchElementException("Subject with ID " + subjectId + " not found"));
+    }
+
+    // Base method to fetch a student by ID
+    private Student getStudentById(long studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new NoSuchElementException("Student with ID " + studentId + " not found"));
+    }
+
+    @Transactional
+    @Override
+    public List<GradeDtoResponse> showAllGradesAsStudent() {
+        // Get authenticated student
+        Student authenticatedStudent = (Student) userAuthenticationService.getAuthenticatedUser();
+
+        // Return grades for the authenticated student
+        return getGradesForStudent(authenticatedStudent.getId());
+    }
+
+    @Transactional
+    @Override
+    public List<GradeDtoResponse> showAllGradesAsParent(long studentId) {
+        Parent parent = (Parent) userAuthenticationService.getAuthenticatedUser();
+
+        // Get the student and verify parent-child relationship
+        Student student = getStudentById(studentId);
+
+        if (!parent.getChildren().contains(student)) {
+            throw new AccessDeniedException("You are not allowed to view grades for this student");
+        }
+
+        // Return grades for the child
+        return getGradesForStudent(studentId);
+    }
+
+    @Transactional
+    @Override
+    public List<GradeDtoResponse> showAllGradesAsTeacher(long studentId) {
+        Teacher teacher = (Teacher) userAuthenticationService.getAuthenticatedUser();
+
+        // Ensure the teacher is assigned to the school
+        if (teacher.getSchool() == null) {
+            throw new NoSuchElementException("No school found for the authenticated teacher");
+        }
+
+        // Get the student and check if they're in the same school
+        Student student = getStudentById(studentId);
+
+        //todo
+        // check whether the teacher teaches the particular subject
+
+        if (!teacher.getSchool().equals(student.getSchool())) {
+            throw new AccessDeniedException("You are not allowed to view grades for this student");
+        }
+
+        // Return grades for the student
+        return getGradesForStudent(studentId);
+    }
+
+    @Transactional
+    @Override
+    public List<GradeDtoResponse> showAllGradesAsHeadmaster(long studentId) {
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+
+        // Ensure the headmaster has a school
+        if (headmaster.getSchool() == null) {
+            throw new NoSuchElementException("No school found for the authenticated headmaster");
+        }
+
+        // Get the student and check if they're in the headmaster's school
+        Student student = getStudentById(studentId);
+
+        if (!headmaster.getSchool().equals(student.getSchool())) {
+            throw new AccessDeniedException("You are not allowed to view grades for this student");
+        }
+
+        // Return grades for the student
+        return getGradesForStudent(studentId);
+    }
+
 
     @Override
     public BigDecimal viewAverageGradeForSubject(long schoolId, String subjectName, String classNumber) {

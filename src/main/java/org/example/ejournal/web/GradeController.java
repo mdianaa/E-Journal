@@ -6,15 +6,18 @@ import org.example.ejournal.dtos.request.StudentDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
+import org.example.ejournal.entities.Student;
 import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.services.GradeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -66,6 +69,77 @@ public class GradeController {
         }
     }
 
+    @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getGradesForStudentAsAdmin(@PathVariable long studentId) {
+        try {
+            List<GradeDtoResponse> grades = gradeService.getGradesForStudent(studentId);
+            return new ResponseEntity<>(grades, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/student/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> showAllGradesAsStudent() {
+        try {
+            List<GradeDtoResponse> grades = gradeService.showAllGradesAsStudent();
+            return new ResponseEntity<>(grades, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/parent/student/{studentId}")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseEntity<?> showAllGradesAsParent(@PathVariable long studentId) {
+        try {
+            List<GradeDtoResponse> grades = gradeService.showAllGradesAsParent(studentId);
+            return new ResponseEntity<>(grades, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/teacher/student/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<?> showAllGradesAsTeacher(@PathVariable long studentId) {
+        try {
+            List<GradeDtoResponse> grades = gradeService.showAllGradesAsTeacher(studentId);
+            return new ResponseEntity<>(grades, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/headmaster/student/{studentId}")
+    @PreAuthorize("hasRole('HEADMASTER')")
+    public ResponseEntity<?> showAllGradesAsHeadmaster(@PathVariable long studentId) {
+        try {
+            List<GradeDtoResponse> grades = gradeService.showAllGradesAsHeadmaster(studentId);
+            return new ResponseEntity<>(grades, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/average-for-school/{schoolId}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<BigDecimal> viewAverageGradeForSchool(@PathVariable long schoolId) {
@@ -73,7 +147,7 @@ public class GradeController {
         return new ResponseEntity<>(averageGradeForSchool, HttpStatus.OK);
     }
 
-    @GetMapping("/average-for-subject/{schoolId}/{subjectType}/{classNumber}")
+    @GetMapping("/average-for-subject/{schoolId}/{subjectName}/{classNumber}")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
     public ResponseEntity<BigDecimal> viewAverageGradeForSubject(@PathVariable long schoolId,
                                                                  @PathVariable String subjectName,

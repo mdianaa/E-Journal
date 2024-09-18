@@ -13,12 +13,6 @@ public interface StudentService {
     
     StudentDtoResponse editStudent(long studentId, StudentDtoRequest studentDto);
 
-    List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto);
-
-    Set<AbsenceDtoResponse> showAllAbsencesForStudent(String username);
-
-    List<BadNoteDtoResponse> showAllBadNotesForStudent(String username);
-
     StudentDtoResponse viewStudent(String username);
 
     //List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass);

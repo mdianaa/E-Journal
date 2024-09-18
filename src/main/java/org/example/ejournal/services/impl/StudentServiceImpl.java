@@ -9,6 +9,7 @@ import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.StudentService;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -96,61 +97,6 @@ public class StudentServiceImpl implements StudentService {
             mapper.map(studentDto, student);
 
             return mapper.map(student, StudentDtoResponse.class);
-        }
-
-        return null;
-    }
-
-    @Override
-    public List<GradeDtoResponse> showAllGradesForSubject(String username, SubjectDtoRequest subjectDto) {
-        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()){
-            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
-            Subject subject = subjectRepository.findByName(subjectDto.getName()).get();
-
-            List<Grade> grades = student.getGrades().stream().filter(g -> g.getSubject().getName().equals(subject.getName())).toList();
-            List<GradeDtoResponse> gradesDto = new ArrayList<>();
-
-            for (Grade grade : grades) {
-                gradesDto.add(mapper.map(grade, GradeDtoResponse.class));
-            }
-
-            return gradesDto;
-        }
-
-        return null;
-    }
-
-    @Override
-    public Set<AbsenceDtoResponse> showAllAbsencesForStudent(String username) {
-        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()) {
-            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
-
-            Set<Absence> absences = student.getAbsences();
-            Set<AbsenceDtoResponse> absencesDto = new HashSet<>();
-
-            for (Absence absence : absences) {
-                absencesDto.add(mapper.map(absence, AbsenceDtoResponse.class));
-            }
-
-            return absencesDto;
-        }
-
-        return null;
-    }
-
-    @Override
-    public List<BadNoteDtoResponse> showAllBadNotesForStudent(String username) {
-        if (studentRepository.findByUserAuthenticationUsername(username).isPresent()) {
-            Student student = studentRepository.findByUserAuthenticationUsername(username).get();
-
-            List<BadNote> badNotes = badNoteRepository.findAllByStudent(student);
-            List<BadNoteDtoResponse> badNotesDto = new ArrayList<>();
-
-            for (BadNote badNote : badNotes) {
-                badNotesDto.add(mapper.map(badNote, BadNoteDtoResponse.class));
-            }
-
-            return badNotesDto;
         }
 
         return null;

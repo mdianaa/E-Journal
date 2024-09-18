@@ -11,10 +11,13 @@ import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.AbsenceService;
 import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AbsenceServiceImpl implements AbsenceService {
@@ -78,6 +81,100 @@ public class AbsenceServiceImpl implements AbsenceService {
         // return dto
         return mapper.map(absence, AbsenceDtoResponse.class);
     }
+
+    // Base method to fetch and map absences
+    @Transactional
+    @Override
+    public Set<AbsenceDtoResponse> getAbsencesForStudent(long studentId) {
+        // Fetch student by ID
+        Student student = getStudentById(studentId);
+
+        // Fetch all absences for the student
+        Set<Absence> absences = student.getAbsences();
+
+        // Map absences to AbsenceDtoResponse
+        return absences.stream()
+                .map(absence -> mapper.map(absence, AbsenceDtoResponse.class))
+                .collect(Collectors.toSet());
+    }
+
+    // Base method to fetch a student by ID
+    private Student getStudentById(long studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new NoSuchElementException("Student with ID " + studentId + " not found"));
+    }
+
+    @Transactional
+    @Override
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudentAsStudent() {
+        // Get authenticated student
+        Student authenticatedStudent = (Student) userAuthenticationService.getAuthenticatedUser();
+
+        // Return absences for the authenticated student
+        return getAbsencesForStudent(authenticatedStudent.getId());
+    }
+
+    @Transactional
+    @Override
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudentAsParent(long studentId) {
+        Parent parent = (Parent) userAuthenticationService.getAuthenticatedUser();
+
+        // Get the student and verify parent-child relationship
+        Student student = getStudentById(studentId);
+
+        if (!parent.getChildren().contains(student)) {
+            throw new AccessDeniedException("You are not allowed to view absences for this student");
+        }
+
+        // Return absences for the child
+        return getAbsencesForStudent(studentId);
+    }
+
+    @Transactional
+    @Override
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudentAsTeacher(long studentId) {
+        Teacher teacher = (Teacher) userAuthenticationService.getAuthenticatedUser();
+
+        // Ensure the teacher is assigned to the school
+        if (teacher.getSchool() == null) {
+            throw new NoSuchElementException("No school found for the authenticated teacher");
+        }
+
+        // Get the student and check if they're in the same school
+        Student student = getStudentById(studentId);
+
+        // todo:
+        //  check whether the teacher teaches the particular subject
+
+        if (!teacher.getSchool().equals(student.getSchool())) {
+            throw new AccessDeniedException("You are not allowed to view absences for this student");
+        }
+
+        // Return absences for the student
+        return getAbsencesForStudent(studentId);
+    }
+
+    @Transactional
+    @Override
+    public Set<AbsenceDtoResponse> showAllAbsencesForStudentAsHeadmaster(long studentId) {
+        Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
+
+        // Ensure the headmaster has a school
+        if (headmaster.getSchool() == null) {
+            throw new NoSuchElementException("No school found for the authenticated headmaster");
+        }
+
+        // Get the student and check if they're in the headmaster's school
+        Student student = getStudentById(studentId);
+
+        if (!headmaster.getSchool().equals(student.getSchool())) {
+            throw new AccessDeniedException("You are not allowed to view absences for this student");
+        }
+
+        // Return absences for the student
+        return getAbsencesForStudent(studentId);
+    }
+
 
     @Transactional
     @Override
