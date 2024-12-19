@@ -5,14 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class SubjectDtoResponse {
-
-    private long id;
-
+    private Long id;
     private String name;
-
+    private String schoolName;
+//    private String phoneNumber;
+//    private List<TeacherSubjectInfoDtoResponse> teacherAssignments; // List of teacher assignments
+//
+    // Getters and Setters
 }
+

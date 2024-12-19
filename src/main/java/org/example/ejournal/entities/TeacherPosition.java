@@ -17,9 +17,6 @@ import lombok.Setter;
 @Table(name = "teacher_position")
 public class TeacherPosition extends BaseEntity {
 
-	@Column(columnDefinition = "boolean default true")
-	private boolean active;
-
 	@ManyToOne
 	private TeacherSubject teacherSubject;
 	

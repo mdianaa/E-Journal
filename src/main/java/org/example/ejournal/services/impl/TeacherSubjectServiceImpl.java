@@ -1,10 +1,7 @@
 package org.example.ejournal.services.impl;
 
 import jakarta.transaction.Transactional;
-import org.example.ejournal.dtos.response.SubjectDtoResponse;
-import org.example.ejournal.dtos.response.SubjectWithTeachersDtoResponse;
-import org.example.ejournal.dtos.response.TeacherDtoResponse;
-import org.example.ejournal.dtos.response.TeacherSubjectDtoResponse;
+import org.example.ejournal.dtos.response.*;
 import org.example.ejournal.entities.*;
 import org.example.ejournal.entities.TeacherSubject;
 import org.example.ejournal.enums.RoleType;
@@ -83,6 +80,7 @@ public class TeacherSubjectServiceImpl implements TeacherSubjectService {
 		
 		// Create a new TeacherSubject entity and map the teacher and subject
 		TeacherSubject teacherSubject = new TeacherSubject();
+		teacherSubject.setActive(true);  // Assuming the position is active by default
 		teacherSubject.setTeacher(teacher);
 		teacherSubject.setSubject(subject);
 		
@@ -109,42 +107,51 @@ public class TeacherSubjectServiceImpl implements TeacherSubjectService {
 		}
 	}
 	
-	// Method for Admin: Fetch subjects and teachers by schoolId
 	@Transactional
 	@Override
-	public List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId) {
+	public List<TeacherSubjectDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId) {
 		// Fetch the school by ID
 		School school = schoolRepository.findById(schoolId)
 				.orElseThrow(() -> new NoSuchElementException("School not found with id: " + schoolId));
 		
-		// Fetch all subjects for the school
-		Set<Subject> subjects = school.getSubjects();
+		// Fetch all TeacherSubject relations for subjects in the school
+		List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findAllBySchool(schoolId);
 		
-		// Fetch all TeacherSubject relations for subjects in the school (batch fetch to avoid N+1 problem)
-		List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findAllBySubjectIn(subjects);
-		
-		// Group teachers by subject for faster access
-		Map<Long, List<Teacher>> teachersBySubject = teacherSubjects.stream()
-				.collect(Collectors.groupingBy(ts -> ts.getSubject().getId(),
-						Collectors.mapping(TeacherSubject::getTeacher, Collectors.toList())));
-		
-		// Map each subject and its associated teachers to DTOs
-		return subjects.stream()
-				.map(subject -> {
-					List<Teacher> teachers = teachersBySubject.getOrDefault(subject.getId(), Collections.emptyList());
-					return new SubjectWithTeachersDtoResponse(
-							mapper.map(subject, SubjectDtoResponse.class),
-							teachers.stream().map(teacher -> mapper.map(teacher, TeacherDtoResponse.class)).collect(Collectors.toList())
-					);
-				})
-				.collect(Collectors.toList());
+		// Stream through teacherSubjects and group by subjects, collecting corresponding teachers
+		return teacherSubjects.stream()
+				.map(teacherSubject -> mapper.map(teacherSubject, TeacherSubjectDtoResponse.class)) // Map each TeacherSubject to TeacherSubjectDtoResponse
+				.collect(Collectors.toList()); // Collect the results into a List
 	}
 	
+	// Method for Admin: Fetch subjects and teachers by schoolId
+//	@Transactional
+//	@Override
+//	public List<TeacherSubjectDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId) {
+//		// Fetch the school by ID
+//		School school = schoolRepository.findById(schoolId)
+//				.orElseThrow(() -> new NoSuchElementException("School not found with id: " + schoolId));
+//
+//		// Fetch all TeacherSubject relations for the school's subjects
+//		List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findAllBySchool(schoolId);
+//
+//		// Map each TeacherSubject entity to TeacherSubjectDtoResponse
+//		return teacherSubjects.stream().map(teacherSubject -> {
+//			TeacherSubjectDtoResponse dto = new TeacherSubjectDtoResponse();
+//			dto.setTeacherId(teacherSubject.getTeacher().getId());
+//			dto.setTeacherSubjectId(teacherSubject.getId());
+//			dto.setTeacherFirstName(teacherSubject.getTeacher().getFirstName());
+//			dto.setTeacherLastName(teacherSubject.getTeacher().getLastName());
+//			dto.setSubjectId(teacherSubject.getSubject().getId());
+//			dto.setSubjectName(teacherSubject.getSubject().getName());
+//			return dto;
+//		}).collect(Collectors.toList());
+//	}
+//
 	
 	// Method for Headmaster: Fetch subjects and teachers for the headmaster's school
 	@Transactional
 	@Override
-	public List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersForHeadmaster() {
+	public List<TeacherSubjectDtoResponse> getAllSubjectsAndTeachersForHeadmaster() {
 		// Get the authenticated headmaster
 		Headmaster headmaster = (Headmaster) userAuthenticationService.getAuthenticatedUser();
 		

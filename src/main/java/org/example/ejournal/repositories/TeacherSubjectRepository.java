@@ -23,4 +23,7 @@ public interface TeacherSubjectRepository extends JpaRepository<TeacherSubject,L
 	List<Teacher> findAllTeachersBySubject(@Param("subjectId") Long subjectId);
 	
 	List<TeacherSubject> findAllBySubjectIn(Set<Subject> subjects);
+	
+	@Query("SELECT ts FROM TeacherSubject ts WHERE ts.teacher.school.id = :schoolId AND ts.subject.school.id = :schoolId")
+	List<TeacherSubject> findAllBySchool(@Param("schoolId") Long schoolId);
 }

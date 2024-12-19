@@ -18,6 +18,9 @@ import org.example.ejournal.enums.WeekDay;
 @Setter
 public class ScheduleDtoRequest {
 
+    @NotNull(message = "Teacher with subject shouldn't be empty")
+    private long teacherSubject;
+    
     @NotNull(message = "Day shouldn't be empty")
     @Enumerated(EnumType.STRING)
     private WeekDay day;

@@ -32,9 +32,6 @@ public class Schedule extends BaseEntity {
     private PeriodType periodType;
     
     @ManyToOne
-    private Subject subject;
-    
-    @ManyToOne
     private TeacherSubject teacherSubject;
 
     @ManyToOne

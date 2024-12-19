@@ -21,13 +21,19 @@ public class ScheduleController {
     public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
-
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<String> showCreateSchedulePage() {
-        return ResponseEntity.ok("create schedule");
+    
+    
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
+    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDtoRequest scheduleDtoRequest){
+        try{
+            ScheduleDtoResponse scheduleDtoResponse = scheduleService.createSchedule(scheduleDtoRequest);
+            return ResponseEntity.ok(scheduleDtoResponse);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
+    
 //    @PostMapping("/create")
 //    @PreAuthorize("hasRole('TEACHER')")
 //    public ResponseEntity<ScheduleDtoResponse> createSchedule(@RequestBody ScheduleDtoRequest scheduleDto,

@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
-public class SubjectWithTeachersDtoResponse {
-	private SubjectDtoResponse subject;
-	private List<TeacherDtoResponse> teacherName;
-	
+@Setter
+public class TeacherAssignmentDtoResponse {
+	private Long teacherId;
+	private String teacherName;
+	private Long teacherPositionId;
+	private boolean active; // TeacherPosition's active status
 }

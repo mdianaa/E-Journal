@@ -1,7 +1,6 @@
 package org.example.ejournal.services;
 
 import jakarta.transaction.Transactional;
-import org.example.ejournal.dtos.response.SubjectWithTeachersDtoResponse;
 import org.example.ejournal.dtos.response.TeacherSubjectDtoResponse;
 
 import java.util.List;
@@ -17,9 +16,9 @@ public interface TeacherSubjectService {
 	
 	// Method for Admin: Fetch subjects and teachers by schoolId
 	@Transactional
-	List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId);
+	List<TeacherSubjectDtoResponse> getAllSubjectsAndTeachersBySchool(long schoolId);
 	
 	// Method for Headmaster: Fetch subjects and teachers for the headmaster's school
 	@Transactional
-	List<SubjectWithTeachersDtoResponse> getAllSubjectsAndTeachersForHeadmaster();
+	List<TeacherSubjectDtoResponse> getAllSubjectsAndTeachersForHeadmaster();
 }

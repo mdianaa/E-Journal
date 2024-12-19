@@ -1,18 +1,14 @@
 package org.example.ejournal.services.impl;
 
+import jakarta.transaction.Transactional;
 import org.example.ejournal.dtos.request.ScheduleDtoRequest;
-import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
-import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.response.ScheduleDtoResponse;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.WeekDay;
-import org.example.ejournal.entities.Schedule;
-import org.example.ejournal.entities.SchoolClass;
-import org.example.ejournal.entities.Subject;
+import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.ScheduleRepository;
 import org.example.ejournal.repositories.SchoolClassRepository;
 import org.example.ejournal.repositories.SubjectRepository;
 import org.example.ejournal.services.ScheduleService;
+import org.example.ejournal.services.UserAuthenticationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +19,26 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final SchoolClassRepository schoolClassRepository;
     private final SubjectRepository subjectRepository;
     private final ModelMapper mapper;
-
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ModelMapper mapper) {
+    private final UserAuthenticationService userAuthenticationService;
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository, SchoolClassRepository schoolClassRepository, SubjectRepository subjectRepository, ModelMapper mapper, UserAuthenticationService userAuthenticationService) {
         this.scheduleRepository = scheduleRepository;
         this.schoolClassRepository = schoolClassRepository;
         this.subjectRepository = subjectRepository;
         this.mapper = mapper;
+	    this.userAuthenticationService = userAuthenticationService;
     }
 
+    
+    @Transactional
+    @Override
+    public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDtoRequest){
+        User userAuthentication = userAuthenticationService.getAuthenticatedUser();
+        
+        
+        
+        return new ScheduleDtoResponse();
+        
+    }
 //    @Override
 //    public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto, SchoolClassDtoRequest schoolClassDto, SubjectDtoRequest subjectDtoRequest) {
 //        // check whether this schedule exists
@@ -58,7 +66,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         if (scheduleRepository.findById(scheduleId).isPresent()) {
             Schedule schedule = scheduleRepository.findById(scheduleId).get();
 
-            schedule.setSubject(null);
+            //schedule.setSubject(null);
             schedule.setSchoolClass(null);
 
             scheduleRepository.delete(schedule);

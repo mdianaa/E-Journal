@@ -13,6 +13,8 @@ import org.example.ejournal.enums.GradeLevel;
 @Getter
 @Setter
 public class SchoolClassDtoResponse {
+	private Long schoolClassId;
+	
 	private GradeLevel gradeLevel;
 	
 	private ClassSection classSection;

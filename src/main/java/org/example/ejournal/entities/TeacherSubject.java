@@ -15,6 +15,10 @@ import java.util.List;
 @Entity
 @Table(name = "teachers_subjects")
 public class TeacherSubject extends BaseEntity {
+	
+	@Column(columnDefinition = "boolean default true")
+	private boolean active;
+	
 	@ManyToOne(cascade = CascadeType.ALL)
 	private Teacher teacher;
 	

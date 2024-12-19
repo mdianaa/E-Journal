@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.ejournal.entities.TeacherSubject;
 
 import java.util.List;
 
@@ -11,8 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-public class TeacherSubjectDtoResponse {
+public class TeacherPositionDtoResponse {
 	private long id;
-	private SubjectDtoResponse subject;
-	private TeacherDtoResponse teacher;
+	private TeacherSubjectDtoResponse teacherSubject;
 }
