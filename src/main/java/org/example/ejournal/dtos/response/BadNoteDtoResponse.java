@@ -1,19 +1,27 @@
 package org.example.ejournal.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class BadNoteDtoResponse {
+
+    private Long id;
+
+    private String day;
+
+    private Long subjectId;
+
+    private String subjectName;
 
     private String description;
 
-    private String teacherFirstName;
+    private Long studentId;
 
-    private String teacherLastName;
+    private String studentFullName;
+
+    private Long teacherId;
+
+    private String teacherFullName;
 }

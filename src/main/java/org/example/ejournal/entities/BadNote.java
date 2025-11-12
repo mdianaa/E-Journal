@@ -1,6 +1,8 @@
 package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @AllArgsConstructor
@@ -9,19 +11,27 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "bad_notes")
-public class BadNote {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class BadNote extends BaseEntity {
 
     @Column
+    @NotNull
+    @Size(max = 50)
+    private String day;
+
+    @ManyToOne
+    @NotNull
+    private Subject subject;
+
+    @Column
+    @NotNull
     private String description;
 
     @ManyToOne
+    @NotNull
     private Student student;
 
     @ManyToOne
+    @NotNull
     private Teacher teacher;
 
 }

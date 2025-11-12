@@ -1,17 +1,28 @@
 package org.example.ejournal.dtos.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class BadNoteDtoRequest {
 
-    @NotNull(message = "Description shouldn't be empty")
+    @NotBlank
+    @Size(max = 50)
+    private String day;
+
+    @NotNull
+    private Long subjectId;
+
+    @NotBlank
     private String description;
+
+    @NotNull
+    private Long studentId;
+
+    @NotNull
+    private Long teacherId;
 }
