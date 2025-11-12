@@ -1,22 +1,28 @@
 package org.example.ejournal.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class AbsenceDtoResponse {
+
+    private Long id;
 
     private String day;
 
-    private String subjectType;
+    private boolean excused;
 
-    private String teacherFirstName;
+    private Long studentId;
 
-    private String teacherLastName;
+    private String studentName;
+
+    private Long teacherId;
+
+    private String teacherName;
+
+    private Long subjectId;
+
+    private String subjectName;
 
 }

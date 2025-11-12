@@ -1,18 +1,25 @@
 package org.example.ejournal.dtos.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.example.ejournal.enums.WeekDay;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 public class AbsenceDtoRequest {
 
-    @NotNull(message = "Week day shouldn't be empty")
-    private WeekDay weekDay;
+    @NotNull
+    private Long studentId;
+
+    @NotNull
+    private Long teacherId;
+
+    @NotNull
+    private Long subjectId;
+
+    @NotBlank
+    @Size(max = 50)
+    private String day;
 }

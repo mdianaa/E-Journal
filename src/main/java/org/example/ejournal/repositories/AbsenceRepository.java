@@ -11,9 +11,12 @@ import java.util.List;
 
 @Repository
 public interface AbsenceRepository extends JpaRepository<Absence, Long> {
-    List<Absence> findAllByStudent(Student student);
 
-    List<Absence> findBySubject(Subject subject);
+    List<Absence> findAllByStudent_IdOrderByDayDesc(Long studentId);
 
-    List<Absence> findAllByTeacher(Teacher teacher);
+    List<Absence> findAllByTeacher_IdOrderByDayDesc(Long teacherId);
+
+    boolean existsByStudent_IdAndDayAndSubject_Id(Long studentId, String day, Long subjectId);
+
+    boolean existsByTeacher_IdAndStudent_Id(Long teacherId, Long studentId);
 }

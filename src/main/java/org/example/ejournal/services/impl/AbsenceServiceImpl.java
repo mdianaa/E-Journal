@@ -1,10 +1,8 @@
 package org.example.ejournal.services.impl;
 
-import jakarta.transaction.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.AbsenceDtoRequest;
-import org.example.ejournal.dtos.request.StudentDtoRequest;
-import org.example.ejournal.dtos.request.SubjectDtoRequest;
-import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.dtos.response.AbsenceDtoResponse;
 import org.example.ejournal.entities.Absence;
 import org.example.ejournal.entities.Student;
@@ -15,64 +13,103 @@ import org.example.ejournal.repositories.StudentRepository;
 import org.example.ejournal.repositories.SubjectRepository;
 import org.example.ejournal.repositories.TeacherRepository;
 import org.example.ejournal.services.AbsenceService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class AbsenceServiceImpl implements AbsenceService {
 
     private final AbsenceRepository absenceRepository;
+    private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
-    private final StudentRepository studentRepository;
-    private final ModelMapper mapper;
 
-    public AbsenceServiceImpl(AbsenceRepository absenceRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, ModelMapper mapper) {
-        this.absenceRepository = absenceRepository;
-        this.teacherRepository = teacherRepository;
-        this.subjectRepository = subjectRepository;
-        this.studentRepository = studentRepository;
-        this.mapper = mapper;
-    }
-
-    @Transactional
     @Override
-    public AbsenceDtoResponse createAbsence(AbsenceDtoRequest absenceDto, TeacherDtoRequest teacherDto, StudentDtoRequest studentDto, SubjectDtoRequest subjectDto) {
-        // check whether this absence already exists
+    public AbsenceDtoResponse createAbsence(AbsenceDtoRequest dto) {
 
-        // create a new absence
-        Absence absence = mapper.map(absenceDto, Absence.class);
-        Teacher teacher = teacherRepository.findByFirstNameAndLastName(teacherDto.getFirstName(), teacherDto.getLastName()).get();
-        Student student = studentRepository.findByFirstNameAndLastName(studentDto.getFirstName(), studentDto.getLastName()).get();
-        Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
+        Student student = studentRepository.findById(dto.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student with id " + dto.getStudentId() + " cannot be found"));
+        Teacher teacher = teacherRepository.findById(dto.getTeacherId())
+                .orElseThrow(() -> new IllegalArgumentException("Student with id " + dto.getTeacherId() + " cannot be found"));
+        Subject subject = subjectRepository.findById(dto.getSubjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + dto.getSubjectId() + " cannot be found"));
 
-        // create absence only by teachers that has qualification for this subject
-        Optional<Subject> subjectToBeFound = teacher.getSubjects().stream().filter(s -> s.getSubjectType().equals(subject.getSubjectType())).findFirst();
-        if (subjectToBeFound.isPresent()) {
-            absence.setTeacher(teacher);
-        } else {
-            throw new IllegalArgumentException();
+        if (absenceRepository.existsByStudent_IdAndDayAndSubject_Id(dto.getStudentId(), dto.getDay(), dto.getSubjectId())) {
+            throw new IllegalArgumentException("An absence already exists for this student, day, and subject.");
         }
 
-        absence.setStudent(student);
-        absence.setSubject(subject);
+        var a = new Absence();
+        a.setStudent(student);
+        a.setTeacher(teacher);
+        a.setSubject(subject);
+        a.setDay(dto.getDay());
+        a.setExcused(false);
 
-        // persist to db
-        absenceRepository.save(absence);
+        var saved = absenceRepository.save(a);
+        return toDto(saved);
+    }
 
-        // return dto
-        return mapper.map(absence, AbsenceDtoResponse.class);
+    @Override
+    @Transactional(readOnly = true)
+    public Set<AbsenceDtoResponse> viewAllAbsencesForStudent(long studentId) {
+        studentRepository.findById(studentId).orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
+
+        List<Absence> list = absenceRepository.findAllByStudent_IdOrderByDayDesc(studentId);
+        Set<AbsenceDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
+        list.forEach(a -> out.add(toDto(a)));
+
+        return out;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<AbsenceDtoResponse> viewAllAbsencesGivenByTeacher(long teacherId) {
+        teacherRepository.findById(teacherId).orElseThrow(() -> new IllegalArgumentException("Student with id " + teacherId + " cannot be found"));
+
+        List<Absence> list = absenceRepository.findAllByTeacher_IdOrderByDayDesc(teacherId);
+        Set<AbsenceDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
+        list.forEach(a -> out.add(toDto(a)));
+
+        return out;
     }
 
     @Override
     public void excuseAbsence(long absenceId) {
-        // check whether this absence exists
-        if (absenceRepository.findById(absenceId).isPresent()) {
-            Absence absence = absenceRepository.findById(absenceId).get();
+        Absence a = absenceRepository.findById(absenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Absence with id " + absenceId + " cannot be found"));
 
-            absence.setExcused(true);
+        if (!a.isExcused()) {
+            a.setExcused(true);
+            absenceRepository.save(a);
         }
+    }
+
+    private AbsenceDtoResponse toDto(Absence a) {
+        String studentName = null;
+        if (a.getStudent() != null && a.getStudent().getUser() != null) {
+            studentName = a.getStudent().getUser().getFirstName() + " " + a.getStudent().getUser().getLastName();
+        }
+        String teacherName = null;
+        if (a.getTeacher() != null && a.getTeacher().getUser() != null) {
+            teacherName = a.getTeacher().getUser().getFirstName() + " " + a.getTeacher().getUser().getLastName();
+        }
+        String subjectName = a.getSubject() != null ? a.getSubject().getName() : null;
+
+        return new AbsenceDtoResponse(
+                a.getId(),
+                a.getDay(),
+                a.isExcused(),
+                a.getStudent() != null ? a.getStudent().getId() : null,
+                studentName,
+                a.getTeacher() != null ? a.getTeacher().getId() : null,
+                teacherName,
+                a.getSubject() != null ? a.getSubject().getId() : null,
+                subjectName
+        );
     }
 }
