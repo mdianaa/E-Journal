@@ -1,135 +1,103 @@
 package org.example.ejournal.services.impl;
 
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.GradeDtoRequest;
-import org.example.ejournal.dtos.request.StudentDtoRequest;
-import org.example.ejournal.dtos.request.SubjectDtoRequest;
-import org.example.ejournal.dtos.request.TeacherDtoRequest;
 import org.example.ejournal.dtos.response.GradeDtoResponse;
-import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.entities.*;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.GradeService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class GradeServiceImpl implements GradeService {
 
     private final GradeRepository gradeRepository;
-    private final TeacherRepository teacherRepository;
-    private final SubjectRepository subjectRepository;
     private final StudentRepository studentRepository;
-    private final SchoolClassRepository schoolClassRepository;
-    private final ModelMapper mapper;
+    private final SubjectRepository subjectRepository;
+    private final TeacherRepository teacherRepository;
 
-    public GradeServiceImpl(GradeRepository gradeRepository, TeacherRepository teacherRepository, SubjectRepository subjectRepository, StudentRepository studentRepository, SchoolClassRepository schoolClassRepository, ModelMapper mapper) {
-        this.gradeRepository = gradeRepository;
-        this.teacherRepository = teacherRepository;
-        this.subjectRepository = subjectRepository;
-        this.studentRepository = studentRepository;
-        this.schoolClassRepository = schoolClassRepository;
-        this.mapper = mapper;
+    @Override
+    public GradeDtoResponse createGrade(GradeDtoRequest dto) {
+
+        Student student = studentRepository.findById(dto.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student with id " + dto.getStudentId() + " cannot be found"));
+
+        Subject subject = subjectRepository.findById(dto.getSubjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + dto.getSubjectId() + " cannot be found"));
+
+        Teacher teacher = teacherRepository.findById(dto.getGradedById())
+                .orElseThrow(() -> new IllegalArgumentException("Grade with id " + dto.getStudentId() + " cannot be found"));
+
+        Grade g = new Grade();
+        g.setStudent(student);
+        g.setSubject(subject);
+        g.setGradedBy(teacher);
+        g.setValue(ensureScale(dto.getValue()));
+
+        Grade saved = gradeRepository.save(g);
+        return toDto(saved);
     }
 
-    @Transactional
     @Override
-    public GradeDtoResponse createGrade(GradeDtoRequest gradeDto, TeacherDtoRequest teacherDto, SubjectDtoRequest subjectDto, StudentDtoRequest studentDto) {
-        // create grade
-        Grade grade = mapper.map(gradeDto, Grade.class);
-        Teacher teacher = teacherRepository.findByFirstNameAndLastName(teacherDto.getFirstName(), teacherDto.getLastName()).get();
-        Subject subject = subjectRepository.findBySubjectType(subjectDto.getSubjectType()).get();
-        Student student = studentRepository.findByFirstNameAndLastName(studentDto.getFirstName(), studentDto.getLastName()).get();
+    @Transactional(readOnly = true)
+    public Set<GradeDtoResponse> showAllStudentGradesForSubject(long studentId, long subjectId) {
 
-        // check if the teacher can grade this subject
-        if (canTeacherGradeSubject(teacher.getId(), subject.getSubjectType())) {
-            grade.setGradedByTeacher(teacher);
+        studentRepository.findById(studentId).
+                orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
 
-            grade.setSubject(subject);
-            grade.setStudent(student);
+        subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + subjectId+ " cannot be found"));
 
-            // persist grade to db
-            gradeRepository.save(grade);
+        List<Grade> list = gradeRepository.findAllByStudent_IdAndSubject_IdOrderByIdDesc(studentId, subjectId);
+        Set<GradeDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
 
-            // return dto
-            return mapper.map(grade, GradeDtoResponse.class);
+        list.forEach(g -> out.add(toDto(g)));
+        return out;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<GradeDtoResponse> showAllStudentGrades(long studentId) {
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
+
+        List<Grade> list = gradeRepository.findAllByStudent_IdOrderByIdDesc(studentId);
+        Set<GradeDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
+
+        list.forEach(g -> out.add(toDto(g)));
+        return out;
+    }
+
+    public GradeDtoResponse toDto(Grade g) {
+        String studentName = null;
+        if (g.getStudent() != null && g.getStudent().getUser() != null) {
+            studentName = g.getStudent().getUser().getFirstName() + " " + g.getStudent().getUser().getLastName();
         }
-
-       return null;
-    }
-
-    @Override
-    public GradeDtoResponse editGrade(long gradeId, GradeDtoRequest gradeDto) {
-        // find grade in the db
-        if (gradeRepository.findById(gradeId).isPresent()) {
-            Grade grade = gradeRepository.findById(gradeId).get();
-
-            // update grade
-            mapper.map(gradeDto, grade);
-
-            // persist to db
-            gradeRepository.save(grade);
-
-            // return dto
-            return mapper.map(grade, GradeDtoResponse.class);
+        String teacherName = null;
+        if (g.getGradedBy() != null && g.getGradedBy().getUser() != null) {
+            teacherName = g.getGradedBy().getUser().getFirstName() + " " + g.getGradedBy().getUser().getLastName();
         }
+        String subjectName = g.getSubject() != null ? g.getSubject().getName() : null;
 
-        return null;
+        return new GradeDtoResponse(
+                g.getId(),
+                g.getValue(),
+                g.getStudent() != null ? g.getStudent().getId() : null,
+                studentName,
+                g.getSubject() != null ? g.getSubject().getId() : null,
+                subjectName,
+                g.getGradedBy() != null ? g.getGradedBy().getId() : null,
+                teacherName
+        );
     }
 
-    @Override
-    public BigDecimal viewAverageGradeForSubject(long schoolId, SubjectType subject, String classNumber) {
-        return gradeRepository.findAverageGradeForSubject(schoolId, subject, classNumber);
-    }
-
-    @Override
-    public BigDecimal viewAverageGradeForTeacher(long teacherId) {
-        return gradeRepository.findAverageGradeForTeacher(teacherId);
-    }
-
-    @Override
-    public BigDecimal viewAverageGradeForStudent(long studentId) {
-        return gradeRepository.findAverageGradeForStudent(studentId);
-    }
-
-    @Override
-    public BigDecimal viewAverageGradeForSchool(long schoolId) {
-        return gradeRepository.findAverageGradeForSchool(schoolId);
-    }
-
-    @Override
-    public int viewGradeCountInSchoolClass(BigDecimal grade, long schoolClassId) {
-        SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId).get();
-
-        return gradeRepository.findCountOfGradeBySchoolClass(grade, schoolClass.getClassName());
-    }
-
-    @Override
-    public int viewGradeCountForSubject(BigDecimal grade, long subjectId) {
-        SubjectType subjectType = subjectRepository.findById(subjectId).get().getSubjectType();
-
-        return gradeRepository.findCountOfGradeBySubject(grade, subjectType);
-    }
-
-    @Override
-    public int viewGradeCountForTeacher(BigDecimal grade, long teacherId) {
-        return gradeRepository.findCountOfGradeByTeacher(grade, teacherId);
-    }
-
-    @Override
-    public int viewGradeCountInSchool(BigDecimal grade, long schoolId) {
-        return gradeRepository.findCountOfGradeBySchool(grade, schoolId);
-    }
-
-    private boolean canTeacherGradeSubject(long teacherId, SubjectType subjectType) {
-        Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
-
-        return teacherOptional.map(t -> t.getSubjects().stream()
-                        .anyMatch(s -> s.getSubjectType().equals(subjectType)))
-                .orElse(false);
+    private static BigDecimal ensureScale(BigDecimal value) {
+        // Normalize to 2 decimal places to match column (precision=3, scale=2)
+        return value.setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

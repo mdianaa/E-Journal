@@ -1,6 +1,7 @@
 package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,15 +17,16 @@ import java.math.BigDecimal;
 @Table(name = "grades")
 public class Grade extends BaseEntity {
 
-    @Column(precision = 3, scale = 2, nullable = false)
+    @Column(precision = 3, scale = 2)
+    @NotNull
     private BigDecimal value;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Subject subject;
 
-    @ManyToOne
-    private Teacher gradedByTeacher;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Teacher gradedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Student student;
 }
