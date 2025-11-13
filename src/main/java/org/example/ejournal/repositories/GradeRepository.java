@@ -1,9 +1,9 @@
 package org.example.ejournal.repositories;
 
-import org.example.ejournal.enums.SubjectType;
 import org.example.ejournal.entities.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -12,41 +12,100 @@ import java.util.List;
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long> {
 
-    @Query(value = "SELECT count(g) FROM Grade g JOIN g.student s " +
-            "WHERE s.schoolClass.className = :schoolClass AND g.value = :grade")
-    int findCountOfGradeBySchoolClass(BigDecimal grade, String schoolClass);
+    List<Grade> findAllByStudent_IdAndSubject_IdOrderByIdDesc(Long studentId, Long subjectId);
 
-    @Query(value = "SELECT count(g) FROM Grade g JOIN g.subject s " +
-            "WHERE s.subjectType = :subjectType AND g.value = :grade")
-    int findCountOfGradeBySubject(BigDecimal grade, SubjectType subjectType);
+    List<Grade> findAllByStudent_IdOrderByIdDesc(Long studentId);
 
-    @Query(value = "SELECT count(g) FROM Grade g JOIN g.gradedByTeacher t " +
-            "WHERE t.id = :teacherId AND g.value = :grade")
-    int findCountOfGradeByTeacher(BigDecimal grade, long teacherId);
+    // subjectType in a particular (active) class of a school
+    @Query("""
+           select avg(g.value)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           join g.subject subj
+           where sc.school.id = :schoolId
+             and sc.className = :className
+             and sc.deactivated = false
+             and lower(subj.name) = lower(:subjectType)
+           """)
+    Double avgForSubjectTypeInSchoolClass(@Param("schoolId") Long schoolId,
+                                          @Param("subjectType") String subjectType,
+                                          @Param("className") String className);
 
-    @Query(value = "SELECT count(g) FROM Grade g JOIN g.student s JOIN s.school sch " +
-            "WHERE sch.id = :schoolId AND g.value = :grade")
-    int findCountOfGradeBySchool(BigDecimal grade, long schoolId);
+    // teacher average, excluding grades from deactivated classes
+    @Query("""
+           select avg(g.value)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where g.teacher.id = :teacherId
+             and sc.deactivated = false
+           """)
+    Double avgForTeacher(@Param("teacherId") Long teacherId);
 
-    @Query(value = "SELECT AVG(g.value) FROM Grade g " +
-            "JOIN g.subject s " +
-            "JOIN g.student st " +
-            "JOIN st.schoolClass sc " +
-            "JOIN sc.school sch " +
-            "WHERE sch.id = :schoolId " +
-            "AND s.subjectType = :subjectType AND sc.className = :classNumber")
-    BigDecimal findAverageGradeForSubject(long schoolId, SubjectType subjectType, String classNumber);
+    // student average (no class filter; the student’s current/old class doesn’t matter here)
+    @Query("""
+           select avg(g.value)
+           from Grade g
+           where g.student.id = :studentId
+           """)
+    Double avgForStudent(@Param("studentId") Long studentId);
 
-    @Query(value = "SELECT AVG(g.value) FROM Grade g " +
-            "WHERE g.gradedByTeacher.id = :teacherId ")
-    BigDecimal findAverageGradeForTeacher(long teacherId);
+    // school-wide average, excluding deactivated classes
+    @Query("""
+           select avg(g.value)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where sc.school.id = :schoolId
+             and sc.deactivated = false
+           """)
+    Double avgForSchool(@Param("schoolId") Long schoolId);
 
-    @Query(value = "SELECT AVG(g.value) FROM Grade g " +
-            "WHERE g.student.id = :studentId")
-    BigDecimal findAverageGradeForStudent(long studentId);
+    // counts — all excluding deactivated classes
+    @Query("""
+           select count(g)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where sc.id = :classId
+             and sc.deactivated = false
+             and g.value = :grade
+           """)
+    int countInSchoolClass(@Param("grade") BigDecimal grade, @Param("classId") Long classId);
 
-    @Query(value = "SELECT AVG(g.value) FROM Grade g " +
-            "WHERE g.gradedByTeacher.school.id = :schoolId")
-    BigDecimal findAverageGradeForSchool(long schoolId);
+    @Query("""
+           select count(g)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where g.subject.id = :subjectId
+             and sc.deactivated = false
+             and g.value = :grade
+           """)
+    int countForSubject(@Param("grade") BigDecimal grade, @Param("subjectId") Long subjectId);
 
+    @Query("""
+           select count(g)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where g.gradedBy.id = :teacherId
+             and sc.deactivated = false
+             and g.value = :grade
+           """)
+    int countForTeacher(@Param("grade") BigDecimal grade, @Param("teacherId") Long teacherId);
+
+    @Query("""
+           select count(g)
+           from Grade g
+           join g.student st
+           join st.schoolClass sc
+           where sc.school.id = :schoolId
+             and sc.deactivated = false
+             and g.value = :grade
+           """)
+    int countInSchool(@Param("grade") BigDecimal grade, @Param("schoolId") Long schoolId);
+
+    long countByStudent_Id(Long studentId);
 }
