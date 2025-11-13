@@ -3,12 +3,19 @@ package org.example.ejournal.services;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.SchoolClassDtoResponse;
+
+import java.util.Set;
 
 public interface SchoolClassService {
 
-    SchoolClassDtoRequest createClass(SchoolClassDtoRequest schoolClassDto, TeacherDtoRequest headTeacherDto, SchoolDtoRequest schoolDto);
+    SchoolClassDtoResponse createClass(SchoolClassDtoRequest schoolClassDto);
 
-    SchoolClassDtoRequest changeHeadTeacher(long classId, TeacherDtoRequest headTeacherDto);
+    SchoolClassDtoResponse changeHeadTeacher(long classId, long teacherId);
 
-    void deleteClass(long classId);
+    SchoolClassDtoResponse showSchoolClass(long classId);
+
+    Set<SchoolClassDtoResponse> showAllSchoolClassesInSchool(long schoolId);
+
+    void deactivateClass(long classId);
 }

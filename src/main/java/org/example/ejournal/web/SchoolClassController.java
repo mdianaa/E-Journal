@@ -1,62 +1,51 @@
 package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
-import org.example.ejournal.dtos.request.TeacherDtoRequest;
+import org.example.ejournal.dtos.response.SchoolClassDtoResponse;
 import org.example.ejournal.services.SchoolClassService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
-@RequestMapping("/school-classes")
+@RequestMapping("/school-class")
+@RequiredArgsConstructor
 public class SchoolClassController {
+    private final SchoolClassService service;
 
-    private final SchoolClassService schoolClassService;
-
-    public SchoolClassController(SchoolClassService schoolClassService) {
-        this.schoolClassService = schoolClassService;
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public ResponseEntity<SchoolClassDtoResponse> create(@Valid @RequestBody SchoolClassDtoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createClass(req));
     }
 
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateSchoolClassPage() {
-        return ResponseEntity.ok("create school class");
+    @PatchMapping("/{classId}/head/{teacherId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public ResponseEntity<SchoolClassDtoResponse> changeHead(@PathVariable long classId, @PathVariable long teacherId) {
+        return ResponseEntity.ok(service.changeHeadTeacher(classId, teacherId));
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SchoolClassDtoRequest> createClass(@Valid @RequestBody SchoolClassDtoRequest schoolClassDto,
-                                                              @Valid @RequestBody TeacherDtoRequest headTeacherDto,
-                                                              @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        SchoolClassDtoRequest createdClassDto = schoolClassService.createClass(schoolClassDto, headTeacherDto, schoolDto);
-        return new ResponseEntity<>(createdClassDto, HttpStatus.CREATED);
+    @GetMapping("/{classId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER', 'TEACHER')")
+    public ResponseEntity<SchoolClassDtoResponse> show(@PathVariable long classId) {
+        return ResponseEntity.ok(service.showSchoolClass(classId));
     }
 
-    @GetMapping("/changeHeadTeacher")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> changeHeadTeacherPage() {
-        return ResponseEntity.ok("change head teacher");
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public ResponseEntity<Set<SchoolClassDtoResponse>> listActive(@PathVariable long schoolId) {
+        return ResponseEntity.ok(service.showAllSchoolClassesInSchool(schoolId));
     }
 
-    @PutMapping("/changeHeadTeacher/{classId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SchoolClassDtoRequest> changeHeadTeacher(@PathVariable long classId,
-                                                                    @Valid @RequestBody TeacherDtoRequest headTeacherDto) {
-        SchoolClassDtoRequest changedClassDto = schoolClassService.changeHeadTeacher(classId, headTeacherDto);
-        if (changedClassDto != null) {
-            return ResponseEntity.ok(changedClassDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/delete/{classId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteClass(@PathVariable long classId) {
-        schoolClassService.deleteClass(classId);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{classId}/deactivate")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public void deactivate(@PathVariable long classId) {
+        service.deactivateClass(classId);
     }
 }

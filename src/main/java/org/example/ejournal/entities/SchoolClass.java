@@ -1,6 +1,7 @@
 package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,17 +17,20 @@ import java.util.Set;
 @Table(name = "school_classes")
 public class SchoolClass extends BaseEntity {
 
-    @Column(length = 3, nullable = false)
+    @Column(length = 3)
+    @NotNull
     private String className;
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "head_teacher_id")
     private Teacher headTeacher;
 
-    @OneToMany(mappedBy = "schoolClass", targetEntity = Student.class, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "schoolClass", fetch = FetchType.LAZY)
     private Set<Student> students;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private School school;
 
+    @Column()
+    private boolean deactivated;
 }

@@ -1,17 +1,22 @@
 package org.example.ejournal.dtos.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class SchoolClassDtoRequest {
 
-    @NotNull(message = "Class name shouldn't be empty")
+    @NotBlank
+    @Size(max = 3)
     private String className;
+
+    @NotNull
+    private Long headTeacherId;
+
+    @NotNull
+    private Long schoolId;
 }
