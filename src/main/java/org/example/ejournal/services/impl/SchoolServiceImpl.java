@@ -1,105 +1,95 @@
 package org.example.ejournal.services.impl;
 
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.SchoolDtoRequest;
 import org.example.ejournal.dtos.response.SchoolDtoResponse;
-import org.example.ejournal.entities.*;
-import org.example.ejournal.repositories.*;
+import org.example.ejournal.entities.School;
+import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.services.SchoolService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SchoolServiceImpl implements SchoolService {
 
     private final SchoolRepository schoolRepository;
-    private final TeacherRepository teacherRepository;
-    private final SchoolClassRepository schoolClassRepository;
-    private final HeadmasterRepository headmasterRepository;
-    private final ParentRepository parentRepository;
-    private final StudentRepository studentRepository;
-    private final ModelMapper mapper;
-
-    public SchoolServiceImpl(SchoolRepository schoolRepository, TeacherRepository teacherRepository, SchoolClassRepository schoolClassRepository, HeadmasterRepository headmasterRepository, ParentRepository parentRepository, StudentRepository studentRepository, ModelMapper mapper) {
-        this.schoolRepository = schoolRepository;
-        this.teacherRepository = teacherRepository;
-        this.schoolClassRepository = schoolClassRepository;
-        this.headmasterRepository = headmasterRepository;
-        this.parentRepository = parentRepository;
-        this.studentRepository = studentRepository;
-        this.mapper = mapper;
-    }
 
     @Override
-    public SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto) {
-        // check whether this school already exists
-
-        // register school
-        School school = mapper.map(schoolDto, School.class);
-
-        // persist to db
-        schoolRepository.save(school);
-
-        // return dto
-        return mapper.map(school, SchoolDtoResponse.class);
-    }
-
     @Transactional
-    @Override
-    public SchoolDtoResponse viewSchoolInfo(long schoolId) {
-        School school = schoolRepository.findById(schoolId).get();
+    public SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto) {
+        if (schoolRepository.existsByNameIgnoreCase(schoolDto.getName())) {
+            throw new IllegalArgumentException("Parent with name " + schoolDto.getName() + " already exists");
+        }
 
-        return mapper.map(school, SchoolDtoResponse.class);
+        School s = new School();
+        s.setName(schoolDto.getName().trim());
+        s.setAddress(schoolDto.getAddress().trim());
+
+        School saved = schoolRepository.save(s);
+        return toDto(saved);
     }
 
     @Override
+    @Transactional
+    public SchoolDtoResponse viewSchool(long schoolId) {
+        School s = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+
+        return toDto(s);
+    }
+
+    @Override
+    public Set<SchoolDtoResponse> viewAllSchools() {
+        return schoolRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @Override
+    @Transactional
     public void deleteSchool(long schoolId) {
-        if (schoolRepository.findById(schoolId).isPresent()) {
-            School school = schoolRepository.findById(schoolId).get();
+        School s = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
 
-            school.setSubjects(null);
-
-            List<Headmaster> headmasters = headmasterRepository.findBySchool(school);
-            for (Headmaster headmaster : headmasters) {
-                headmaster.setSchool(null);
-                headmasterRepository.save(headmaster);
-            }
-
-            school.setHeadmaster(null);
-
-            List<Parent> parents = parentRepository.findBySchool(school);
-            for (Parent parent : parents) {
-                parent.setSchool(null);
-                parentRepository.save(parent);
-            }
-
-            school.setParents(null);
-
-            List<Student> students = studentRepository.findBySchool(school);
-            for (Student student : students) {
-                student.setSchool(null);
-                studentRepository.save(student);
-            }
-
-            school.setStudents(null);
-
-            List<Teacher> teachers = teacherRepository.findBySchool(school);
-            for (Teacher teacher : teachers) {
-                teacher.setSchool(null);
-                teacherRepository.save(teacher);
-            }
-
-            List<SchoolClass> schoolClasses = schoolClassRepository.findBySchool(school);
-            for (SchoolClass schoolClass : schoolClasses) {
-                schoolClass.setSchool(null);
-                schoolClassRepository.save(schoolClass);
-            }
-
-            school.setTeachers(null);
-
-            schoolRepository.delete(school);
+        int teachers = (s.getTeachers() == null) ? 0 : s.getTeachers().size();
+        int students = (s.getStudents() == null) ? 0 : s.getStudents().size();
+        int parents  = (s.getParents()  == null) ? 0 : s.getParents().size();
+        if (teachers > 0 || students > 0 || parents > 0 || s.getHeadmaster() != null) {
+            throw new IllegalStateException("""
+                Cannot delete school %s (id=%d): detach or move related entities first.
+                teachers=%d, students=%d, parents=%d, headmaster=%s
+                """.formatted(s.getName(), s.getId(), teachers, students, parents,
+                    s.getHeadmaster() != null ? s.getHeadmaster().getId() : "none"));
         }
+
+        schoolRepository.delete(s);
+    }
+
+    private SchoolDtoResponse toDto(School s) {
+        Long headmasterId = (s.getHeadmaster() != null) ? s.getHeadmaster().getId() : null;
+        String headmasterName = null;
+        if (s.getHeadmaster() != null && s.getHeadmaster().getUser() != null) {
+            String fn = Optional.ofNullable(s.getHeadmaster().getUser().getFirstName()).orElse("");
+            String ln = Optional.ofNullable(s.getHeadmaster().getUser().getLastName()).orElse("");
+            String full = (fn + " " + ln).trim();
+            headmasterName = full.isBlank() ? null : full;
+        }
+
+        return new SchoolDtoResponse(
+                s.getId(),
+                s.getName(),
+                s.getAddress(),
+                headmasterId,
+                headmasterName,
+                (s.getTeachers() == null) ? 0 : s.getTeachers().size(),
+                (s.getStudents() == null) ? 0 : s.getStudents().size(),
+                (s.getParents()  == null) ? 0 : s.getParents().size()
+        );
     }
 }

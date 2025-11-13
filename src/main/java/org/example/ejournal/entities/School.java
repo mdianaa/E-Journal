@@ -22,18 +22,21 @@ public class School extends BaseEntity {
     @Column(length = 50, nullable = false)
     private String address;
 
-    @OneToMany(mappedBy = "school", targetEntity = Teacher.class, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "school", fetch = FetchType.LAZY)
     private Set<Teacher> teachers;
 
-    @OneToOne(mappedBy = "school", targetEntity = Headmaster.class)
+    @OneToOne(mappedBy = "school")
     private Headmaster headmaster;
 
-    @OneToMany(mappedBy = "school", targetEntity = Student.class)
+    @OneToMany(mappedBy = "school")
     private Set<Student> students;
 
-    @OneToMany(mappedBy = "school", targetEntity = Parent.class)
+    @OneToMany(mappedBy = "school")
     private Set<Parent> parents;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
+    @JoinTable(name = "school_subjects",
+            joinColumns = @JoinColumn(name = "school_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<Subject> subjects;
 }
