@@ -1,7 +1,7 @@
 package org.example.ejournal.web;
 
 import jakarta.validation.Valid;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.services.SubjectService;
@@ -13,40 +13,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/subjects")
+@RequestMapping("/subject")
+@RequiredArgsConstructor
 public class SubjectController {
 
     private final SubjectService subjectService;
 
-    public SubjectController(SubjectService subjectService) {
-        this.subjectService = subjectService;
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public ResponseEntity<SubjectDtoResponse> create(@Valid @RequestBody SubjectDtoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.createSubject(req));
     }
 
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateSubjectPage() {
-        return ResponseEntity.ok("create subject");
+    @GetMapping("/school/{schoolId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT', 'TEACHER')")
+    public ResponseEntity<Set<SubjectDtoResponse>> listInSchool(@PathVariable long schoolId) {
+        return ResponseEntity.ok(subjectService.viewAllSubjectsInSchool(schoolId));
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SubjectDtoResponse> createSubject(@Valid @RequestBody SubjectDtoRequest subjectDto,
-                                                            @Valid @RequestBody SchoolDtoRequest schoolDto) {
-        SubjectDtoResponse createdSubjectDto = subjectService.createSubject(subjectDto, schoolDto);
-        return new ResponseEntity<>(createdSubjectDto, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/viewAll/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<Set<SubjectDtoResponse>> viewAllSubjectsInSchool(@PathVariable long schoolId) {
-        Set<SubjectDtoResponse> subjects = subjectService.viewAllSubjectsInSchool(schoolId);
-        return ResponseEntity.ok(subjects);
-    }
-
-    @DeleteMapping("/delete/{schoolId}/{subjectId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteSubject(@PathVariable long schoolId, @PathVariable long subjectId) {
-        subjectService.deleteSubject(schoolId, subjectId);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/school/{schoolId}/{subjectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    public void unlinkFromSchool(@PathVariable long schoolId, @PathVariable long subjectId) {
+        subjectService.deleteSubjectInSchool(schoolId, subjectId);
     }
 }

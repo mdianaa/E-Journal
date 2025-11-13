@@ -1,11 +1,12 @@
 package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.enums.SubjectType;
 
 import java.util.Set;
 
@@ -17,9 +18,11 @@ import java.util.Set;
 @Table(name = "subjects")
 public class Subject extends BaseEntity {
 
-    @Enumerated(EnumType.STRING)
-    private SubjectType subjectType;
+    @Column
+    @NotNull
+    @Size(max = 50)
+    private String name;
 
-    @ManyToMany(mappedBy = "subjects", targetEntity = Teacher.class, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
     private Set<Teacher> teachers;
 }

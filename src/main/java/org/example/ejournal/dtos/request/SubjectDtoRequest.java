@@ -1,13 +1,11 @@
 package org.example.ejournal.dtos.request;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.enums.SubjectType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +13,7 @@ import org.example.ejournal.enums.SubjectType;
 @Setter
 public class SubjectDtoRequest {
 
-    @NotNull(message = "Subject type shouldn't be empty")
-    @Enumerated(EnumType.STRING)
-    private SubjectType subjectType;
+    @NotBlank
+    @Size(max = 50)
+    private String name;
 }

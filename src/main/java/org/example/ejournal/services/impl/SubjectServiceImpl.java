@@ -1,88 +1,94 @@
 package org.example.ejournal.services.impl;
 
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import jakarta.persistence.EntityExistsException;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
 import org.example.ejournal.dtos.response.SubjectDtoResponse;
-import org.example.ejournal.entities.Absence;
 import org.example.ejournal.entities.School;
 import org.example.ejournal.entities.Subject;
-import org.example.ejournal.repositories.AbsenceRepository;
+import org.example.ejournal.entities.Teacher;
 import org.example.ejournal.repositories.SchoolRepository;
 import org.example.ejournal.repositories.SubjectRepository;
+import org.example.ejournal.repositories.TeacherRepository;
 import org.example.ejournal.services.SubjectService;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SubjectServiceImpl implements SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final SchoolRepository schoolRepository;
-    private final AbsenceRepository absenceRepository;
-    private final ModelMapper mapper;
-
-    public SubjectServiceImpl(SubjectRepository subjectRepository, SchoolRepository schoolRepository, AbsenceRepository absenceRepository, ModelMapper mapper) {
-        this.subjectRepository = subjectRepository;
-        this.schoolRepository = schoolRepository;
-        this.absenceRepository = absenceRepository;
-        this.mapper = mapper;
-    }
+    private final TeacherRepository teacherRepository;
 
     @Override
-    public SubjectDtoResponse createSubject(SubjectDtoRequest subjectDto, SchoolDtoRequest schoolDto) {
-        // check if this subject exists already
-
-        // register subject
-        Subject subject = mapper.map(subjectDto, Subject.class);
-        School school = schoolRepository.findByName(schoolDto.getName()).get();
-
-        if (school.getSubjects() == null) {
-            school.setSubjects(new HashSet<>());
+    @Transactional
+    public SubjectDtoResponse createSubject(SubjectDtoRequest subjectDto) {
+        String name = subjectDto.getName().trim();
+        if (subjectRepository.existsByNameIgnoreCase(name)) {
+            throw new EntityExistsException("Subject name already exists: " + name);
         }
-        school.getSubjects().add(subject);
+        Subject s = new Subject();
+        s.setName(name);
+        s.setTeachers(new LinkedHashSet<>());
+        s = subjectRepository.save(s);
 
-        // persist to db
-        subjectRepository.save(subject);
-        schoolRepository.save(school);
-
-        // return dto
-        return mapper.map(subject, SubjectDtoResponse.class);
+        return toDto(s);
     }
 
     @Override
     public Set<SubjectDtoResponse> viewAllSubjectsInSchool(long schoolId) {
-        School school = schoolRepository.findById(schoolId).get();
-        Set<Subject> subjects = school.getSubjects();
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
 
-        Set<SubjectDtoResponse> subjectsDto = new HashSet<>();
-        for (Subject subject : subjects) {
-            subjectsDto.add(mapper.map(subject, SubjectDtoResponse.class));
-        }
+        Set<Subject> subs = school.getSubjects() == null ? Set.of() : school.getSubjects();
 
-        return subjectsDto;
+        return subs.stream()
+                .sorted(Comparator.comparing(Subject::getName, Comparator.nullsLast(String::compareToIgnoreCase)))
+                .map(this::toDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
-    public void deleteSubject(long schoolId, long subjectId) {
-        if (subjectRepository.findById(subjectId).isPresent()) {
-            Subject subject = subjectRepository.findById(subjectId).get();
+    @Transactional
+    public void deleteSubjectInSchool(long schoolId, long subjectId) {
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " +schoolId + " not found"));
 
-            List<Absence> absences = absenceRepository.findBySubject(subject);
-            for (Absence absence : absences) {
-                absence.setSubject(null);
-                absenceRepository.save(absence);
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + subjectId + " not found"));
+
+        if (school.getSubjects() == null || !school.getSubjects().contains(subject)) {
+            throw new IllegalStateException("Subject %d is not linked to school %d".formatted(subjectId, schoolId));
+        }
+
+        school.getSubjects().remove(subject);
+        schoolRepository.save(school);
+
+        List<Teacher> affectedTeachers = teacherRepository.findBySchoolAndSubject(schoolId, subjectId);
+        for (Teacher t : affectedTeachers) {
+            if (t.getSubjects() != null) {
+                t.getSubjects().remove(subject);
             }
+        }
 
-            School school = schoolRepository.findById(schoolId).get();
-            Set<Subject> subjects = school.getSubjects().stream().filter(s -> !s.getSubjectType().equals(subject.getSubjectType())).collect(Collectors.toSet());
-            school.setSubjects(subjects);
+        teacherRepository.saveAll(affectedTeachers);
 
+        long schoolCount = schoolRepository.countSchoolsUsingSubject(subjectId);
+        long teacherCount = teacherRepository.countTeachersUsingSubject(subjectId);
+        if (schoolCount == 0 && teacherCount == 0) {
             subjectRepository.delete(subject);
         }
+    }
+
+    private SubjectDtoResponse toDto(Subject s) {
+        SubjectDtoResponse dto = new SubjectDtoResponse();
+        dto.setId(s.getId());
+        dto.setName(s.getName());
+        return dto;
     }
 }
