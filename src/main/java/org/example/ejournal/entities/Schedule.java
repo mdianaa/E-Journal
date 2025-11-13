@@ -2,14 +2,13 @@ package org.example.ejournal.entities;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.enums.PeriodType;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.ShiftType;
-import org.example.ejournal.enums.WeekDay;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,23 +18,30 @@ import org.example.ejournal.enums.WeekDay;
 @Table(name = "schedules")
 public class Schedule extends BaseEntity {
 
-    @Enumerated(EnumType.STRING)
-    private WeekDay day;
+    @ManyToMany
+    private Set<Subject> Monday;
 
-    @Enumerated(EnumType.STRING)
-    private SemesterType semester;
+    @OneToMany
+    private Set<Subject> Tuesday;
 
-    @Enumerated(EnumType.STRING)
-    private ShiftType shiftType;
+    @OneToMany
+    private Set<Subject> Wednesday;
 
-    @Enumerated(EnumType.STRING)
-    private PeriodType periodType;
+    @OneToMany
+    private Set<Subject> Thursday;
 
-    @ManyToOne
-    private Subject subject;
+    @OneToMany
+    private Set<Subject> Friday;
 
-    @ManyToOne
+    @Column
+    @NotNull
+    private String semester;
+
+    @Column
+    @NotNull
+    private String shift;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_class_id")
     private SchoolClass schoolClass;
-
 }

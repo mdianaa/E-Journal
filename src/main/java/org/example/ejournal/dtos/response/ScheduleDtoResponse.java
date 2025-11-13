@@ -1,20 +1,27 @@
 package org.example.ejournal.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.example.ejournal.enums.*;
+import lombok.*;
 
-@AllArgsConstructor
+import java.util.Set;
+
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class ScheduleDtoResponse {
 
-    private WeekDay day;
+    private Long id;
 
-    private PeriodType periodType;
+    private String semester;
 
-    private SubjectType subject;
+    private String shift;
+
+    private Long schoolClassId;
+
+    private String schoolClassName;
+
+    private Set<SubjectDtoResponse> monday;
+    private Set<SubjectDtoResponse> tuesday;
+    private Set<SubjectDtoResponse> wednesday;
+    private Set<SubjectDtoResponse> thursday;
+    private Set<SubjectDtoResponse> friday;
 }

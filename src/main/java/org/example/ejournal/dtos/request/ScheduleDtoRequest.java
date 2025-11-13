@@ -1,38 +1,28 @@
 package org.example.ejournal.dtos.request;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.example.ejournal.enums.PeriodType;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.ShiftType;
-import org.example.ejournal.enums.WeekDay;
+import lombok.*;
 
-@AllArgsConstructor
+import java.util.Set;
+
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class ScheduleDtoRequest {
 
-    @NotNull(message = "Day shouldn't be empty")
-    @Enumerated(EnumType.STRING)
-    private WeekDay day;
+    @NotBlank
+    private String semester;
 
-    @NotNull(message = "Semester shouldn't be empty")
-    @Enumerated(EnumType.STRING)
-    private SemesterType semester;
+    @NotBlank
+    private String shift;
 
-    @NotNull(message = "Shift shouldn't be empty")
-    @Enumerated(EnumType.STRING)
-    private ShiftType shiftType;
+    @NotNull
+    private Long schoolClassId;
 
-    @NotNull(message = "Period shouldn't be empty")
-    @Enumerated(EnumType.ORDINAL)
-    private PeriodType periodType;
-
-    // тук да се подаде в конструктора списък от всички предмети? - как ще се задава програмата?
+    private Set<Long> mondaySubjectIds;
+    private Set<Long> tuesdaySubjectIds;
+    private Set<Long> wednesdaySubjectIds;
+    private Set<Long> thursdaySubjectIds;
+    private Set<Long> fridaySubjectIds;
 }

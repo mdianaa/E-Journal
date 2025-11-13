@@ -1,5 +1,7 @@
 package org.example.ejournal.web;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.ScheduleDtoRequest;
 import org.example.ejournal.dtos.request.SchoolClassDtoRequest;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
@@ -12,43 +14,32 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/schedule")
+@RequestMapping("/api/schedules")
+@RequiredArgsConstructor
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @Autowired
-    public ScheduleController(ScheduleService scheduleService) {
-        this.scheduleService = scheduleService;
+    @PostMapping
+    public ResponseEntity<ScheduleDtoResponse> create(@Valid @RequestBody ScheduleDtoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.createSchedule(req));
     }
 
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<String> showCreateSchedulePage() {
-        return ResponseEntity.ok("create schedule");
+    @GetMapping("/class/{schoolClassId}")
+    public ResponseEntity<ScheduleDtoResponse> viewForClass(@PathVariable long schoolClassId) {
+        return ResponseEntity.ok(scheduleService.viewScheduleForClass(schoolClassId));
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ScheduleDtoResponse> createSchedule(@RequestBody ScheduleDtoRequest scheduleDto,
-                                                              @RequestBody SchoolClassDtoRequest schoolClassDto,
-                                                              @RequestBody SubjectDtoRequest subjectDtoRequest) {
-        try {
-            ScheduleDtoResponse createdSchedule = scheduleService.createSchedule(scheduleDto, schoolClassDto, subjectDtoRequest);
-            return new ResponseEntity<>(createdSchedule, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/class/{schoolClassId}/day/{day}")
+    public ResponseEntity<ScheduleDtoResponse> viewForDay(
+            @PathVariable long schoolClassId,
+            @PathVariable String day) {
+        return ResponseEntity.ok(scheduleService.viewScheduleForDayForClass(day, schoolClassId));
     }
 
     @DeleteMapping("/{scheduleId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable long scheduleId) {
-        try {
-            scheduleService.deleteSchedule(scheduleId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable long scheduleId) {
+        scheduleService.deleteSchedule(scheduleId);
     }
 }
