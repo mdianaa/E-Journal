@@ -14,11 +14,12 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "headmasters")
-public class Headmaster extends User {
+public class Headmaster extends BaseEntity{
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
+    @OneToOne(fetch = FetchType.LAZY)
     private School school;
-
-    @OneToMany
-    private Set<Student> students;
 }

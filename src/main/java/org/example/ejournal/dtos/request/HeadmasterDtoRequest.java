@@ -1,28 +1,36 @@
 package org.example.ejournal.dtos.request;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jdk.jfr.Name;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.example.ejournal.enums.RoleType;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class HeadmasterDtoRequest {
 
-    @NotNull(message = "First name shouldn't be empty")
-    private String firstName;
+    @NotBlank
+    @Size(max=120) String firstName;
 
-    @NotNull(message = "Last name shouldn't be empty")
-    private String lastName;
+    @NotBlank
+    @Size(max=120) String lastName;
 
-    @NotNull(message = "Phone number shouldn't be empty")
+    @NotBlank
+    @Email
+    @Size(max=255) String email;
+
+    @NotBlank
+    @Size(min=8, max=72)
+    String password;
+
+    @NotBlank
+    @Length(max = 10)
     private String phoneNumber;
+
+    @NotNull
+    private Long schoolId;
+
 }

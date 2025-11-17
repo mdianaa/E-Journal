@@ -1,19 +1,23 @@
 package org.example.ejournal.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class HeadmasterDtoResponse {
 
-    private String firstName;
+    private Long id;
 
-    private String lastName;
+    private Long userId;
+
+    private String fullName;
+
+    private String email;
+
+    private String phoneNumber;
+
+    private Long schoolId;
 
     private String schoolName;
 }

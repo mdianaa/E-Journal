@@ -1,104 +1,72 @@
 package org.example.ejournal.services.impl;
 
-import org.example.ejournal.dtos.request.HeadmasterDtoRequest;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.response.HeadmasterDtoResponse;
 import org.example.ejournal.entities.Headmaster;
 import org.example.ejournal.entities.School;
-import org.example.ejournal.entities.UserAuthentication;
+import org.example.ejournal.entities.User;
 import org.example.ejournal.repositories.HeadmasterRepository;
 import org.example.ejournal.repositories.SchoolRepository;
-import org.example.ejournal.repositories.UserAuthenticationRepository;
+import org.example.ejournal.repositories.UserRepository;
 import org.example.ejournal.services.HeadmasterService;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class HeadmasterServiceImpl implements HeadmasterService {
 
     private final HeadmasterRepository headmasterRepository;
     private final SchoolRepository schoolRepository;
-    private final UserAuthenticationRepository userAuthenticationRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final ModelMapper mapper;
+    private final UserRepository userRepository;
 
-    public HeadmasterServiceImpl(HeadmasterRepository headmasterRepository, SchoolRepository schoolRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
-        this.headmasterRepository = headmasterRepository;
-        this.schoolRepository = schoolRepository;
-        this.userAuthenticationRepository = userAuthenticationRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.mapper = mapper;
+    @Override
+    @Transactional
+    public HeadmasterDtoResponse viewHeadmaster(long schoolId) {
+        schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+
+        Headmaster hm = headmasterRepository.findBySchool_Id(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("No headmaster assigned for school id " + schoolId));
+
+        return toDto(hm);
     }
 
     @Override
-    public HeadmasterDtoResponse createHeadmaster(HeadmasterDtoRequest headmasterDto, SchoolDtoRequest schoolDto, UserRegisterDtoRequest userRegisterDtoRequest) {
-        // check whether the headmaster exists already
-        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("User already exists!");
-        }
-
-        // check whether the school has already a headmaster
-        School school = schoolRepository.findByName(schoolDto.getName()).get();
-        if (school.getHeadmaster() != null) {
-            throw new IllegalArgumentException("School already has a headmaster!");
-        }
-
-        // register headmaster
-        Headmaster headmaster = mapper.map(headmasterDto, Headmaster.class);
-        headmaster.setSchool(school);
-
-        // map the user credentials
-        UserAuthentication userAuthentication = new UserAuthentication();
-        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
-        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
-        userAuthentication.setRole(userRegisterDtoRequest.getRole());
-
-        headmaster.setUserAuthentication(userAuthentication);
-
-        // persist to db
-        userAuthenticationRepository.save(userAuthentication);
-        headmasterRepository.save(headmaster);
-
-        // return dto
-        return mapper.map(headmaster, HeadmasterDtoResponse.class);
+    @Transactional
+    public Set<HeadmasterDtoResponse> viewAllHeadmasters() {
+        var list = headmasterRepository.findAll();
+        var out = new LinkedHashSet<HeadmasterDtoResponse>(Math.max(16, list.size()));
+        list.forEach(h -> out.add(toDto(h)));
+        return out;
     }
 
     @Override
-    public HeadmasterDtoResponse viewHeadmaster(long headmasterId) {
-        Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
-
-        return mapper.map(headmaster, HeadmasterDtoResponse.class);
-    }
-
-    @Override
-    public HeadmasterDtoResponse editHeadmaster(long headmasterId, HeadmasterDtoRequest headmasterDto) {
-        if (headmasterRepository.findById(headmasterId).isPresent()) {
-            Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
-
-            // change headmaster entity
-            mapper.map(headmasterDto, headmaster);
-
-            // persist to db
-            headmasterRepository.save(headmaster);
-
-            // return dto
-            return mapper.map(headmaster, HeadmasterDtoResponse.class);
-        }
-
-        return null;
-    }
-
-    @Override
+    @Transactional
     public void deleteHeadmaster(long headmasterId) {
-        if (headmasterRepository.findById(headmasterId).isPresent()) {
-            Headmaster headmaster = headmasterRepository.findById(headmasterId).get();
+        Headmaster hm = headmasterRepository.findById(headmasterId)
+                .orElseThrow(() -> new IllegalArgumentException("Headmaster with id " + headmasterId + " not found"));
 
-            headmaster.setSchool(null);
+        userRepository.delete(hm.getUser());
+        headmasterRepository.delete(hm);
 
-            headmasterRepository.delete(headmaster);
-        }
+    }
+
+    private HeadmasterDtoResponse toDto(Headmaster h) {
+        User u = h.getUser();
+        School s = h.getSchool();
+
+        HeadmasterDtoResponse dto = new HeadmasterDtoResponse();
+        dto.setId(h.getId());
+        dto.setUserId(u != null ? u.getId() : null);
+        dto.setFullName(u != null ? u.getFirstName() + " " + u.getLastName() : null);
+        dto.setEmail(u != null ? u.getEmail() : null);
+        dto.setPhoneNumber(u != null ? u.getPhoneNumber() : null);
+        dto.setSchoolId(s != null ? s.getId() : null);
+        dto.setSchoolName(s != null ? s.getName() : null);
+        return dto;
     }
 }

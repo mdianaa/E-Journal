@@ -10,7 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface HeadmasterRepository extends JpaRepository<Headmaster, Long> {
-    Optional<Headmaster> findByFirstNameAndLastName(String firstName, String lastName);
 
-    List<Headmaster> findBySchool(School school);
+    Optional<Headmaster> findBySchool_Id(Long schoolId);
+
+    boolean existsBySchool_Id(Long schoolId);
+
 }
