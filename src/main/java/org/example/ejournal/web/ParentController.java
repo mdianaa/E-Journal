@@ -1,9 +1,7 @@
 package org.example.ejournal.web;
 
-import jakarta.validation.Valid;
-import org.example.ejournal.dtos.request.ParentDtoRequest;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.response.ParentDtoResponse;
 import org.example.ejournal.services.ParentService;
 import org.springframework.http.HttpStatus;
@@ -14,66 +12,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/parents")
+@RequiredArgsConstructor
+@RequestMapping("/parent")
 public class ParentController {
 
     private final ParentService parentService;
 
-    public ParentController(ParentService parentService) {
-        this.parentService = parentService;
+    // Get the parent of a given student
+    @GetMapping("/students/{studentId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER', 'HEADMASTER')")
+    public ResponseEntity<ParentDtoResponse> viewParentOfStudent(@PathVariable long studentId) {
+        return ResponseEntity.ok(parentService.viewParentOfStudent(studentId));
     }
 
-    @GetMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showCreateParentPage() {
-        return ResponseEntity.ok("create parent");
-    }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ParentDtoResponse> createParent(@Valid @RequestBody ParentDtoRequest parentDto,
-                                                          @Valid @RequestBody SchoolDtoRequest schoolDto,
-                                                          @Valid @RequestBody UserRegisterDtoRequest userRegisterDtoRequest) {
-        ParentDtoResponse createdParentDto = parentService.createParent(parentDto, schoolDto, userRegisterDtoRequest);
-        return new ResponseEntity<>(createdParentDto, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/edit")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> showEditParentPage() {
-        return ResponseEntity.ok("edit parent");
-    }
-
-    @PutMapping("/edit/{parentId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ParentDtoResponse> editParent(@PathVariable long parentId,
-                                                        @Valid @RequestBody ParentDtoRequest parentDto) {
-        ParentDtoResponse editedParentDto = parentService.editParent(parentId, parentDto);
-        if (editedParentDto != null) {
-            return ResponseEntity.ok(editedParentDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/{parentId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER', 'STUDENT', 'PARENT')")
-    public ResponseEntity<ParentDtoResponse> viewParent(@PathVariable long parentId) {
-        ParentDtoResponse parent = parentService.viewParent(parentId);
-        return parent != null ? ResponseEntity.ok(parent) : ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/viewAll/{schoolId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'HEADMASTER')")
+    // Get all parents that have children in a specific school
+    @GetMapping("/schools/{schoolId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
     public ResponseEntity<Set<ParentDtoResponse>> viewAllParentsInSchool(@PathVariable long schoolId) {
-        Set<ParentDtoResponse> parents = parentService.viewAllParentsInSchool(schoolId);
-        return ResponseEntity.ok(parents);
+        return ResponseEntity.ok(parentService.viewAllParentsInSchool(schoolId));
     }
 
-    @DeleteMapping("/delete/{parentId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteParent(@PathVariable long parentId) {
+    // Delete a parent (does NOT delete underlying User)
+    @DeleteMapping("/{parentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public void deleteParent(@PathVariable long parentId) {
         parentService.deleteParent(parentId);
-        return ResponseEntity.noContent().build();
     }
 }

@@ -14,11 +14,16 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "parents")
-public class Parent extends User {
+public class Parent extends BaseEntity {
 
-    @OneToMany(mappedBy = "parent", targetEntity = Student.class)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
+    @OneToMany(mappedBy = "parent")
     private Set<Student> children;
 
-    @ManyToOne
+    // TODO
+    @ManyToOne(fetch = FetchType.LAZY)
     private School school;
 }

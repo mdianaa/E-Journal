@@ -1,25 +1,24 @@
 package org.example.ejournal.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class ParentDtoResponse {
 
-    private String firstName;
+    private Long id;
 
-    private String lastName;
+    private Long userId;
+
+    private String fullName;
+
+    private String email;
 
     private String phoneNumber;
 
-    private List<ViewChildDto> children;
+    private Set<StudentParentViewDtoResponse> children;
 
 }
