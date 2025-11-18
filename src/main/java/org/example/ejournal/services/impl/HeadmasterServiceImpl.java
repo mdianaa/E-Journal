@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolExists;
+
 @Service
 @RequiredArgsConstructor
 public class HeadmasterServiceImpl implements HeadmasterService {
@@ -26,8 +28,7 @@ public class HeadmasterServiceImpl implements HeadmasterService {
     @Override
     @Transactional
     public HeadmasterDtoResponse viewHeadmaster(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         Headmaster hm = headmasterRepository.findBySchool_Id(schoolId)
                 .orElseThrow(() -> new IllegalArgumentException("No headmaster assigned for school id " + schoolId));

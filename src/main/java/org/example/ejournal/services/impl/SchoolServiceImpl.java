@@ -24,7 +24,7 @@ public class SchoolServiceImpl implements SchoolService {
     @Transactional
     public SchoolDtoResponse createSchool(SchoolDtoRequest schoolDto) {
         if (schoolRepository.existsByNameIgnoreCase(schoolDto.getName())) {
-            throw new IllegalArgumentException("Parent with name " + schoolDto.getName() + " already exists");
+            throw new IllegalArgumentException("School with name " + schoolDto.getName() + " already exists");
         }
 
         School s = new School();
@@ -45,6 +45,7 @@ public class SchoolServiceImpl implements SchoolService {
     }
 
     @Override
+    @Transactional
     public Set<SchoolDtoResponse> viewAllSchools() {
         return schoolRepository.findAll().stream()
                 .map(this::toDto)

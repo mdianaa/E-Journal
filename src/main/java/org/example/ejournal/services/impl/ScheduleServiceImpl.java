@@ -20,23 +20,24 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolClassExists;
+
 @Service
 @RequiredArgsConstructor
 public class ScheduleServiceImpl implements ScheduleService {
 
-    private final ScheduleRepository schedules;
-    private final SubjectRepository subjects;
-    private final SchoolClassRepository classes;
+    private final ScheduleRepository scheduleRepository;
+    private final SubjectRepository subjectRepository;
+    private final SchoolClassRepository schoolClassRepository;
 
     @Override
     @Transactional
     public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto) {
-        SchoolClass schoolClass = classes.findById(scheduleDto.getSchoolClassId())
+        SchoolClass schoolClass = schoolClassRepository.findById(scheduleDto.getSchoolClassId())
                 .orElseThrow(() -> new IllegalArgumentException("SchoolClass with id %d not found"
                         .formatted(scheduleDto.getSchoolClassId())));
 
-        // Enforce uniqueness by (class, semester, shift)
-        schedules.findBySchoolClass_IdAndSemesterIgnoreCaseAndShiftIgnoreCase(
+        scheduleRepository.findBySchoolClass_IdAndSemesterIgnoreCaseAndShiftIgnoreCase(
                 schoolClass.getId(), scheduleDto.getSemester(), scheduleDto.getShift()
         ).ifPresent(s -> {
             throw new IllegalArgumentException(
@@ -55,14 +56,16 @@ public class ScheduleServiceImpl implements ScheduleService {
         schedule.setThursday(resolveSubjects(scheduleDto.getThursdaySubjectIds()));
         schedule.setFriday(resolveSubjects(scheduleDto.getFridaySubjectIds()));
 
-        Schedule saved = schedules.save(schedule);
+        Schedule saved = scheduleRepository.save(schedule);
         return toDto(saved);
     }
 
     @Override
     @Transactional
     public ScheduleDtoResponse viewScheduleForClass(long schoolClassId) {
-        Schedule schedule = schedules.findBySchoolClass_Id(schoolClassId)
+        checkIfSchoolClassExists(schoolClassRepository, schoolClassId);
+
+        Schedule schedule = scheduleRepository.findBySchoolClass_Id(schoolClassId)
                 .orElseThrow(() -> new IllegalArgumentException("No schedule found for class id %d"
                         .formatted(schoolClassId)));
         return toDto(schedule);
@@ -71,7 +74,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public ScheduleDtoResponse viewScheduleForDayForClass(String day, long schoolClassId) {
-        Schedule schedule = schedules.findBySchoolClass_Id(schoolClassId)
+        checkIfSchoolClassExists(schoolClassRepository, schoolClassId);
+
+        Schedule schedule = scheduleRepository.findBySchoolClass_Id(schoolClassId)
                 .orElseThrow(() -> new IllegalArgumentException("No schedule found for class id %d"
                         .formatted(schoolClassId)));
 
@@ -124,10 +129,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public void deleteSchedule(long scheduleId) {
-        Schedule schedule = schedules.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new IllegalArgumentException("Schedule with id %d not found".formatted(scheduleId)));
 
-        schedules.delete(schedule);
+        scheduleRepository.delete(schedule);
     }
     private enum Day { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY }
 
@@ -146,7 +151,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private Set<Subject> resolveSubjects(Set<Long> ids) {
         if (ids == null || ids.isEmpty()) return new LinkedHashSet<>();
-        List<Subject> found = subjects.findByIdIn(ids);
+        List<Subject> found = subjectRepository.findByIdIn(ids);
 
         if (found.size() != ids.size()) {
             Set<Long> foundIds = found.stream().map(Subject::getId).collect(Collectors.toSet());

@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfStudentExists;
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSubjectExists;
+
 @Service
 @RequiredArgsConstructor
 public class GradeServiceImpl implements GradeService {
@@ -36,7 +39,7 @@ public class GradeServiceImpl implements GradeService {
         Grade g = new Grade();
         g.setStudent(student);
         g.setSubject(subject);
-        g.setGradedBy(teacher);
+        g.setTeacher(teacher);
         g.setValue(ensureScale(dto.getValue()));
 
         Grade saved = gradeRepository.save(g);
@@ -47,11 +50,8 @@ public class GradeServiceImpl implements GradeService {
     @Transactional(readOnly = true)
     public Set<GradeDtoResponse> showAllStudentGradesForSubject(long studentId, long subjectId) {
 
-        studentRepository.findById(studentId).
-                orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
-
-        subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + subjectId+ " cannot be found"));
+        checkIfStudentExists(studentRepository, studentId);
+        checkIfSubjectExists(subjectRepository, subjectId);
 
         List<Grade> list = gradeRepository.findAllByStudent_IdAndSubject_IdOrderByIdDesc(studentId, subjectId);
         Set<GradeDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
@@ -63,8 +63,7 @@ public class GradeServiceImpl implements GradeService {
     @Override
     @Transactional(readOnly = true)
     public Set<GradeDtoResponse> showAllStudentGrades(long studentId) {
-        studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
+        checkIfStudentExists(studentRepository, studentId);
 
         List<Grade> list = gradeRepository.findAllByStudent_IdOrderByIdDesc(studentId);
         Set<GradeDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
@@ -79,8 +78,8 @@ public class GradeServiceImpl implements GradeService {
             studentName = g.getStudent().getUser().getFirstName() + " " + g.getStudent().getUser().getLastName();
         }
         String teacherName = null;
-        if (g.getGradedBy() != null && g.getGradedBy().getUser() != null) {
-            teacherName = g.getGradedBy().getUser().getFirstName() + " " + g.getGradedBy().getUser().getLastName();
+        if (g.getTeacher() != null && g.getTeacher().getUser() != null) {
+            teacherName = g.getTeacher().getUser().getFirstName() + " " + g.getTeacher().getUser().getLastName();
         }
         String subjectName = g.getSubject() != null ? g.getSubject().getName() : null;
 
@@ -91,7 +90,7 @@ public class GradeServiceImpl implements GradeService {
                 studentName,
                 g.getSubject() != null ? g.getSubject().getId() : null,
                 subjectName,
-                g.getGradedBy() != null ? g.getGradedBy().getId() : null,
+                g.getTeacher() != null ? g.getTeacher().getId() : null,
                 teacherName
         );
     }

@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static org.example.ejournal.util.CheckExistsUtil.*;
+
 @Service
 @RequiredArgsConstructor
 public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
@@ -24,8 +26,7 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public BigDecimal viewAverageGradeForSubject(long schoolId, String subjectType, String classNumber) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         schoolClassRepository.findActiveByClassNameAndSchoolId(classNumber, schoolId)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -38,16 +39,15 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public BigDecimal viewAverageGradeForTeacher(long teacherId) {
-        teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+        checkIfTeacherExists(teacherRepository, teacherId);
+
         return toScale(gradeRepository.avgForTeacher(teacherId));
     }
 
     @Override
     @Transactional
     public BigDecimal viewAverageGradeForStudent(long studentId) {
-        studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " not found"));
+        checkIfStudentExists(studentRepository, studentId);
 
         return toScale(gradeRepository.avgForStudent(studentId));
     }
@@ -55,8 +55,7 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public BigDecimal viewAverageGradeForSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId+ " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         return toScale(gradeRepository.avgForSchool(schoolId));
     }
@@ -77,8 +76,7 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public int viewGradeCountForSubject(BigDecimal grade, long subjectId) {
-        subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + subjectId + " not found"));
+        checkIfSubjectExists(subjectRepository, subjectId);
 
         return gradeRepository.countForSubject(normalize(grade), subjectId);
     }
@@ -86,8 +84,7 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public int viewGradeCountForTeacher(BigDecimal grade, long teacherId) {
-        teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+        checkIfTeacherExists(teacherRepository, teacherId);
 
         return gradeRepository.countForTeacher(normalize(grade), teacherId);
     }
@@ -95,8 +92,7 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
     @Override
     @Transactional
     public int viewGradeCountInSchool(BigDecimal grade, long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId+ " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         return gradeRepository.countInSchool(normalize(grade), schoolId);
     }

@@ -20,6 +20,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfStudentExists;
+import static org.example.ejournal.util.CheckExistsUtil.checkIfTeacherExists;
+
 @Service
 @RequiredArgsConstructor
 public class AbsenceServiceImpl implements AbsenceService {
@@ -57,7 +60,7 @@ public class AbsenceServiceImpl implements AbsenceService {
     @Override
     @Transactional(readOnly = true)
     public Set<AbsenceDtoResponse> viewAllAbsencesForStudent(long studentId) {
-        studentRepository.findById(studentId).orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " cannot be found"));
+        checkIfStudentExists(studentRepository, studentId);
 
         List<Absence> list = absenceRepository.findAllByStudent_IdOrderByDayDesc(studentId);
         Set<AbsenceDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));
@@ -69,7 +72,7 @@ public class AbsenceServiceImpl implements AbsenceService {
     @Override
     @Transactional(readOnly = true)
     public Set<AbsenceDtoResponse> viewAllAbsencesGivenByTeacher(long teacherId) {
-        teacherRepository.findById(teacherId).orElseThrow(() -> new IllegalArgumentException("Student with id " + teacherId + " cannot be found"));
+        checkIfTeacherExists(teacherRepository, teacherId);
 
         List<Absence> list = absenceRepository.findAllByTeacher_IdOrderByDayDesc(teacherId);
         Set<AbsenceDtoResponse> out = new LinkedHashSet<>(Math.max(16, list.size()));

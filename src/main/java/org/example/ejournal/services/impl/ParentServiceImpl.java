@@ -17,6 +17,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolExists;
+import static org.example.ejournal.util.CheckExistsUtil.checkIfStudentExists;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -29,8 +32,7 @@ public class ParentServiceImpl implements ParentService {
 
     @Override
     public ParentDtoResponse viewParentOfStudent(long studentId) {
-        studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student with id " + studentId + " not found"));
+        checkIfStudentExists(studentRepository, studentId);
 
         Parent parent = parentRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("No parent for child with id " + studentId + " found"));
@@ -39,8 +41,7 @@ public class ParentServiceImpl implements ParentService {
 
     @Override
     public Set<ParentDtoResponse> viewAllParentsInSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         Set<Parent> parents = parentRepository.findAllByChildSchoolId(schoolId);
         return parents.stream().map(this::toDto).collect(Collectors.toCollection(LinkedHashSet::new));

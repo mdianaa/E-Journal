@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolExists;
+
 @Service
 @RequiredArgsConstructor
 public class SchoolClassServiceImpl implements SchoolClassService {
@@ -99,8 +101,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     @Override
     @Transactional
     public Set<SchoolClassDtoResponse> showAllSchoolClassesInSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         Set<SchoolClass> classEntities = classRepository.findAllBySchoolId(schoolId, true);
         return classEntities.stream()

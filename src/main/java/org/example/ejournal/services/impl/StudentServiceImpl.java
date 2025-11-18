@@ -14,6 +14,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolClassExists;
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolExists;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -43,8 +46,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional(readOnly = true)
     public Set<StudentDtoResponse> viewAllStudentsInSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         Set<Student> all = studentRepository.findAllBySchoolId(schoolId);
 
@@ -55,6 +57,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Set<StudentDtoResponse> viewAllStudentsInClass(long schoolClassId) {
+        checkIfSchoolClassExists(schoolClassRepository, schoolClassId);
+
         SchoolClass sc = schoolClassRepository.findById(schoolClassId)
                 .orElseThrow(() -> new IllegalArgumentException("School class with id " + schoolClassId + " not found"));
 

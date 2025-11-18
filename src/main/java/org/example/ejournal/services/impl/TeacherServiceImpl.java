@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolExists;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -117,8 +119,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public Set<TeacherDtoResponse> viewAllHeadTeachersInSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         return teacherRepository.findAllBySchool_IdAndHeadTeacherTrue(schoolId).stream()
                 .map(this::toDto)
@@ -128,8 +129,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
-        schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+        checkIfSchoolExists(schoolRepository, schoolId);
 
         return teacherRepository.findAllBySchool_Id(schoolId).stream()
                 .map(this::toDto)

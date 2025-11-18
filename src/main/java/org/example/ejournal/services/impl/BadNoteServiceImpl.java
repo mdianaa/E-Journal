@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfStudentExists;
+import static org.example.ejournal.util.CheckExistsUtil.checkIfTeacherExists;
+
 @Service
 @RequiredArgsConstructor
 public class BadNoteServiceImpl implements BadNoteService {
@@ -51,21 +54,22 @@ public class BadNoteServiceImpl implements BadNoteService {
 
     @Override
     public Set<BadNoteDtoResponse> viewAllBadNotesForStudent(long studentId) {
-        // TODO check
+        checkIfStudentExists(studentRepository, studentId);
+
         return badNoteRepository.findAllByStudent_IdOrderByDayDesc(studentId)
                 .stream().map(this::toDto).collect(Collectors.toCollection(java.util.LinkedHashSet::new));
     }
 
     @Override
     public Set<BadNoteDtoResponse> viewAllBadNotesGivenByTeacher(long teacherId) {
-        // TODO check
+        checkIfTeacherExists(teacherRepository, teacherId);
+
         return badNoteRepository.findAllByTeacher_IdOrderByDayDesc(teacherId)
                 .stream().map(this::toDto).collect(Collectors.toCollection(java.util.LinkedHashSet::new));
     }
 
     @Override
     public void deleteBadNote(long badNoteId) {
-        // TODO check
         BadNote note = badNoteRepository.findById(badNoteId)
                 .orElseThrow(() -> new EntityNotFoundException("BadNote with id " + badNoteId + " cannot be found"));
 

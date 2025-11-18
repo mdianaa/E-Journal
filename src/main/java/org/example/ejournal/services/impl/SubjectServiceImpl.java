@@ -41,6 +41,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @Transactional
     public Set<SubjectDtoResponse> viewAllSubjectsInSchool(long schoolId) {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));

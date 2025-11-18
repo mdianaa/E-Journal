@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.example.ejournal.util.CheckExistsUtil.checkIfTeacherExists;
+
 @Service
 @RequiredArgsConstructor
 public class TeacherScheduleServiceImpl implements TeacherScheduleService {
@@ -77,6 +79,8 @@ public class TeacherScheduleServiceImpl implements TeacherScheduleService {
     @Override
     @Transactional(readOnly = true)
     public TeacherScheduleDtoResponse getTeacherSchedule(Long teacherId, String semester, String shift) {
+        checkIfTeacherExists(teacherRepository, teacherId);
+
         TeacherSchedule schedule = teacherScheduleRepository
                 .findByTeacher_IdAndSemesterAndShift(teacherId, semester, shift)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -95,11 +99,14 @@ public class TeacherScheduleServiceImpl implements TeacherScheduleService {
             Long teacherId,
             String semester,
             String shift,
-            String dayOfWeek
+            String day
     ) {
+
+        checkIfTeacherExists(teacherRepository, teacherId);
+
         List<TeacherScheduleSlot> slots = slotRepository
                 .findAllByTeacherSchedule_Teacher_IdAndTeacherSchedule_SemesterAndTeacherSchedule_ShiftAndDayOrderByPeriodNumberAsc(
-                        teacherId, semester, shift, dayOfWeek
+                        teacherId, semester, shift, day
                 );
 
         return slots.stream()
@@ -109,6 +116,8 @@ public class TeacherScheduleServiceImpl implements TeacherScheduleService {
 
     @Override
     public void deleteSchedule(Long teacherId, String semester, String shift) {
+        checkIfTeacherExists(teacherRepository, teacherId);
+
         TeacherSchedule schedule = teacherScheduleRepository
                 .findByTeacher_IdAndSemesterAndShift(teacherId, semester, shift)
                 .orElseThrow(() -> new IllegalArgumentException(
