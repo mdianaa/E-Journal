@@ -14,12 +14,28 @@ import java.util.Set;
 @Setter
 public class TeacherDtoResponse {
 
-    private String teacherFirstName;
+    private Long id;
 
-    private String teacherLastName;
+    private Long userId;
 
-    private List<SubjectDtoResponse> subjects;
+    private String fullName;
+
+    private String email;
+
+    private String phoneNumber;
+
+    private Long schoolId;
 
     private String schoolName;
+
+    private boolean isHeadTeacher;
+
+    private Long headTeacherOfClassId;
+
+    private String headTeacherOfClassName;
+
+    private Set<Long> subjectIds;
+
+    private Set<String> subjectNames;
 
 }

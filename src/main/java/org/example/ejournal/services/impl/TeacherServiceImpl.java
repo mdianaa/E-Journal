@@ -1,189 +1,206 @@
 package org.example.ejournal.services.impl;
 
-import jakarta.transaction.Transactional;
-import org.example.ejournal.dtos.request.SchoolDtoRequest;
+import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.SubjectDtoRequest;
-import org.example.ejournal.dtos.request.TeacherDtoRequest;
-import org.example.ejournal.dtos.request.UserRegisterDtoRequest;
-import org.example.ejournal.dtos.response.ScheduleDtoResponse;
 import org.example.ejournal.dtos.response.TeacherDtoResponse;
 import org.example.ejournal.entities.*;
-import org.example.ejournal.enums.SemesterType;
-import org.example.ejournal.enums.WeekDay;
 import org.example.ejournal.repositories.*;
 import org.example.ejournal.services.TeacherService;
-import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
 
     private final TeacherRepository teacherRepository;
-    private final SchoolRepository schoolRepository;
     private final SubjectRepository subjectRepository;
-    private final AbsenceRepository absenceRepository;
-    private final SchoolClassRepository schoolClassRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final UserAuthenticationRepository userAuthenticationRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final ModelMapper mapper;
+    private final SchoolRepository schoolRepository;
+    private final SchoolClassRepository classRepository;
+    private final UserRepository userRepository;
 
-    public TeacherServiceImpl(TeacherRepository teacherRepository, SchoolRepository schoolRepository, SubjectRepository subjectRepository, AbsenceRepository absenceRepository, SchoolClassRepository schoolClassRepository, ScheduleRepository scheduleRepository, UserAuthenticationRepository userAuthenticationRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
-        this.teacherRepository = teacherRepository;
-        this.schoolRepository = schoolRepository;
-        this.subjectRepository = subjectRepository;
-        this.absenceRepository = absenceRepository;
-        this.schoolClassRepository = schoolClassRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.userAuthenticationRepository = userAuthenticationRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.mapper = mapper;
-    }
-
+    @Override
     @Transactional
-    @Override
-    public TeacherDtoResponse createTeacher(TeacherDtoRequest teacherDto, SchoolDtoRequest schoolDto, Set<SubjectDtoRequest> subjectDtos, UserRegisterDtoRequest userRegisterDtoRequest) {
-        // check if this teacher exists already
-        if (userAuthenticationRepository.findByUsername(userRegisterDtoRequest.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("User already exists!");
-        }
-
-        // register teacher
-        Teacher teacher = mapper.map(teacherDto, Teacher.class);
-        School school = schoolRepository.findByName(schoolDto.getName()).get();
-
-        Set<Subject> subjects = subjectDtos.stream().map(s -> subjectRepository.findBySubjectType(s.getSubjectType()).get()).collect(Collectors.toSet());
-
-        teacher.setSubjects(subjects);
-        teacher.setSchool(school);
-
-        // map the user credentials
-        UserAuthentication userAuthentication = new UserAuthentication();
-        userAuthentication.setUsername(userRegisterDtoRequest.getUsername());
-        userAuthentication.setPassword(passwordEncoder.encode(userRegisterDtoRequest.getPassword()));
-        userAuthentication.setRole(userRegisterDtoRequest.getRole());
-
-        teacher.setUserAuthentication(userAuthentication);
-
-        // persist to db
-        userAuthenticationRepository.save(userAuthentication);
-        teacherRepository.save(teacher);
-
-        // return dto
-        return mapper.map(teacher, TeacherDtoResponse.class);
-    }
-
-    @Override
-    public TeacherDtoResponse editTeacher(long teacherId, TeacherDtoRequest teacherDto) {
-        if (teacherRepository.findById(teacherId).isPresent()) {
-            Teacher teacher = teacherRepository.findById(teacherId).get();
-
-            mapper.map(teacherDto, teacher);
-
-            // persist to db
-            teacherRepository.save(teacher);
-
-            // return dto
-            return mapper.map(teacher, TeacherDtoResponse.class);
-        }
-
-        return null;
-    }
-
-    @Override
     public TeacherDtoResponse changeSubjects(long teacherId, Set<SubjectDtoRequest> subjectDtos) {
-        if (teacherRepository.findById(teacherId).isPresent()) {
-            Teacher teacher = teacherRepository.findById(teacherId).get();
+        Teacher t = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
 
-            Set<Subject> subjects = subjectDtos.stream().map(s -> mapper.map(s, Subject.class)).collect(Collectors.toSet());
-
-            teacher.setSubjects(subjects);
-
-            // persist to db
-            teacherRepository.save(teacher);
-
-            // return dto
-            return mapper.map(teacher, TeacherDtoResponse.class);
+        if (subjectDtos == null || subjectDtos.isEmpty()) {
+            if (t.getSubjects() != null) t.getSubjects().clear();
+            return toDto(teacherRepository.save(t));
         }
 
-        return null;
-    }
+        Set<String> requestedNamesLower = subjectDtos.stream()
+                .map(SubjectDtoRequest::getName)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(s -> s.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
-    @Override
-    public TeacherDtoResponse removeHeadTeacherTitle(long teacherId) {
-        if (teacherRepository.findById(teacherId).isPresent()) {
-            Teacher teacher = teacherRepository.findById(teacherId).get();
-
-            teacher.setHeadTeacher(false);
-
-            // persist to db
-            teacherRepository.save(teacher);
-
-            // return dto
-            return mapper.map(teacher, TeacherDtoResponse.class);
+        if (requestedNamesLower.isEmpty()) {
+            if (t.getSubjects() != null) t.getSubjects().clear();
+            return toDto(teacherRepository.save(t));
         }
 
-        return null;
-    }
+        List<Subject> existing = subjectRepository.findByNamesIgnoreCase(requestedNamesLower);
+        Map<String, Subject> byLowerName = existing.stream()
+                .collect(Collectors.toMap(s -> s.getName().toLowerCase(Locale.ROOT), Function.identity()));
 
-    @Transactional
-    @Override
-    public TeacherDtoResponse viewTeacher(long teacherId) {
-        Teacher teacher = teacherRepository.findById(teacherId).get();
-
-        Hibernate.initialize(teacher.getSubjects());
-
-        return mapper.map(teacher, TeacherDtoResponse.class);
-    }
-
-    @Override
-    public List<ScheduleDtoResponse> viewScheduleForDay(String day, String semester, String schoolClass) {
-        WeekDay weekDay = WeekDay.valueOf(day.toUpperCase());
-        SemesterType semesterType = SemesterType.valueOf(semester.toUpperCase());
-        SchoolClass schoolClassEntity = schoolClassRepository.findByClassName(schoolClass).get();
-
-        return scheduleRepository.findScheduleForDayAndClassAndSemester(weekDay, schoolClassEntity, semesterType);
-    }
-
-    @Transactional
-    @Override
-    public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
-        School school = schoolRepository.findById(schoolId).get();
-
-        Set<Teacher> teachers = school.getTeachers();
-        Set<TeacherDtoResponse> teachersDto = new HashSet<>();
-
-        for (Teacher teacher : teachers) {
-
-            teachersDto.add(mapper.map(teacher, TeacherDtoResponse.class));
-        }
-
-        return teachersDto;
-    }
-
-    @Override
-    public void deleteTeacher(long teacherId) {
-        if (teacherRepository.findById(teacherId).isPresent()) {
-            Teacher teacher = teacherRepository.findById(teacherId).get();
-
-            teacher.setSubjects(null);
-            teacher.setSchool(null);
-            teacher.setStudents(null);
-
-            List<Absence> absences = absenceRepository.findAllByTeacher(teacher);
-            for (Absence absence : absences) {
-                absence.setTeacher(null);
-                absenceRepository.save(absence);
+        for (String nameLower : requestedNamesLower) {
+            if (!byLowerName.containsKey(nameLower)) {
+                Subject s = new Subject();
+                s.setName(nameLower);
+                s.setTeachers(new LinkedHashSet<>());
+                s = subjectRepository.save(s);
+                byLowerName.put(nameLower, s);
             }
-
-            teacherRepository.delete(teacher);
         }
+
+        Set<Subject> newSet = requestedNamesLower.stream()
+                .map(byLowerName::get)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (t.getSubjects() == null) t.setSubjects(new LinkedHashSet<>());
+        else t.getSubjects().clear();
+        t.getSubjects().addAll(newSet);
+
+        return toDto(teacherRepository.save(t));
+    }
+
+    @Override
+    @Transactional
+    public TeacherDtoResponse removeHeadTeacherTitle(long teacherId) {
+        Teacher t = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+
+        if (t.getHeadTeacherOf() != null) {
+            throw new IllegalStateException(
+                    "Teacher %d is head of class %d. Reassign that class's head teacher first."
+                            .formatted(t.getId(), t.getHeadTeacherOf().getId())
+            );
+        }
+
+        t.setHeadTeacher(false);
+
+        return toDto(teacherRepository.save(t));
+    }
+
+    @Override
+    @Transactional
+    public TeacherDtoResponse viewTeacher(long teacherId) {
+        Teacher t = teacherRepository.fetchByIdWithUser(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+
+        return toDto(t);
+    }
+
+    @Override
+    @Transactional
+    public TeacherDtoResponse viewHeadTeacher(long teacherId, long schoolClassId) {
+        classRepository.findByIdAndHeadTeacher(schoolClassId, teacherId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Teacher %d is not the head teacher of class %d".formatted(teacherId, schoolClassId)
+                ));
+
+        Teacher t = teacherRepository.fetchByIdWithUser(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+
+        return toDto(t);
+    }
+
+    @Override
+    @Transactional
+    public Set<TeacherDtoResponse> viewAllHeadTeachersInSchool(long schoolId) {
+        schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+
+        return teacherRepository.findAllBySchool_IdAndHeadTeacherTrue(schoolId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @Override
+    @Transactional
+    public Set<TeacherDtoResponse> viewAllTeachersInSchool(long schoolId) {
+        schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new IllegalArgumentException("School with id " + schoolId + " not found"));
+
+        return teacherRepository.findAllBySchool_Id(schoolId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @Override
+    @Transactional
+    public void deleteTeacher(long teacherId) {
+        Teacher t = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+
+        if (t.getHeadTeacherOf() != null) {
+            throw new IllegalStateException(
+                    "Cannot delete teacher %d: they are head teacher of class %d. Reassign first."
+                            .formatted(t.getId(), t.getHeadTeacherOf().getId())
+            );
+        }
+
+        if (t.getSubjects() != null) t.getSubjects().clear();
+        if (t.getStudents() != null) {
+            for (Student s : new ArrayList<>(t.getStudents())) {
+                if (s.getTeachers() != null) s.getTeachers().remove(t);
+            }
+            t.getStudents().clear();
+        }
+
+        userRepository.delete(t.getUser());
+        teacherRepository.delete(t);
+
+    }
+
+    private TeacherDtoResponse toDto(Teacher t) {
+        User u = t.getUser();
+
+        String fullName = null;
+        if (u != null) {
+            String fn = Optional.ofNullable(u.getFirstName()).orElse("");
+            String ln = Optional.ofNullable(u.getLastName()).orElse("");
+            String full = (fn + " " + ln).trim();
+            fullName = full.isBlank() ? null : full;
+        }
+
+        Long headClassId = null;
+        String headClassName = null;
+        if (t.getHeadTeacherOf() != null) {
+            headClassId = t.getHeadTeacherOf().getId();
+            headClassName = t.getHeadTeacherOf().getClassName();
+        }
+
+        Set<Long> subjectIds = (t.getSubjects() == null) ? Set.of()
+                : t.getSubjects().stream().map(Subject::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> subjectNames = (t.getSubjects() == null) ? Set.of()
+                : t.getSubjects().stream().map(Subject::getName)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        TeacherDtoResponse dto = new TeacherDtoResponse();
+        dto.setId(t.getId());
+        dto.setUserId(u != null ? u.getId() : null);
+        dto.setFullName(fullName);
+        dto.setEmail(u != null ? u.getEmail() : null);
+        dto.setPhoneNumber(u != null ? u.getPhoneNumber() : null);
+        dto.setSchoolId(t.getSchool() != null ? t.getSchool().getId() : null);
+        dto.setSchoolName(t.getSchool() != null ? t.getSchool().getName() : null);
+        dto.setHeadTeacher(t.isHeadTeacher());
+        dto.setHeadTeacherOfClassId(headClassId);
+        dto.setHeadTeacherOfClassName(headClassName);
+        dto.setSubjectIds(subjectIds);
+        dto.setSubjectNames(subjectNames);
+
+        return dto;
     }
 }
