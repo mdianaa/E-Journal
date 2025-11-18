@@ -14,30 +14,36 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "students")
-public class Student extends User {
+public class Student extends BaseEntity {
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
+    // TODO - remove
     @Column(length = 50)
     private String address;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_class_id")
     private SchoolClass schoolClass;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
     private School school;
 
-    @ManyToMany(mappedBy = "students", targetEntity = Teacher.class)
+    @ManyToMany(mappedBy = "students")
     private Set<Teacher> teachers;
 
-    @OneToMany(mappedBy = "student", targetEntity = Grade.class)
+    @OneToMany(mappedBy = "student")
     private Set<Grade> grades;
 
-    @OneToMany(mappedBy = "student", targetEntity = Absence.class)
+    @OneToMany(mappedBy = "student")
     private Set<Absence> absences;
 
-    @OneToMany(mappedBy = "student", targetEntity = BadNote.class)
+    @OneToMany(mappedBy = "student")
     private Set<BadNote> badNotes;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Parent parent;
 }
