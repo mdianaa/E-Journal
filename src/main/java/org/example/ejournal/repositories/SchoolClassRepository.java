@@ -2,10 +2,12 @@ package org.example.ejournal.repositories;
 
 import org.example.ejournal.entities.SchoolClass;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,5 +32,28 @@ public interface SchoolClassRepository extends JpaRepository<SchoolClass, Long> 
            where sc.headTeacher.id = :teacherId and sc.deactivated = false
            """)
     long countActiveByHeadTeacher(@Param("teacherId") Long teacherId);
+
+    @Query("""
+           select sc from SchoolClass sc
+           where sc.id = :classId and sc.headTeacher.id = :teacherId
+           """)
+    Optional<SchoolClass> findByIdAndHeadTeacher(@Param("classId") Long classId,
+                                                 @Param("teacherId") Long teacherId);
+
+    @Query("""
+           select sc from SchoolClass sc
+           where sc.className = :className and sc.school.id = :schoolId and sc.deactivated = false
+           """)
+    Optional<SchoolClass> findActiveByClassNameAndSchoolId(@Param("className") String className,
+                                                           @Param("schoolId") Long schoolId);
+
+    @Modifying
+    @Query("""
+           UPDATE SchoolClass sc
+           SET sc.deactivated = true
+           WHERE sc.deactivated = false
+             AND sc.schoolYearEnd < :today
+           """)
+    void deactivateClassesForPastSchoolYear(@Param("today") LocalDate today);
 
 }

@@ -15,9 +15,12 @@ import org.example.ejournal.repositories.StudentRepository;
 import org.example.ejournal.repositories.TeacherRepository;
 import org.example.ejournal.services.SchoolClassService;
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,17 @@ public class SchoolClassServiceImpl implements SchoolClassService {
 
         if (head.getSchool() == null || !head.getSchool().getId().equals(school.getId())) {
             throw new IllegalStateException("Head teacher must belong to the same school.");
+        }
+
+        LocalDate start = req.getSchoolYearStart();
+        LocalDate end   = req.getSchoolYearEnd();
+
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("School year start and end must not be null.");
+        }
+
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("School year start must be before school year end.");
         }
 
         if (classRepository.existsBySchool_IdAndClassNameIgnoreCaseAndDeactivatedFalse(school.getId(), req.getClassName())) {
@@ -109,6 +123,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    // deactivate manually
     @Override
     @Transactional
     public void deactivateClass(long classId) {
@@ -121,6 +136,19 @@ public class SchoolClassServiceImpl implements SchoolClassService {
 
         sc.setDeactivated(true);
         classRepository.save(sc);
+    }
+
+    /**
+     * Runs at 01:00 on the 1st of August every year (Europe/Sofia time).
+     * Cron: second, minute, hour, dayOfMonth, month, dayOfWeek
+     */
+    // deactivate implicitly
+    @Scheduled(cron = "0 0 1 1 8 *", zone = "Europe/Sofia")
+    @Transactional
+    public void deactivateClassesAtEndOfYear() {
+        LocalDate today = LocalDate.now(ZoneId.of("Europe/Sofia"));
+
+        classRepository.deactivateClassesForPastSchoolYear(today);
     }
 
     private SchoolClassDtoResponse toResponse(SchoolClass sc) {
@@ -140,7 +168,9 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                 sc.getSchool() != null ? sc.getSchool().getName() : null,
                 sc.getHeadTeacher() != null ? sc.getHeadTeacher().getId() : null,
                 headName,
-                sc.getStudents() == null ? 0 : sc.getStudents().size()
+                sc.getStudents() == null ? 0 : sc.getStudents().size(),
+                sc.getSchoolYearStart(),
+                sc.getSchoolYearEnd()
         );
     }
 }

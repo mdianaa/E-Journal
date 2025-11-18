@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/school-class")
 @RequiredArgsConstructor
+@RequestMapping("/school-class")
 public class SchoolClassController {
+
     private final SchoolClassService service;
 
     @PostMapping

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,4 +26,8 @@ public class SchoolClassDtoResponse {
     private String headTeacherFullName;
 
     private Integer studentCount;
+
+    private LocalDate schoolYearStart;
+
+    private LocalDate schoolYearEnd;
 }
