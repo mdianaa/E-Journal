@@ -15,7 +15,7 @@ import java.util.Set;
 @Table(name = "teacher_schedules")
 public class TeacherSchedule extends BaseEntity {
 
-    // all lessons for teacher X on Monday ordered by period
+    // all lessons for teacher X on semester Y with shift Z
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "teacher_id")
