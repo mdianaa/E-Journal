@@ -20,9 +20,6 @@ public class ScheduleDtoRequest {
     @NotNull
     private Long schoolClassId;
 
-    private Set<Long> mondaySubjectIds;
-    private Set<Long> tuesdaySubjectIds;
-    private Set<Long> wednesdaySubjectIds;
-    private Set<Long> thursdaySubjectIds;
-    private Set<Long> fridaySubjectIds;
+    @NotNull
+    private Set<ScheduleSlotDtoRequest> slots;
 }

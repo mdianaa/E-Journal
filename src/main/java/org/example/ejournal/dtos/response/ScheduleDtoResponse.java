@@ -19,9 +19,5 @@ public class ScheduleDtoResponse {
 
     private String schoolClassName;
 
-    private Set<SubjectDtoResponse> monday;
-    private Set<SubjectDtoResponse> tuesday;
-    private Set<SubjectDtoResponse> wednesday;
-    private Set<SubjectDtoResponse> thursday;
-    private Set<SubjectDtoResponse> friday;
+    private Set<ScheduleSlotDtoResponse> slots;
 }

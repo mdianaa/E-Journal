@@ -21,16 +21,19 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
     public ResponseEntity<ScheduleDtoResponse> create(@Valid @RequestBody ScheduleDtoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleService.createSchedule(req));
     }
 
     @GetMapping("/class/{schoolClassId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
     public ResponseEntity<ScheduleDtoResponse> viewForClass(@PathVariable long schoolClassId) {
         return ResponseEntity.ok(scheduleService.viewScheduleForClass(schoolClassId));
     }
 
     @GetMapping("/class/{schoolClassId}/day/{day}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'STUDENT', 'PARENT', 'TEACHER')")
     public ResponseEntity<ScheduleDtoResponse> viewForDay(
             @PathVariable long schoolClassId,
             @PathVariable String day) {
@@ -39,6 +42,7 @@ public class ScheduleController {
 
     @DeleteMapping("/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
     public void delete(@PathVariable long scheduleId) {
         scheduleService.deleteSchedule(scheduleId);
     }

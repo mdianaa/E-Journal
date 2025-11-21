@@ -2,9 +2,12 @@ package org.example.ejournal.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.ejournal.dtos.request.ScheduleDtoRequest;
+import org.example.ejournal.dtos.request.ScheduleSlotDtoRequest;
 import org.example.ejournal.dtos.response.ScheduleDtoResponse;
+import org.example.ejournal.dtos.response.ScheduleSlotDtoResponse;
 import org.example.ejournal.dtos.response.SubjectDtoResponse;
 import org.example.ejournal.entities.Schedule;
+import org.example.ejournal.entities.ScheduleSlot;
 import org.example.ejournal.entities.SchoolClass;
 import org.example.ejournal.entities.Subject;
 import org.example.ejournal.repositories.ScheduleRepository;
@@ -14,10 +17,7 @@ import org.example.ejournal.services.ScheduleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.example.ejournal.util.CheckExistsUtil.checkIfSchoolClassExists;
@@ -34,8 +34,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public ScheduleDtoResponse createSchedule(ScheduleDtoRequest scheduleDto) {
         SchoolClass schoolClass = schoolClassRepository.findById(scheduleDto.getSchoolClassId())
-                .orElseThrow(() -> new IllegalArgumentException("SchoolClass with id %d not found"
-                        .formatted(scheduleDto.getSchoolClassId())));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "SchoolClass with id %d not found".formatted(scheduleDto.getSchoolClassId())
+                ));
 
         scheduleRepository.findBySchoolClass_IdAndSemesterIgnoreCaseAndShiftIgnoreCase(
                 schoolClass.getId(), scheduleDto.getSemester(), scheduleDto.getShift()
@@ -50,79 +51,53 @@ public class ScheduleServiceImpl implements ScheduleService {
         schedule.setSemester(scheduleDto.getSemester());
         schedule.setShift(scheduleDto.getShift());
 
-        schedule.setMonday(resolveSubjects(scheduleDto.getMondaySubjectIds()));
-        schedule.setTuesday(resolveSubjects(scheduleDto.getTuesdaySubjectIds()));
-        schedule.setWednesday(resolveSubjects(scheduleDto.getWednesdaySubjectIds()));
-        schedule.setThursday(resolveSubjects(scheduleDto.getThursdaySubjectIds()));
-        schedule.setFriday(resolveSubjects(scheduleDto.getFridaySubjectIds()));
+        Set<ScheduleSlot> slots = new LinkedHashSet<>();
+        if (scheduleDto.getSlots() != null) {
+            for (ScheduleSlotDtoRequest slotReq : scheduleDto.getSlots()) {
+                ScheduleSlot slot = toSlotEntity(schedule, slotReq);
+                slots.add(slot);
+            }
+        }
+        schedule.setSlots(slots);
 
         Schedule saved = scheduleRepository.save(schedule);
         return toDto(saved);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ScheduleDtoResponse viewScheduleForClass(long schoolClassId) {
         checkIfSchoolClassExists(schoolClassRepository, schoolClassId);
 
         Schedule schedule = scheduleRepository.findBySchoolClass_Id(schoolClassId)
-                .orElseThrow(() -> new IllegalArgumentException("No schedule found for class id %d"
-                        .formatted(schoolClassId)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No schedule found for class id %d".formatted(schoolClassId)
+                ));
+
         return toDto(schedule);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ScheduleDtoResponse viewScheduleForDayForClass(String day, long schoolClassId) {
         checkIfSchoolClassExists(schoolClassRepository, schoolClassId);
 
         Schedule schedule = scheduleRepository.findBySchoolClass_Id(schoolClassId)
-                .orElseThrow(() -> new IllegalArgumentException("No schedule found for class id %d"
-                        .formatted(schoolClassId)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No schedule found for class id %d".formatted(schoolClassId)
+                ));
 
         Day normalized = normalizeDay(day);
 
         ScheduleDtoResponse dto = baseHeaderDto(schedule);
 
-        switch (normalized) {
-            case MONDAY -> {
-                dto.setMonday(toSubjectDtos(schedule.getMonday()));
-                dto.setTuesday(Set.of());
-                dto.setWednesday(Set.of());
-                dto.setThursday(Set.of());
-                dto.setFriday(Set.of());
-            }
-            case TUESDAY -> {
-                dto.setMonday(Set.of());
-                dto.setTuesday(toSubjectDtos(schedule.getTuesday()));
-                dto.setWednesday(Set.of());
-                dto.setThursday(Set.of());
-                dto.setFriday(Set.of());
-            }
-            case WEDNESDAY -> {
-                dto.setMonday(Set.of());
-                dto.setTuesday(Set.of());
-                dto.setWednesday(toSubjectDtos(schedule.getWednesday()));
-                dto.setThursday(Set.of());
-                dto.setFriday(Set.of());
-            }
-            case THURSDAY -> {
-                dto.setMonday(Set.of());
-                dto.setTuesday(Set.of());
-                dto.setWednesday(Set.of());
-                dto.setThursday(toSubjectDtos(schedule.getThursday()));
-                dto.setFriday(Set.of());
-            }
-            case FRIDAY -> {
-                dto.setMonday(Set.of());
-                dto.setTuesday(Set.of());
-                dto.setWednesday(Set.of());
-                dto.setThursday(Set.of());
-                dto.setFriday(toSubjectDtos(schedule.getFriday()));
-            }
-            default -> throw new IllegalArgumentException("Unsupported day: " + day);
-        }
+        Set<ScheduleSlotDtoResponse> daySlots = schedule.getSlots().stream()
+                .filter(slot -> normalized.name().equals(slot.getDay()))
+                .sorted((a, b) -> Integer.compare(a.getPeriodNumber(), b.getPeriodNumber()))
+                .map(this::toSlotDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
+        dto.setSlots(daySlots);
         return dto;
     }
 
@@ -130,10 +105,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public void deleteSchedule(long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("Schedule with id %d not found".formatted(scheduleId)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Schedule with id %d not found".formatted(scheduleId)));
 
         scheduleRepository.delete(schedule);
     }
+
     private enum Day { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY }
 
     private Day normalizeDay(String day) {
@@ -149,27 +126,37 @@ public class ScheduleServiceImpl implements ScheduleService {
         };
     }
 
-    private Set<Subject> resolveSubjects(Set<Long> ids) {
-        if (ids == null || ids.isEmpty()) return new LinkedHashSet<>();
-        List<Subject> found = subjectRepository.findByIdIn(ids);
-
-        if (found.size() != ids.size()) {
-            Set<Long> foundIds = found.stream().map(Subject::getId).collect(Collectors.toSet());
-            Set<Long> missing = new LinkedHashSet<>(ids);
-            missing.removeAll(foundIds);
-            throw new IllegalStateException("Subjects not found: " + missing);
+    private ScheduleSlot toSlotEntity(Schedule schedule, ScheduleSlotDtoRequest req) {
+        if (req.getSubjectId() == null) {
+            throw new IllegalArgumentException("subjectId must not be null for a schedule slot");
         }
 
-        return new LinkedHashSet<>(found);
+        Subject subject = subjectRepository.findById(req.getSubjectId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Subject with id %d not found".formatted(req.getSubjectId())
+                ));
+
+        Day normalized = normalizeDay(req.getDay());
+
+        ScheduleSlot slot = new ScheduleSlot();
+        slot.setSchedule(schedule);
+        slot.setDay(normalized.name()); // store "MONDAY"
+        slot.setPeriodNumber(req.getPeriodNumber());
+        slot.setStartTime(req.getStartTime());
+        slot.setEndTime(req.getEndTime());
+        slot.setSubject(subject);
+        return slot;
     }
 
     private ScheduleDtoResponse toDto(Schedule s) {
         ScheduleDtoResponse dto = baseHeaderDto(s);
-        dto.setMonday(toSubjectDtos(s.getMonday()));
-        dto.setTuesday(toSubjectDtos(s.getTuesday()));
-        dto.setWednesday(toSubjectDtos(s.getWednesday()));
-        dto.setThursday(toSubjectDtos(s.getThursday()));
-        dto.setFriday(toSubjectDtos(s.getFriday()));
+
+        Set<ScheduleSlotDtoResponse> slotDtos = s.getSlots().stream()
+                .sorted(Comparator.comparing(ScheduleSlot::getDay).thenComparingInt(ScheduleSlot::getPeriodNumber))
+                .map(this::toSlotDto)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        dto.setSlots(slotDtos);
         return dto;
     }
 
@@ -183,16 +170,15 @@ public class ScheduleServiceImpl implements ScheduleService {
         return dto;
     }
 
-    private Set<SubjectDtoResponse> toSubjectDtos(Set<Subject> set) {
-        if (set == null || set.isEmpty()) return Set.of();
-        return set.stream().map(this::toSubjectDto)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    private SubjectDtoResponse toSubjectDto(Subject s) {
-        SubjectDtoResponse dto = new SubjectDtoResponse();
-        dto.setId(s.getId());
-        dto.setName(s.getName());
+    private ScheduleSlotDtoResponse toSlotDto(ScheduleSlot slot) {
+        ScheduleSlotDtoResponse dto = new ScheduleSlotDtoResponse();
+        dto.setId(slot.getId());
+        dto.setDay(slot.getDay());
+        dto.setPeriodNumber(slot.getPeriodNumber());
+        dto.setStartTime(slot.getStartTime());
+        dto.setEndTime(slot.getEndTime());
+        dto.setSubjectId(slot.getSubject().getId());
+        dto.setSubjectName(slot.getSubject().getName());
         return dto;
     }
 }
