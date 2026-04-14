@@ -36,24 +36,33 @@ public class AbsenceServiceImpl implements AbsenceService {
     public AbsenceDtoResponse createAbsence(AbsenceDtoRequest dto) {
 
         Student student = studentRepository.findById(dto.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("Student with id " + dto.getStudentId() + " cannot be found"));
-        Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                .orElseThrow(() -> new IllegalArgumentException("Student with id " + dto.getTeacherId() + " cannot be found"));
-        Subject subject = subjectRepository.findById(dto.getSubjectId())
-                .orElseThrow(() -> new IllegalArgumentException("Subject with id " + dto.getSubjectId() + " cannot be found"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Student with id " + dto.getStudentId() + " cannot be found"));
 
-        if (absenceRepository.existsByStudent_IdAndDayAndSubject_Id(dto.getStudentId(), dto.getDay(), dto.getSubjectId())) {
-            throw new IllegalArgumentException("An absence already exists for this student, day, and subject.");
+        Teacher teacher = teacherRepository.findById(dto.getTeacherId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Teacher with id " + dto.getTeacherId() + " cannot be found"));
+
+        Subject subject = subjectRepository.findByNameIgnoreCase(dto.getSubjectName())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Subject with name '" + dto.getSubjectName() + "' cannot be found"));
+
+        if (absenceRepository.existsByStudent_IdAndDayAndSubject_Id(
+                dto.getStudentId(),
+                dto.getDay(),
+                subject.getId())) {
+            throw new IllegalArgumentException(
+                    "An absence already exists for this student, day, and subject.");
         }
 
-        var a = new Absence();
-        a.setStudent(student);
-        a.setTeacher(teacher);
-        a.setSubject(subject);
-        a.setDay(dto.getDay());
-        a.setExcused(false);
+        Absence absence = new Absence();
+        absence.setStudent(student);
+        absence.setTeacher(teacher);
+        absence.setSubject(subject);
+        absence.setDay(dto.getDay());
+        absence.setExcused(false);
 
-        var saved = absenceRepository.save(a);
+        Absence saved = absenceRepository.save(absence);
         return toDto(saved);
     }
 

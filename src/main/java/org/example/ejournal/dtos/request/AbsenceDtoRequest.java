@@ -16,10 +16,10 @@ public class AbsenceDtoRequest {
     @NotNull
     private Long teacherId;
 
-    @NotNull
-    private Long subjectId;
+    @NotNull()
+    private String subjectName;
 
-    @NotBlank
+    @NotBlank(message = "The day cannot be left blank")
     @Size(max = 50)
     private String day;
 }

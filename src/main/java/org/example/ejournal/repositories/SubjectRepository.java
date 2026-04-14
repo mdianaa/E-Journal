@@ -17,4 +17,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
     @Query("select s from Subject s where lower(s.name) in :names")
     List<Subject> findByNamesIgnoreCase(@Param("names") Collection<String> lowerNames);
+
+    Optional<Subject> findByNameIgnoreCase(String name);
 }
