@@ -1,33 +1,100 @@
 package org.example.ejournal.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.ejournal.enums.RoleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * The type User.
- */
-@AllArgsConstructor
-@NoArgsConstructor
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Entity
 @Getter
 @Setter
-@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
-    @Column(name = "first_name", length = 30, nullable = false)
+    @Column(nullable = false, unique = true, length = 100)
+    @Email
+    private String email;
+
+    @JsonIgnore
+    @Column(nullable = false)
+    private String password;
+
+    @Column(name = "first_name")
+    @NotBlank
+    @Length(max = 30)
     private String firstName;
 
-    @Column(name = "last_name", length = 30, nullable = false)
+    @Column(name = "last_name")
+    @NotBlank
+    @Length(max = 30)
     private String lastName;
 
-    @Column(name = "phone_number", length = 15, nullable = false)
+    @Column(name = "phone_number")
+    @NotBlank
+    @Length(max = 10)
     private String phoneNumber;
 
-    @OneToOne
-    private UserAuthentication userAuthentication;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "authority")
+    private Set<String> authorities = new HashSet<>();
+
+    private boolean enabled = false;
+    private boolean locked = false;
+
+    @OneToOne(mappedBy = "user")
+    private Teacher teacherProfile;
+
+    @OneToOne(mappedBy = "user")
+    private Student studentProfile;
+
+    @OneToOne(mappedBy = "user")
+    private Parent parentProfile;
+
+    @OneToOne(mappedBy = "user")
+    private Headmaster headmasterProfile;
+
+    // ---- UserDetails ----
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities == null
+                ? Set.of()
+                : authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public String getUsername() { return this.email; }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return !this.locked; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return this.enabled; }
+
 }
