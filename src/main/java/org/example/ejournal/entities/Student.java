@@ -20,10 +20,6 @@ public class Student extends BaseEntity {
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    // TODO - remove
-    @Column(length = 50)
-    private String address;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_class_id")
     private SchoolClass schoolClass;
