@@ -18,19 +18,17 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
 
     // subjectType in a particular (active) class of a school
     @Query("""
-           select avg(g.value)
-           from Grade g
-           join g.student st
-           join st.schoolClass sc
-           join g.subject subj
-           where sc.school.id = :schoolId
-             and sc.className = :className
-             and sc.deactivated = false
-             and lower(subj.name) = lower(:subjectType)
-           """)
-    Double avgForSubjectTypeInSchoolClass(@Param("schoolId") Long schoolId,
-                                          @Param("subjectType") String subjectType,
-                                          @Param("className") String className);
+       select avg(g.value)
+       from Grade g
+       join g.student st
+       join st.schoolClass sc
+       join g.subject subj
+       where sc.id = :classId
+         and sc.deactivated = false
+         and lower(subj.name) = lower(:subjectType)
+       """)
+    Double avgForSubjectTypeInSchoolClass(@Param("classId") Long classId,
+                                          @Param("subjectType") String subjectType);
 
     // teacher average, excluding grades from deactivated classes
     @Query("""
@@ -90,7 +88,7 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
            from Grade g
            join g.student st
            join st.schoolClass sc
-           where g.gradedBy.id = :teacherId
+           where g.teacher.id = :teacherId
              and sc.deactivated = false
              and g.value = :grade
            """)

@@ -19,33 +19,44 @@ public class SchoolClassController {
 
     private final SchoolClassService service;
 
+    // TODO not to check through id, but check the class name
+
+    // Create new school class
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
     public ResponseEntity<SchoolClassDtoResponse> create(@Valid @RequestBody SchoolClassDtoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createClass(req));
     }
 
+    // Change the head teacher of a particular class
     @PatchMapping("/{classId}/head/{teacherId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN') " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchoolClass(authentication, #classId))")
     public ResponseEntity<SchoolClassDtoResponse> changeHead(@PathVariable long classId, @PathVariable long teacherId) {
         return ResponseEntity.ok(service.changeHeadTeacher(classId, teacherId));
     }
 
+    // Get a particular school class
     @GetMapping("/{classId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER', 'TEACHER')")
+    @PreAuthorize("hasAuthority('ADMIN') " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchoolClass(authentication, #classId)) " +
+            "or (hasAuthority('TEACHER') and @authz.isTeacherOfSchoolClass(authentication, #classId))")
     public ResponseEntity<SchoolClassDtoResponse> show(@PathVariable long classId) {
         return ResponseEntity.ok(service.showSchoolClass(classId));
     }
-
+    // Get a list of all the current active classes in a particular school
     @GetMapping("/school/{schoolId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchool(authentication, #schoolId))")
     public ResponseEntity<Set<SchoolClassDtoResponse>> listActive(@PathVariable long schoolId) {
         return ResponseEntity.ok(service.showAllSchoolClassesInSchool(schoolId));
     }
 
+    // Deactivate a graduated class
     @PostMapping("/{classId}/deactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchoolClass(authentication, #classId))")
     public void deactivate(@PathVariable long classId) {
         service.deactivateClass(classId);
     }

@@ -21,7 +21,8 @@ public class AbsenceController {
 
     // Create a new absence
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
+    @PreAuthorize("(hasAuthority('TEACHER') and @authz.isTeacher(authentication, #request.teacherId)) " +
+            "or hasAuthority('ADMIN')")
     public ResponseEntity<AbsenceDtoResponse> create(@Valid @RequestBody AbsenceDtoRequest request) {
         AbsenceDtoResponse res = service.createAbsence(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
@@ -29,21 +30,28 @@ public class AbsenceController {
 
     // Show all absences logged by a particular teacher
     @GetMapping("/teacher/{teacherId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN') " +
+            "or (hasAuthority('TEACHER') and @authz.isTeacher(authentication, #teacherId)) " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfTeacher(authentication, #teacherId))")
     public Set<AbsenceDtoResponse> getForTeacher(@PathVariable long teacherId) {
         return service.viewAllAbsencesGivenByTeacher(teacherId);
     }
 
     // Show all absences of a particular student
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER', 'HEADMASTER')")
+    @PreAuthorize(" @authz.isStudent(authentication, #studentId) " +
+            "or (hasAuthority('PARENT') and @authz.isParentOfStudent(authentication, #studentId)) " +
+            "or hasAuthority('ADMIN') " +
+            "or hasAuthority('TEACHER') " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfStudent(authentication, #studentId))")
     public Set<AbsenceDtoResponse> getForStudent(@PathVariable long studentId) {
         return service.viewAllAbsencesForStudent(studentId);
     }
 
     // Excuse an absence
     @PatchMapping("/{absenceId}/excuse")
-    @PreAuthorize("hasAnyAuthority('ADMIN','HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN') " +
+            "or (hasAuthority('HEADMASTER') and @authz.canHeadmasterExcuseAbsence(authentication, #absenceId))")
     public void excuse(@PathVariable long absenceId) {
         service.excuseAbsence(absenceId);
     }

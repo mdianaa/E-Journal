@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface HeadmasterRepository extends JpaRepository<Headmaster, Long> {
 
+    Optional<Headmaster> findByUser_Email(String email);
+
     Optional<Headmaster> findBySchool_Id(Long schoolId);
 
     boolean existsBySchool_Id(Long schoolId);

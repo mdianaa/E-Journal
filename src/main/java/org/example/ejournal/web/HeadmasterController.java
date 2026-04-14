@@ -25,7 +25,7 @@ public class HeadmasterController {
 
     // Get all headmasters
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Set<HeadmasterDtoResponse> all() {
         return service.viewAllHeadmasters();
     }
@@ -33,7 +33,7 @@ public class HeadmasterController {
     // Remove a headmaster
     @DeleteMapping("/{headmasterId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(@PathVariable long headmasterId) {
         service.deleteHeadmaster(headmasterId);
     }

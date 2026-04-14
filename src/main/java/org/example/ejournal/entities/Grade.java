@@ -25,7 +25,7 @@ public class Grade extends BaseEntity {
     private Subject subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Teacher gradedBy;
+    private Teacher teacher;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Student student;

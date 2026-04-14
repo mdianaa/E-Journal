@@ -26,24 +26,28 @@ public class RegistrationController {
     private final RegistrationService registration;
 
     @PostMapping("/headmaster")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> createHeadmaster(@Valid @RequestBody HeadmasterDtoRequest req) {
         registration.createHeadmaster(req);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/teacher")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> createTeacher(@Valid @RequestBody TeacherDtoRequest req) {
         registration.createTeacher(req);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/student")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> createStudent(@Valid @RequestBody StudentDtoRequest req) {
         registration.createStudent(req);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/parent")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> createParent(@Valid @RequestBody ParentDtoRequest req) {
         registration.createParent(req);
         return ResponseEntity.status(HttpStatus.CREATED).build();

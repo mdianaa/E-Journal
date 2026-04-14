@@ -25,14 +25,21 @@ public class GradeAnalyticsServiceImpl implements GradeAnalyticsService {
 
     @Override
     @Transactional
-    public BigDecimal viewAverageGradeForSubject(long schoolId, String subjectType, String classNumber) {
+    public BigDecimal viewAverageGradeForSubject(long schoolId, String subjectType, Long schoolClassId) {
         checkIfSchoolExists(schoolRepository, schoolId);
 
-        schoolClassRepository.findActiveByClassNameAndSchoolId(classNumber, schoolId)
+        SchoolClass schoolClass = schoolClassRepository.findById(schoolClassId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Active class '" + classNumber + "' not found in school " + schoolId));
+                        "School class with id " + schoolClassId + " not found"));
 
-        Double avg = gradeRepository.avgForSubjectTypeInSchoolClass(schoolId, subjectType, classNumber);
+        // Ensure class belongs to the given school
+        if (!schoolClass.getSchool().getId().equals(schoolId)) {
+            throw new IllegalArgumentException(
+                    "School class " + schoolClassId + " does not belong to school " + schoolId);
+        }
+
+        Double avg = gradeRepository.avgForSubjectTypeInSchoolClass(schoolClassId, subjectType);
+
         return toScale(avg); // 2 decimals, HALF_UP, null -> 0.00
     }
 

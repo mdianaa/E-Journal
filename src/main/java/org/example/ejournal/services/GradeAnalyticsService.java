@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public interface GradeAnalyticsService {
 
     // средна аритметична оценка за текущия предмет за определени класове в дадено училище
-    BigDecimal viewAverageGradeForSubject(long schoolId, String subject, String classNumber);
+    BigDecimal viewAverageGradeForSubject(long schoolId, String subject, Long schoolClassId);
 
     // средна аритметична оценка за даден учител
     BigDecimal viewAverageGradeForTeacher(long teacherId);

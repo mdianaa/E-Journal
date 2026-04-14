@@ -19,17 +19,19 @@ public class TeacherScheduleController {
 
     private final TeacherScheduleService teacherScheduleService;
 
-    // Create or replace full schedule for a teacher (semester + shift)
+    // Create or replace full schedule for a teacher
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('HEADMASTER') and @authz.isHeadmasterOfTeacher(authentication, #request.teacherId)")
     public ResponseEntity<TeacherScheduleDtoResponse> createOrReplaceSchedule(@RequestBody @Valid TeacherScheduleDtoRequest request) {
         TeacherScheduleDtoResponse response = teacherScheduleService.createSchedule(request);
         return ResponseEntity.ok(response);
     }
 
-    // Get full weekly schedule for a particular teacher
+    // Get full weekly schedule for a particular teacher for a specific semester and shift
     @GetMapping("/{teacherId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('TEACHER') and @authz.isTeacher(authentication, #teacherId)")
     public ResponseEntity<TeacherScheduleDtoResponse> getSchedule(
             @PathVariable Long teacherId,
             @RequestParam String semester,
@@ -40,9 +42,10 @@ public class TeacherScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    // Get schedule only for one day for a particular teacher
+    // Get schedule only for one day for a particular teacher for a specific semester and shift
     @GetMapping("/{teacherId}/day")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('TEACHER') and @authz.isTeacher(authentication, #teacherId)")
     public ResponseEntity<Set<TeacherScheduleSlotDtoResponse>> getDailySchedule(
             @PathVariable Long teacherId,
             @RequestParam String semester,
@@ -54,9 +57,10 @@ public class TeacherScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    // Delete whole schedule (for semester + shift) for a particular teacher
+    // Delete whole schedule for a particular teacher for a specific semester and shift
     @DeleteMapping("/{teacherId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('HEADMASTER') and @authz.isHeadmasterOfTeacher(authentication, #teacherId)")
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long teacherId,
             @RequestParam String semester,

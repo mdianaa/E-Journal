@@ -21,7 +21,7 @@ public class GradeController {
 
     // Create a new grade
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
     public ResponseEntity<GradeDtoResponse> create(@Valid @RequestBody GradeDtoRequest request) {
         GradeDtoResponse res = service.createGrade(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
@@ -29,7 +29,11 @@ public class GradeController {
 
     // Show all grades of a student for a particular subject
     @GetMapping("/student/{studentId}/subject/{subjectId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER', 'PARENT', 'STUDENT')")
+    @PreAuthorize("(hasAuthority('STUDENT') and @authz.isStudent(authentication, #studentId)) " +
+            "or (hasAuthority('PARENT') and @authz.isParentOfStudent(authentication, #studentId)) " +
+            "or hasAuthority('ADMIN') " +
+            "or hasAuthority('TEACHER') " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfStudent(authentication, #studentId))")
     public Set<GradeDtoResponse> byStudentAndSubject(@PathVariable long studentId,
                                                      @PathVariable long subjectId) {
         return service.showAllStudentGradesForSubject(studentId, subjectId);
@@ -37,7 +41,11 @@ public class GradeController {
 
     // Show all grades of a student
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER', 'PARENT', 'STUDENT')")
+    @PreAuthorize("(hasAuthority('STUDENT') and @authz.isStudent(authentication, #studentId)) " +
+            "or (hasAuthority('PARENT') and @authz.isParentOfStudent(authentication, #studentId)) " +
+            "or hasAuthority('ADMIN') " +
+            "or hasAuthority('TEACHER') " +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfStudent(authentication, #studentId))")
     public Set<GradeDtoResponse> byStudent(@PathVariable long studentId) {
         return service.showAllStudentGrades(studentId);
     }

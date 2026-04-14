@@ -18,7 +18,9 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Optional<Student> findByUser_Id(Long userId);
 
-    Optional<Student> findByUser_EmailIgnoreCase(String email);
+    Optional<Student> findByUser_Email(String email);
+
+    boolean existsByParent_IdAndSchoolClass_Id(Long parentId, Long schoolClassId);
 
     @Query("select s from Student s where s.school.id = :schoolId")
     Set<Student> findAllBySchoolId(@Param("schoolId") Long schoolId);

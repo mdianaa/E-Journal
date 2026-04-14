@@ -14,7 +14,7 @@ import java.util.Set;
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, Long> {
 
-    Optional<Parent> findByUser_EmailIgnoreCase(String email);
+    Optional<Parent> findByUser_Email(String email);
 
     // Find parent for a specific student (if Student has parent field)
     @Query("""

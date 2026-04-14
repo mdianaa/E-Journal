@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Long> {
 
-    Optional<Teacher> findByUser_EmailIgnoreCase(String email);
+    Optional<Teacher> findByUser_Email(String email);
 
     // Find teachers in a school who teach a specific subject
     @Query("""
@@ -37,6 +37,8 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     Set<Teacher> findAllBySchool_Id(Long schoolId);
 
     Set<Teacher> findAllBySchool_IdAndHeadTeacherTrue(Long schoolId);
+
+    boolean existsByIdAndSchool_Id(Long teacherId, Long schoolId);
 
     @Query("""
            select t from Teacher t

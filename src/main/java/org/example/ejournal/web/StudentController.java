@@ -22,20 +22,23 @@ public class StudentController {
     // Get a particular student
     @GetMapping("/{username}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'PARENT', 'TEACHER', 'STUDENT', 'HEADMASTER')")
-    public ResponseEntity<StudentDtoResponse> me(@Valid @PathVariable String username) {
+    public ResponseEntity<StudentDtoResponse> show(@Valid @PathVariable String username) {
         return ResponseEntity.ok(studentService.viewStudent(username));
     }
 
     // Get all students in a particular school
     @GetMapping("/school/{schoolId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchool(authentication, #schoolId)")
     public ResponseEntity<Set<StudentDtoResponse>> listBySchool(@PathVariable long schoolId) {
         return ResponseEntity.ok(studentService.viewAllStudentsInSchool(schoolId));
     }
 
     // Get all students in a particular class
     @GetMapping("/class/{classId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER', 'TEACHER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or (hasAuthority('HEADMASTER') and @authz.isHeadmasterOfSchoolClass(authentication, #classId)) " +
+            "or (hasAuthority('TEACHER') and @authz.isTeacherOfSchoolClass(authentication, #classId))")
     public ResponseEntity<Set<StudentDtoResponse>> listByClass(@PathVariable long classId) {
         return ResponseEntity.ok(studentService.viewAllStudentsInClass(classId));
     }
@@ -43,7 +46,8 @@ public class StudentController {
     // Withdraw a student from school without deleting him/her from db
     @PostMapping("/{studentId}/withdraw")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'HEADMASTER')")
+    @PreAuthorize("hasAuthority('ADMIN')" +
+            "or hasAuthority('HEADMASTER') and @authz.isHeadmasterOfStudent(authentication, #studentId)")
     public void withdraw(@PathVariable long studentId) {
         studentService.withdrawStudent(studentId);
     }
@@ -51,7 +55,7 @@ public class StudentController {
     // Delete a student
     @DeleteMapping("/{studentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(@PathVariable long studentId) {
         studentService.deleteStudent(studentId);
     }

@@ -12,4 +12,8 @@ public interface BadNoteRepository extends JpaRepository<BadNote, Long> {
     Set<BadNote> findAllByStudent_IdOrderByDayDesc(long studentId);
 
     Set<BadNote> findAllByTeacher_IdOrderByDayDesc(long teacherId);
+
+    boolean existsByIdAndStudent_School_Id(Long badNoteId, Long schoolId);
+
+    long countByStudent_Id(Long studentId);
 }

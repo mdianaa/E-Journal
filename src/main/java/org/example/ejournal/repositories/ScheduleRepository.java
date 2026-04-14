@@ -15,6 +15,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     Optional<Schedule> findBySchoolClass_Id(Long schoolClassId);
 
+    boolean existsByIdAndSchoolClass_School_Id(Long scheduleId, Long schoolId);
+
     Optional<Schedule> findBySchoolClass_IdAndSemesterIgnoreCaseAndShiftIgnoreCase(
             Long schoolClassId, String semester, String shift);
 

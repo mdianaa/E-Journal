@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/school")
 @RequiredArgsConstructor
+@RequestMapping("/school")
 public class SchoolController {
 
     private final SchoolService schoolService;
 
     // Create a new school
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<SchoolDtoResponse> create(@Valid @RequestBody SchoolDtoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(schoolService.createSchool(req));
     }
@@ -35,14 +35,14 @@ public class SchoolController {
 
     // Get all the schools
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'PARENT', 'STUDENT')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'PARENT', 'STUDENT', 'TEACHER')")
     public ResponseEntity<Set<SchoolDtoResponse>> list() {
         return ResponseEntity.ok(schoolService.viewAllSchools());
     }
 
     // Delete school
     @DeleteMapping("/{schoolId}")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long schoolId) {
         schoolService.deleteSchool(schoolId);
